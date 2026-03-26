@@ -1,5 +1,6 @@
 import { projects } from '../data/karthik.js'
 import { panelStyle, headerStyle, labelStyle, closeStyle, sectionLabel } from './HubPanel.jsx'
+import { colors, typography } from '../design-tokens.js'
 
 /**
  * ProjectsPanel — Projects as interactive DAG nodes
@@ -8,84 +9,81 @@ export default function ProjectsPanel({ onClose }) {
   return (
     <div className="panel-animate" style={panelStyle}>
       <div style={headerStyle}>
-        <span style={labelStyle}>[ GRAPH: PROJECTS ]</span>
-        <button onClick={onClose} style={closeStyle}>✕</button>
+        <span style={labelStyle}>
+          <div style={{ width: 6, height: 6, borderRadius: '50%', background: colors.violet, boxShadow: `0 0 8px ${colors.violet}90` }} />
+          PROJECTS PORTFOLIO
+        </span>
+        <button
+          onClick={onClose}
+          style={closeStyle}
+          onMouseOver={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = colors.neutral[100]; }}
+          onMouseOut={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; e.currentTarget.style.color = colors.neutral[300]; }}
+        >✕</button>
       </div>
 
       <div className="panel-scroll" style={{ paddingRight: '12px' }}>
         {projects.map((project, index) => (
-          <div key={project.id} style={{ 
-            marginBottom: index === projects.length - 1 ? 0 : '40px', 
-            paddingBottom: index === projects.length - 1 ? 0 : '24px', 
-            borderBottom: index === projects.length - 1 ? 'none' : '1px dashed rgba(139,92,246,0.2)' 
+          <div key={project.id} style={{
+            marginBottom: index === projects.length - 1 ? 0 : '48px',
+            paddingBottom: index === projects.length - 1 ? 0 : '32px',
+            borderBottom: index === projects.length - 1 ? 'none' : `1px solid ${colors.neutral[700]}60`
           }}>
-            <div style={{ marginBottom: '20px' }}>
+            <div style={{ marginBottom: '24px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px' }}>
                 <div>
-                  <div style={{
-                    fontFamily: 'JetBrains Mono, monospace',
-                    fontSize: '15px',
-                    fontWeight: 600,
-                    color: '#8b5cf6',
-                    textShadow: '0 0 12px rgba(139,92,246,0.4)',
+                  <h2 style={{
+                    fontFamily: typography.fontSans,
+                    fontSize: '20px',
+                    fontWeight: 700,
+                    color: colors.neutral[100],
+                    letterSpacing: '-0.02em',
+                    margin: 0,
                   }}>
                     {project.name}
-                  </div>
+                  </h2>
                   <div style={{
-                    fontFamily: 'Inter, sans-serif',
-                    fontSize: '11px',
-                    color: '#3d6b7a',
-                    marginTop: '2px',
+                    fontFamily: typography.fontSans,
+                    fontSize: '13px',
+                    fontWeight: 500,
+                    color: colors.violet,
+                    marginTop: '4px',
+                    letterSpacing: '0.05em',
                   }}>
                     {project.subtitle}
                   </div>
                 </div>
                 {project.link && (
                   <a href={project.link} target="_blank" rel="noreferrer" style={{
-                    fontFamily: 'JetBrains Mono, monospace', fontSize: '10px',
-                    color: '#00d4ff', border: '1px solid rgba(0,212,255,0.3)',
-                    padding: '4px 8px', borderRadius: '3px', textDecoration: 'none',
-                    background: 'rgba(0,212,255,0.05)', whiteSpace: 'nowrap',
+                    display: 'inline-flex', alignItems: 'center', gap: '6px',
+                    fontFamily: typography.fontSans, fontSize: '11px', fontWeight: 600, letterSpacing: '0.05em',
+                    color: colors.emerald, border: `1px solid ${colors.emerald}40`,
+                    padding: '6px 12px', borderRadius: '20px', textDecoration: 'none',
+                    background: `${colors.emerald}15`, whiteSpace: 'nowrap',
                     transition: 'all 0.2s ease',
-                  }}>
-                    [ LIVE ENV ]
+                  }}
+                  onMouseOver={e => e.currentTarget.style.background = `${colors.emerald}28`}
+                  onMouseOut={e => e.currentTarget.style.background = `${colors.emerald}15`}
+                  >
+                    <span style={{ width: 6, height: 6, borderRadius: '50%', background: colors.emerald }} />
+                    LIVE VIEW
                   </a>
                 )}
               </div>
             </div>
 
             {/* DAG visualization */}
-            <div style={sectionLabel}>dag_graph[]</div>
+            <div style={sectionLabel}>Architecture DAG</div>
             <DagVisualization project={project} />
 
-            <div style={{
-              fontFamily: 'Inter, sans-serif',
-              fontSize: '12px',
-              color: '#7ab3cc',
-              lineHeight: 1.7,
-              margin: '20px 0',
-              padding: '12px',
-              border: '1px solid rgba(139,92,246,0.15)',
-              borderRadius: '4px',
-              background: 'rgba(139,92,246,0.04)',
-              borderLeft: '3px solid rgba(139,92,246,0.5)',
-            }}>
+            <div style={sectionLabel}>Description</div>
+            <div className="text-body" style={{ margin: '0 0 24px 0' }}>
               {project.description}
             </div>
 
-            <div style={sectionLabel}>tech_stack[]</div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-              {project.stack.map((tech, i) => (
-                <span key={tech} style={{
-                  display: 'inline-block',
-                  padding: '4px 10px',
-                  borderRadius: '3px',
-                  fontFamily: 'JetBrains Mono, monospace',
-                  fontSize: '10px',
-                  border: `1px solid ${project.stackColors[i] || '#8b5cf6'}55`,
-                  color: project.stackColors[i] || '#c4b5fd',
-                  background: `${project.stackColors[i] || '#8b5cf6'}12`,
-                }}>
+            <div style={sectionLabel}>Technology Stack</div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+              {project.stack.map((tech) => (
+                <span key={tech} className="chip" style={{ color: colors.neutral[100] }}>
                   {tech}
                 </span>
               ))}
@@ -101,7 +99,6 @@ function DagVisualization({ project }) {
   const canvasW = 440
   const canvasH = 140
 
-  // Layout positions scaled to canvas
   const nodeMap = {}
   project.dag.forEach(n => {
     nodeMap[n.id] = {
@@ -116,10 +113,10 @@ function DagVisualization({ project }) {
       width="100%"
       viewBox={`0 0 ${canvasW} ${canvasH}`}
       style={{
-        marginBottom: '8px',
-        border: '1px solid rgba(139,92,246,0.15)',
-        borderRadius: '4px',
-        background: 'rgba(139,92,246,0.03)',
+        marginBottom: '24px',
+        border: `1px solid ${colors.neutral[700]}40`,
+        borderRadius: '8px',
+        background: 'rgba(255,255,255,0.01)',
         overflow: 'visible',
       }}
     >
@@ -133,12 +130,11 @@ function DagVisualization({ project }) {
             <line
               x1={f.x} y1={f.y}
               x2={t.x} y2={t.y}
-              stroke="rgba(139,92,246,0.35)"
-              strokeWidth="1"
-              strokeDasharray="4 3"
+              stroke={`${colors.neutral[600]}`}
+              strokeWidth="1.5"
+              strokeDasharray="4 4"
             />
-            {/* Arrow */}
-            <circle cx={t.x} cy={t.y} r="2" fill="rgba(139,92,246,0.6)" />
+            <circle cx={t.x} cy={t.y} r="3" fill={`${colors.neutral[400]}`} />
           </g>
         )
       })}
@@ -147,19 +143,21 @@ function DagVisualization({ project }) {
       {project.dag.map(n => {
         const pos = nodeMap[n.id]
         if (!pos) return null
-        const isSource = n.id.startsWith('source')
-        const isSink = n.id === 'delta' || n.id === 'dashboard'
-        const color = isSource ? '#f59e0b' : isSink ? '#0af5a0' : '#8b5cf6'
+        const isSource = n.id.startsWith('source') || n.id === 'api'
+        const isSink = n.id === 'delta' || n.id === 'dashboard' || n.id === 'ui'
+        const color = isSource ? colors.amber : isSink ? colors.emerald : colors.accent
+
         return (
           <g key={n.id} transform={`translate(${pos.x}, ${pos.y})`}>
-            <circle r="8" fill={`${color}22`} stroke={color} strokeWidth="1" />
-            <circle r="3" fill={color} />
+            <circle r="10" fill={`${color}20`} stroke={color} strokeWidth="1.5" />
+            <circle r="4" fill={color} />
             <text
-              y="20"
+              y="24"
               textAnchor="middle"
-              fill="#7ab3cc"
-              fontSize="8"
-              fontFamily="JetBrains Mono, monospace"
+              fill={colors.neutral[300]}
+              fontSize="10"
+              fontFamily="Inter, sans-serif"
+              fontWeight="500"
             >
               {pos.label.length > 14 ? pos.label.slice(0, 12) + '…' : pos.label}
             </text>

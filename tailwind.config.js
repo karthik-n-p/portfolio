@@ -7,26 +7,22 @@ export default {
   theme: {
     extend: {
       colors: {
-        base: '#050a0e',
-        surface: '#0a1520',
-        border: '#0d2a3a',
-        cyan: {
-          DEFAULT: '#00d4ff',
-          dim: '#0088cc',
-          muted: '#004466',
-        },
+        base:     '#0A0A0F',
+        surface:  '#111118',
+        elevated: '#18181F',
+        card:     '#1E1E26',
+        border:   '#2A2A35',
+        accent:   '#6366F1',
+        emerald:  '#34D399',
+        violet:   '#8B5CF6',
+        amber:    '#FBBF24',
+        rose:     '#FB7185',
         text: {
-          primary: '#e8f4f8',
-          secondary: '#7ab3cc',
-          dim: '#3d6b7a',
+          primary:   '#EDEDED',
+          secondary: '#A1A1AA',
+          dim:       '#52525B',
+          muted:     '#71717A',
         },
-        node: {
-          hub: '#00d4ff',
-          pipeline: '#0af5a0',
-          projects: '#8b5cf6',
-          skills: '#f59e0b',
-          certs: '#f43f5e',
-        }
       },
       fontFamily: {
         mono: ['JetBrains Mono', 'monospace'],
