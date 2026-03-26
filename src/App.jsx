@@ -7,6 +7,8 @@ import ProjectsPanel from './ui/ProjectsPanel.jsx'
 import SkillsPanel from './ui/SkillsPanel.jsx'
 import CertsPanel from './ui/CertsPanel.jsx'
 import EducationPanel from './ui/EducationPanel.jsx'
+import ConnectPanel from './ui/ConnectPanel.jsx'
+import { colors } from './design-tokens.js'
 
 /**
  * App — Root component
@@ -21,15 +23,23 @@ const PANELS = {
   skills:    SkillsPanel,
   certs:     CertsPanel,
   education: EducationPanel,
+  connect:   ConnectPanel,
 }
 
 const NAV_NODES = [
-  { key: 'hub',       label: 'HUB',    color: '#00d4ff' },
-  { key: 'pipeline',  label: 'EXP',    color: '#0af5a0' },
-  { key: 'projects',  label: 'PROJ',   color: '#8b5cf6' },
-  { key: 'skills',    label: 'SKILLS', color: '#f59e0b' },
-  { key: 'certs',     label: 'CERTS',  color: '#f43f5e' },
-  { key: 'education', label: 'EDU',    color: '#e879f9' },
+  { key: 'hub',       label: 'HUB',     color: colors.section.hub },
+  { key: 'pipeline',  label: 'EXP',     color: colors.section.pipeline },
+  { key: 'projects',  label: 'PROJ',    color: colors.section.projects },
+  { key: 'skills',    label: 'SKILLS',  color: colors.section.skills },
+  { key: 'certs',     label: 'CERTS',   color: colors.section.certs },
+  { key: 'education', label: 'EDU',     color: colors.section.education },
+  { key: 'connect',   label: 'CONNECT', color: colors.section.connect },
+]
+
+const ROLES = [
+  'DATA ENGINEER',
+  'HOBBYIST WEB DEVELOPER',
+  'PRODUCT BUILDER'
 ]
 
 export default function App() {
@@ -37,6 +47,35 @@ export default function App() {
   const [gestureMode, setGestureMode] = useState(false)
   const [gestureState, setGestureState] = useState('normal')
   const [handPosition, setHandPosition] = useState(null)
+
+  // Typography animation state
+  const [roleIndex, setRoleIndex] = useState(0)
+  const [currentText, setCurrentText] = useState('')
+  const [isDeleting, setIsDeleting] = useState(false)
+
+  useEffect(() => {
+    const fullText = ROLES[roleIndex]
+    let timer
+
+    if (isDeleting) {
+      timer = setTimeout(() => {
+        setCurrentText(fullText.substring(0, currentText.length - 1))
+        if (currentText.length <= 1) {
+          setIsDeleting(false)
+          setRoleIndex(i => (i + 1) % ROLES.length)
+        }
+      }, 40)
+    } else {
+      if (currentText === fullText) {
+        timer = setTimeout(() => setIsDeleting(true), 2500)
+      } else {
+        timer = setTimeout(() => {
+          setCurrentText(fullText.substring(0, currentText.length + 1))
+        }, 90)
+      }
+    }
+    return () => clearTimeout(timer)
+  }, [currentText, isDeleting, roleIndex])
 
   // Stable ref for activeNode to prevent handleNavigate from changing identity
   const activeNodeRef = useRef(activeNode)
@@ -52,16 +91,13 @@ export default function App() {
 
   const handleNavigate = useCallback((dir) => {
     const idx = NAV_NODES.findIndex(n => n.key === activeNodeRef.current)
-    if (dir === 'swipeR') {
+    if (dir === 'next') {
       const next = NAV_NODES[(idx + 1) % NAV_NODES.length]
       setActiveNode(next.key)
-    } else if (dir === 'swipeL') {
-      const prev = NAV_NODES[(idx - 1 + NAV_NODES.length) % NAV_NODES.length]
-      setActiveNode(prev.key)
     } else if (dir === 'home') {
       setActiveNode(null)
     }
-  }, []) // stable — reads activeNode from ref
+  }, [])
 
   const handleHandPosition = useCallback((pos) => {
     setHandPosition(pos)
@@ -70,19 +106,32 @@ export default function App() {
   const ActivePanel = activeNode ? PANELS[activeNode] : null
 
   return (
-    <div style={{ width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden', background: '#050a0e' }}>
-      {/* Scanline overlay */}
-      <div className="scanline" />
-
+    <div style={{ width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden', background: colors.neutral[950] }}>
       {/* Three.js scene */}
       <SceneCanvas
-        onNodeSelect={handleNodeSelect}
         gestureState={gestureState}
         activeNode={activeNode}
         handPosition={handPosition}
       />
 
-      {/* Top-left branding removed as requested */}
+      {/* Freelance Badge */}
+      <div style={{
+        position: 'fixed', top: '24px', left: '24px', zIndex: 100,
+        display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'flex-start'
+      }}>
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: '8px',
+          padding: '6px 12px', borderRadius: '20px',
+          background: `${colors.emerald}15`,
+          border: `1px solid ${colors.emerald}40`,
+          color: colors.emerald,
+          fontFamily: "'Inter', sans-serif", fontSize: '11px', fontWeight: 600,
+          backdropFilter: 'blur(8px)'
+        }}>
+          <div style={{ width: 6, height: 6, borderRadius: '50%', background: colors.emerald, boxShadow: `0 0 8px ${colors.emerald}` }} className="cursor-blink" />
+          AVAILABLE FOR FREELANCE
+        </div>
+      </div>
 
       {/* Node navigation — bottom center */}
       <nav style={{
@@ -95,90 +144,114 @@ export default function App() {
         flexWrap: 'wrap',
         justifyContent: 'center',
         gap: '6px',
-        padding: '8px 12px',
+        padding: '10px 14px',
         width: 'max-content',
-        maxWidth: '90vw',
-        border: '1px solid rgba(0,212,255,0.15)',
-        borderRadius: '6px',
-        background: 'rgba(5,10,14,0.8)',
-        backdropFilter: 'blur(16px)',
+        maxWidth: '94vw',
+        border: `1px solid ${colors.neutral[700]}60`,
+        borderRadius: '12px',
+        background: 'rgba(14,14,20,0.85)',
+        backdropFilter: 'blur(20px)',
+        boxShadow: '0 10px 30px rgba(0,0,0,0.5)'
       }}>
         {NAV_NODES.map(({ key, label, color }) => (
           <button
             key={key}
+            id={`nav-${key}`}
             onClick={() => handleNodeSelect(key)}
+            className="nav-btn"
             style={{
-              padding: '6px 12px',
-              border: `1px solid ${activeNode === key ? color : 'rgba(0,212,255,0.12)'}`,
-              borderRadius: '3px',
-              background: activeNode === key ? `${color}18` : 'transparent',
-              color: activeNode === key ? color : '#3d6b7a',
-              fontFamily: 'JetBrains Mono, monospace',
-              fontSize: '9px',
+              padding: '8px 14px',
+              border: `1px solid ${activeNode === key ? color : 'transparent'}`,
+              borderRadius: '6px',
+              background: activeNode === key ? `${color}18` : 'rgba(255,255,255,0.03)',
+              color: activeNode === key ? color : colors.neutral[300],
+              fontFamily: "'Inter', sans-serif",
+              fontSize: '11px',
+              fontWeight: 600,
               cursor: 'pointer',
-              letterSpacing: '0.1em',
-              transition: 'all 0.2s ease',
-              boxShadow: activeNode === key ? `0 0 12px ${color}30` : 'none',
+              letterSpacing: '0.05em',
+              transition: 'all 0.2s cubic-bezier(0.16,1,0.3,1)',
+              position: 'relative',
             }}
             onMouseEnter={e => {
               if (activeNode !== key) {
-                e.currentTarget.style.color = color
-                e.currentTarget.style.borderColor = `${color}40`
+                e.currentTarget.style.color = colors.neutral[100]
+                e.currentTarget.style.background = 'rgba(255,255,255,0.07)'
               }
             }}
             onMouseLeave={e => {
               if (activeNode !== key) {
-                e.currentTarget.style.color = '#3d6b7a'
-                e.currentTarget.style.borderColor = 'rgba(0,212,255,0.12)'
+                e.currentTarget.style.color = colors.neutral[300]
+                e.currentTarget.style.background = 'rgba(255,255,255,0.03)'
               }
             }}
           >
             {label}
+            {activeNode === key && (
+              <div style={{
+                position: 'absolute', bottom: '2px', left: '50%', transform: 'translateX(-50%)',
+                width: '16px', height: '2px', borderRadius: '1px',
+                background: color, transition: 'all 0.3s ease',
+              }} />
+            )}
           </button>
         ))}
       </nav>
 
-      {/* Hint text — when no panel active */}
+      {/* Hero — when no panel active */}
       {!activeNode && (
         <div style={{
           position: 'fixed',
           top: '50%',
           left: '50%',
           transform: 'translate(-50%, -50%)',
-          textAlign: 'center',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
           pointerEvents: 'none',
           userSelect: 'none',
           zIndex: 10,
         }}>
-          <div style={{
-            fontFamily: 'JetBrains Mono, monospace',
-            fontSize: 'clamp(28px, 5vw, 52px)',
-            fontWeight: 700,
-            color: '#00d4ff',
-            textShadow: '0 0 30px rgba(0,212,255,0.5), 0 0 60px rgba(0,212,255,0.2)',
-            letterSpacing: '0.12em',
-            lineHeight: 1.1,
-            marginBottom: '8px',
+          <div className="text-display" style={{
+            color: colors.neutral[50],
+            marginBottom: '16px',
+            textShadow: '0 8px 32px rgba(255,255,255,0.04)'
           }}>
             KARTHIK NP
           </div>
           <div style={{
-            fontFamily: 'JetBrains Mono, monospace',
-            fontSize: 'clamp(10px, 1.5vw, 14px)',
-            color: '#7ab3cc',
-            letterSpacing: '0.3em',
-            marginBottom: '4px',
+            fontFamily: "'Inter', sans-serif",
+            fontSize: 'clamp(12px, 2.5vw, 15px)',
+            fontWeight: 600,
+            color: colors.accent,
+            letterSpacing: '0.35em',
+            textTransform: 'uppercase',
+            marginBottom: '32px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: '24px'
           }}>
-            DATA ENGINEER
+            {currentText}
+            <span style={{
+              display: 'inline-block',
+              width: '3px',
+              height: '1.1em',
+              backgroundColor: colors.accent,
+              marginLeft: '6px',
+            }} className="cursor-blink" />
           </div>
+
+          {/* Subtle separator line */}
           <div style={{
-            fontFamily: 'JetBrains Mono, monospace',
-            fontSize: '10px',
-            color: '#1d4060',
-            letterSpacing: '0.18em',
-            marginTop: '16px',
-          }}>
-            CLICK A NODE OR USE THE NAV BELOW
+            width: '40px',
+            height: '2px',
+            background: `linear-gradient(90deg, transparent, ${colors.neutral[600]}, transparent)`,
+            marginBottom: '24px'
+          }} />
+
+          <div className="text-micro" style={{ textTransform: 'uppercase' }}>
+            Select a section to explore
           </div>
         </div>
       )}
@@ -196,22 +269,24 @@ export default function App() {
         />
       )}
 
-      {/* Floating panel — sits above click-blocker */}
+      {/* Floating panel wrapper */}
       {ActivePanel && (
         <div style={{
           position: 'fixed',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
+          inset: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
           zIndex: 82,
-          maxHeight: '85vh',
-          pointerEvents: 'all',
+          pointerEvents: 'none',
         }}>
-          <ActivePanel onClose={() => setActiveNode(null)} />
+          <div style={{ pointerEvents: 'all' }}>
+            <ActivePanel onClose={() => setActiveNode(null)} />
+          </div>
         </div>
       )}
 
-      {/* Gesture overlay (toggle + video + overlay) */}
+      {/* Gesture overlay */}
       <GestureOverlay
         enabled={gestureMode}
         onToggle={() => setGestureMode(prev => !prev)}

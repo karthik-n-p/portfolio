@@ -2,26 +2,30 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 
 /**
  * GestureEngine — MediaPipe Hands integration
- * Detects: Closed Fist, Open Palm
- * Tracks: Hand position (palm center)
- * Particles follow the hand and respond to fist/open gestures.
  *
- * Gestures:
- *   fist   → particles converge toward hand position
- *   open   → particles spread from hand position
- *   move   → particles follow hand position
+ * Finger-count gesture mapping (stable, no velocity-based swipe):
+ *   0 fingers (fist)   → converge particles toward hand
+ *   5 fingers (open)   → scatter particles from hand
+ *   1 finger  (point)  → gentle focus/follow mode
+ *   2 fingers (peace)  → navigate to next section (held 0.4s)
+ *   3 fingers          → return to home (held 0.4s)
+ *
+ * Hand position always tracked for particle influence.
  */
 
 const GESTURE_LABELS = {
-  fist:   '✊ Fist — Converge',
-  open:   '🖐 Open — Expand',
-  idle:   '...',
+  fist:  '✊ Fist — Converge',
+  open:  '🖐 Open — Scatter',
+  point: '☝ Point — Focus',
+  peace: '✌ Peace — Next',
+  three: '🤟 Three — Home',
+  idle:  '...',
 }
 
-function classifyHand(landmarks) {
+function countRaisedFingers(landmarks) {
   const wrist = landmarks[0]
   const mcpList = [landmarks[5], landmarks[9], landmarks[13], landmarks[17]]
-  
+
   // palmSize = avg distance from wrist to knuckles
   let palmSize = 0
   for (const mcp of mcpList) {
@@ -29,25 +33,41 @@ function classifyHand(landmarks) {
   }
   palmSize /= 4
 
-  // Check how many fingers are "closed"
-  const tips = [landmarks[8], landmarks[12], landmarks[16], landmarks[20]]
-  let closedCount = 0
-  tips.forEach(tip => {
-    const distToWrist = Math.hypot(tip.x - wrist.x, tip.y - wrist.y)
-    if (distToWrist < palmSize * 1.2) {
-      closedCount++
-    }
-  })
+  const tips = [
+    { tip: landmarks[4],  idx: 4 },  // thumb
+    { tip: landmarks[8],  idx: 8 },  // index
+    { tip: landmarks[12], idx: 12 }, // middle
+    { tip: landmarks[16], idx: 16 }, // ring
+    { tip: landmarks[20], idx: 20 }, // pinky
+  ]
 
-  if (closedCount >= 3) return 'fist'
-  if (closedCount <= 1) return 'open'
-  
+  let raised = 0
+  const raisedFlags = []
+  for (const { tip, idx } of tips) {
+    const distToWrist = Math.hypot(tip.x - wrist.x, tip.y - wrist.y)
+    const isRaised = distToWrist > palmSize * 1.25
+    raisedFlags.push(isRaised)
+    if (isRaised) raised++
+  }
+
+  return { count: raised, flags: raisedFlags }
+}
+
+function classifyGesture(landmarks) {
+  const { count, flags } = countRaisedFingers(landmarks)
+  // flags: [thumb, index, middle, ring, pinky]
+
+  if (count <= 0) return 'fist'
+  if (count >= 5) return 'open'
+  if (count === 1 && flags[1]) return 'point'  // only index raised
+  if (count === 2 && flags[1] && flags[2]) return 'peace'  // index + middle
+  if (count === 3 && flags[1] && flags[2] && flags[3]) return 'three'  // index + middle + ring
+
   return 'idle'
 }
 
-// Compute palm center from landmarks (average of wrist + MCP joints)
 function getPalmCenter(landmarks) {
-  const indices = [0, 5, 9, 13, 17] // wrist + 4 MCP knuckles
+  const indices = [0, 5, 9, 13, 17]
   let cx = 0, cy = 0
   for (const idx of indices) {
     cx += landmarks[idx].x
@@ -55,8 +75,6 @@ function getPalmCenter(landmarks) {
   }
   cx /= indices.length
   cy /= indices.length
-  // Convert from [0,1] range to normalized device coords [-1,1]
-  // MediaPipe x is mirrored, so we flip it
   return { x: -(cx * 2 - 1), y: -(cy * 2 - 1) }
 }
 
@@ -68,9 +86,9 @@ export function useGestureEngine({ enabled, onGesture, onNavigate, onHandPositio
   const [gestureLabel, setGestureLabel] = useState('idle')
   const [handVisible, setHandVisible] = useState(false)
 
-  // Tracking for swipe velocity
-  const prevPosRef = useRef(null)
-  const lastTimeRef = useRef(0)
+  // Hold detection for peace/three
+  const holdGestureRef = useRef(null)
+  const holdTimerRef = useRef(null)
   const navigateCooldown = useRef(false)
 
   // Stable refs for callbacks
@@ -92,65 +110,20 @@ export function useGestureEngine({ enabled, onGesture, onNavigate, onHandPositio
       onGestureRef.current('normal')
       onHandPositionRef.current?.(null)
       setGestureLabel('idle')
+      // Clear any hold
+      holdGestureRef.current = null
+      clearTimeout(holdTimerRef.current)
       return
     }
 
     setHandVisible(true)
     const landmarks = results.multiHandLandmarks[0]
 
-    // --- Track hand position and velocity for swipe ---
+    // Track hand position
     const palmPos = getPalmCenter(landmarks)
     onHandPositionRef.current?.(palmPos)
 
-    const now = performance.now()
-    if (prevPosRef.current && !navigateCooldown.current) {
-      const dt = now - lastTimeRef.current
-      if (dt > 0 && dt < 100) { // ensure consistent framerate
-        const vX = (palmPos.x - prevPosRef.current.x) / dt
-        const vY = (palmPos.y - prevPosRef.current.y) / dt
-
-        const flickThresholdX = 0.0035
-        const flickThresholdY = 0.004
-
-        let swipeDir = null
-        if (vX > flickThresholdX) swipeDir = 'swipeR'
-        else if (vX < -flickThresholdX) swipeDir = 'swipeL'
-        else if (vY > flickThresholdY) swipeDir = 'home'
-
-        if (swipeDir) {
-          onNavigateRef.current?.(swipeDir)
-          navigateCooldown.current = true
-          setTimeout(() => { navigateCooldown.current = false }, 800)
-        }
-      }
-    }
-    prevPosRef.current = palmPos
-    lastTimeRef.current = now
-
-    // Draw hand skeleton (minimal)
-    ctx.strokeStyle = 'rgba(0, 212, 255, 0.5)'
-    ctx.lineWidth = 1.5
-    const connections = window.HAND_CONNECTIONS || []
-    for (const [a, b] of connections) {
-      if (landmarks[a] && landmarks[b]) {
-        ctx.beginPath()
-        ctx.moveTo(landmarks[a].x * canvas.width, landmarks[a].y * canvas.height)
-        ctx.lineTo(landmarks[b].x * canvas.width, landmarks[b].y * canvas.height)
-        ctx.stroke()
-      }
-    }
-
-    // Draw all non-tip landmarks
-    ctx.fillStyle = 'rgba(0, 212, 255, 0.6)'
-    landmarks.forEach((lm, idx) => {
-      if (![4, 8, 12, 16, 20].includes(idx)) {
-        ctx.beginPath()
-        ctx.arc(lm.x * canvas.width, lm.y * canvas.height, 2.5, 0, Math.PI * 2)
-        ctx.fill()
-      }
-    })
-
-    // Draw fingertips with color coding (Green = Raised, Red = Folded)
+    // Draw dots at joints only (no skeleton lines)
     const wristNode = landmarks[0]
     let pSize = 0
     ;[landmarks[5], landmarks[9], landmarks[13], landmarks[17]].forEach(mcp => {
@@ -158,31 +131,70 @@ export function useGestureEngine({ enabled, onGesture, onNavigate, onHandPositio
     })
     pSize /= 4
 
+    // Draw joint dots
+    ctx.fillStyle = 'rgba(99, 102, 241, 0.4)'
+    landmarks.forEach((lm, idx) => {
+      if (![4, 8, 12, 16, 20].includes(idx)) {
+        ctx.beginPath()
+        ctx.arc(lm.x * canvas.width, lm.y * canvas.height, 2, 0, Math.PI * 2)
+        ctx.fill()
+      }
+    })
+
+    // Fingertips with color coding
     ;[4, 8, 12, 16, 20].forEach(tipIdx => {
       const tip = landmarks[tipIdx]
       const dist = Math.hypot(tip.x - wristNode.x, tip.y - wristNode.y)
       const isRaised = dist > pSize * 1.25
-      
-      ctx.fillStyle = isRaised ? '#0af5a0' : '#f43f5e'
+      ctx.fillStyle = isRaised ? '#34D399' : '#FB7185'
       ctx.beginPath()
-      ctx.arc(tip.x * canvas.width, tip.y * canvas.height, 4, 0, Math.PI * 2)
+      ctx.arc(tip.x * canvas.width, tip.y * canvas.height, 3.5, 0, Math.PI * 2)
       ctx.fill()
     })
 
-    // Classify gesture (fist or open only)
-    const gesture = classifyHand(landmarks)
+    // Classify gesture
+    const gesture = classifyGesture(landmarks)
 
-    if (gesture === 'fist') {
+    // Handle navigation gestures with hold confirmation
+    if ((gesture === 'peace' || gesture === 'three') && !navigateCooldown.current) {
+      if (holdGestureRef.current !== gesture) {
+        holdGestureRef.current = gesture
+        clearTimeout(holdTimerRef.current)
+        holdTimerRef.current = setTimeout(() => {
+          if (holdGestureRef.current === gesture) {
+            const dir = gesture === 'peace' ? 'next' : 'home'
+            onNavigateRef.current?.(dir)
+            navigateCooldown.current = true
+            setTimeout(() => { navigateCooldown.current = false }, 1000)
+          }
+          holdGestureRef.current = null
+        }, 400)
+      }
+      // While holding, still send normal gesture state
+      onGestureRef.current('normal')
+      setGestureLabel(GESTURE_LABELS[gesture])
+    } else if (gesture === 'fist') {
+      holdGestureRef.current = null
+      clearTimeout(holdTimerRef.current)
       onGestureRef.current('fist')
       setGestureLabel(GESTURE_LABELS.fist)
     } else if (gesture === 'open') {
+      holdGestureRef.current = null
+      clearTimeout(holdTimerRef.current)
       onGestureRef.current('open')
       setGestureLabel(GESTURE_LABELS.open)
+    } else if (gesture === 'point') {
+      holdGestureRef.current = null
+      clearTimeout(holdTimerRef.current)
+      onGestureRef.current('normal')
+      setGestureLabel(GESTURE_LABELS.point)
     } else {
+      holdGestureRef.current = null
+      clearTimeout(holdTimerRef.current)
       onGestureRef.current('normal')
       setGestureLabel(GESTURE_LABELS.idle)
     }
-  }, []) // stable — reads from refs
+  }, [])
 
   useEffect(() => {
     if (!enabled) {
@@ -192,7 +204,8 @@ export function useGestureEngine({ enabled, onGesture, onNavigate, onHandPositio
       cameraRef.current = null
       onGestureRef.current('normal')
       onHandPositionRef.current?.(null)
-      prevPosRef.current = null
+      holdGestureRef.current = null
+      clearTimeout(holdTimerRef.current)
       return
     }
 

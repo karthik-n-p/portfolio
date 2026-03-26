@@ -1,8 +1,9 @@
 import { experience } from '../data/karthik.js'
 import { panelStyle, headerStyle, labelStyle, closeStyle, sectionLabel } from './HubPanel.jsx'
+import { colors, typography } from '../design-tokens.js'
 
 /**
- * PipelinePanel — Experience rendered as ETL pipeline stages
+ * PipelinePanel — Experience rendered as an ETL timeline
  */
 export default function PipelinePanel({ onClose }) {
   const exp = experience[0]
@@ -10,93 +11,112 @@ export default function PipelinePanel({ onClose }) {
   return (
     <div className="panel-animate" style={panelStyle}>
       <div style={headerStyle}>
-        <span style={labelStyle}>[ PIPELINE: EXPERIENCE ]</span>
-        <button onClick={onClose} style={closeStyle}>✕</button>
+        <span style={labelStyle}>
+          <div style={{ width: 6, height: 6, borderRadius: '50%', background: colors.emerald, boxShadow: `0 0 8px ${colors.emerald}90` }} />
+          EXPERIENCE PIPELINE
+        </span>
+        <button
+          onClick={onClose}
+          style={closeStyle}
+          onMouseOver={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = colors.neutral[100]; }}
+          onMouseOut={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; e.currentTarget.style.color = colors.neutral[300]; }}
+        >✕</button>
       </div>
 
-      <div style={{ marginBottom: '20px' }}>
-        <div style={{
-          fontFamily: 'JetBrains Mono, monospace',
-          fontSize: '16px',
-          fontWeight: 600,
-          color: '#0af5a0',
-          textShadow: '0 0 12px rgba(10,245,160,0.4)',
-        }}>
+      <div style={{ marginBottom: '28px' }}>
+        <h2 className="text-h2" style={{ color: colors.neutral[100], margin: '0 0 8px 0' }}>
           {exp.company}
-        </div>
-        <div style={{ display: 'flex', gap: '12px', marginTop: '4px', flexWrap: 'wrap' }}>
-          <span style={{ ...chipStyle, borderColor: 'rgba(10,245,160,0.3)', color: '#0af5a0' }}>{exp.role}</span>
-          <span style={{ ...chipStyle }}>{exp.period}</span>
-          <span style={{ ...chipStyle }}>{exp.location}</span>
-          <span style={{ ...chipStyle, borderColor: 'rgba(244,63,94,0.3)', color: '#f43f5e' }}>
+        </h2>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+          <span className="chip" style={{ background: `${colors.emerald}15`, color: colors.emerald, borderColor: `${colors.emerald}40` }}>{exp.role}</span>
+          <span className="chip">{exp.period}</span>
+          <span className="chip">{exp.location}</span>
+          <span className="chip" style={{ background: `${colors.amber}15`, color: colors.amber, borderColor: `${colors.amber}40` }}>
             ★ {exp.award}
           </span>
         </div>
       </div>
 
       {/* Pipeline diagram */}
-      <div style={sectionLabel}>data_pipeline[]</div>
+      <div style={sectionLabel}>ETL Flow</div>
       <div style={{
         display: 'flex',
         alignItems: 'center',
-        gap: '4px',
-        marginBottom: '24px',
+        gap: '0',
+        marginBottom: '32px',
         overflowX: 'auto',
-        paddingBottom: '8px',
+        paddingBottom: '12px',
         flexWrap: 'nowrap',
       }}>
         {exp.stages.map((stage, i) => (
-          <div key={stage.id} style={{ display: 'flex', alignItems: 'center', gap: '4px', flexShrink: 0 }}>
+          <div key={stage.id} style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
             <div style={{
-              padding: '8px 12px',
-              border: `1px solid ${stageColor(stage.type)}`,
-              borderRadius: '4px',
-              background: `${stageColor(stage.type)}14`,
-              fontFamily: 'JetBrains Mono, monospace',
-              fontSize: '10px',
-              color: stageColor(stage.type),
+              padding: '12px 16px',
+              border: `1px solid ${stageColor(stage.type)}40`,
+              borderRadius: '8px',
+              background: `linear-gradient(180deg, ${stageColor(stage.type)}12 0%, rgba(255,255,255,0.02) 100%)`,
+              fontFamily: typography.fontSans,
               textAlign: 'center',
-              minWidth: '80px',
+              minWidth: '90px',
+              boxShadow: `0 4px 12px ${stageColor(stage.type)}08`
             }}>
-              <div style={{ fontSize: '16px', marginBottom: '4px' }}>{stage.icon}</div>
-              <div>{stage.label}</div>
-              <div style={{ fontSize: '8px', color: '#3d6b7a', marginTop: '2px' }}>{stage.type}</div>
+              <div style={{ fontSize: '18px', marginBottom: '8px' }}>{stage.icon}</div>
+              <div style={{ fontSize: '12px', fontWeight: 600, color: colors.neutral[100] }}>{stage.label}</div>
+              <div style={{ fontSize: '10px', color: stageColor(stage.type), marginTop: '4px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{stage.type}</div>
             </div>
             {i < exp.stages.length - 1 && (
-              <div style={{ color: '#3d6b7a', fontSize: '14px', flexShrink: 0 }}>→</div>
+              <div style={{
+                width: '32px',
+                height: '2px',
+                background: `linear-gradient(90deg, ${stageColor(stage.type)}50, rgba(255,255,255,0.1))`,
+                flexShrink: 0,
+                position: 'relative'
+              }}>
+                <div style={{ position: 'absolute', right: 0, top: '50%', transform: 'translateY(-50%)', width: 4, height: 4, borderRadius: '50%', background: 'rgba(255,255,255,0.3)' }}/>
+              </div>
             )}
           </div>
         ))}
       </div>
 
       {/* Highlights as pipeline events */}
-      <div style={sectionLabel}>job_logs[]</div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-        {exp.highlights.map((h, i) => (
-          <div key={i} style={{
-            display: 'flex',
-            gap: '12px',
-            padding: '10px',
-            border: '1px solid rgba(10,245,160,0.1)',
-            borderRadius: '4px',
-            background: 'rgba(10,245,160,0.03)',
-            fontFamily: 'Inter, sans-serif',
-            fontSize: '12px',
-            color: '#7ab3cc',
-            lineHeight: 1.6,
-          }}>
-            <span style={{
-              fontFamily: 'JetBrains Mono, monospace',
-              color: '#0af5a0',
-              fontSize: '10px',
-              flexShrink: 0,
-              paddingTop: '2px',
+      <div style={sectionLabel}>Key Contributions</div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        {exp.highlights.map((h, i) => {
+          const highlightText = typeof h === 'string' ? h.split(/(TB|\d+%|\d+x|\$|hours)/g).map((part, idx) =>
+            /TB|\d+%|\d+x|\$|hours/.test(part) || (!isNaN(part) && part.trim() !== '') ?
+              <span key={idx} style={{ color: colors.emerald, fontWeight: 600 }}>{part}</span> : part
+          ) : h;
+
+          return (
+            <div key={i} className="card" style={{
+              display: 'flex',
+              gap: '16px',
+              fontFamily: typography.fontSans,
+              fontSize: '13px',
+              color: colors.neutral[300],
+              lineHeight: 1.6,
             }}>
-              {String(i + 1).padStart(2, '0')}
-            </span>
-            {h}
-          </div>
-        ))}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '24px',
+                height: '24px',
+                borderRadius: '50%',
+                background: `${colors.emerald}15`,
+                color: colors.emerald,
+                fontFamily: typography.fontMono,
+                fontSize: '10px',
+                fontWeight: 600,
+                flexShrink: 0,
+              }}>
+                {String(i + 1).padStart(2, '0')}
+              </div>
+              <div>{highlightText}</div>
+            </div>
+          )
+        })}
       </div>
     </div>
   )
@@ -104,22 +124,10 @@ export default function PipelinePanel({ onClose }) {
 
 function stageColor(type) {
   const map = {
-    source: '#f59e0b',
-    transform: '#00d4ff',
-    stream: '#0af5a0',
-    sink: '#8b5cf6',
+    source: colors.amber,
+    transform: colors.accent,
+    stream: colors.emerald,
+    sink: colors.violet,
   }
-  return map[type] || '#7ab3cc'
-}
-
-const chipStyle = {
-  display: 'inline-flex',
-  alignItems: 'center',
-  padding: '2px 8px',
-  border: '1px solid rgba(122,179,204,0.25)',
-  borderRadius: '3px',
-  fontFamily: 'JetBrains Mono, monospace',
-  fontSize: '9px',
-  color: '#7ab3cc',
-  background: 'rgba(122,179,204,0.05)',
+  return map[type] || colors.neutral[300]
 }

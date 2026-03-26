@@ -1,5 +1,6 @@
 import { skills } from '../data/karthik.js'
-import { panelStyle, headerStyle, labelStyle, closeStyle, sectionLabel } from './HubPanel.jsx'
+import { panelStyle, headerStyle, labelStyle, closeStyle } from './HubPanel.jsx'
+import { colors, typography } from '../design-tokens.js'
 
 /**
  * SkillsPanel — Skills as distributed stream clusters
@@ -8,75 +9,65 @@ export default function SkillsPanel({ onClose }) {
   return (
     <div className="panel-animate" style={panelStyle}>
       <div style={headerStyle}>
-        <span style={labelStyle}>[ CLUSTER: SKILLS ]</span>
-        <button onClick={onClose} style={closeStyle}>✕</button>
+        <span style={labelStyle}>
+           <div style={{ width: 6, height: 6, borderRadius: '50%', background: colors.amber, boxShadow: `0 0 8px ${colors.amber}90` }} />
+           TECH INTEGRATIONS
+        </span>
+        <button
+          onClick={onClose}
+          style={closeStyle}
+          onMouseOver={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = colors.neutral[100]; }}
+          onMouseOut={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; e.currentTarget.style.color = colors.neutral[300]; }}
+        >✕</button>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
         {skills.map((group) => (
           <div key={group.id}>
             <div style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '8px',
-              marginBottom: '8px',
+              gap: '12px',
+              marginBottom: '16px',
             }}>
               <div style={{
-                width: '8px', height: '8px',
+                width: '12px', height: '12px',
                 borderRadius: '50%',
                 background: group.color,
-                boxShadow: `0 0 6px ${group.color}`,
+                boxShadow: `0 0 8px ${group.color}80`,
                 flexShrink: 0,
               }} />
               <span style={{
-                fontFamily: 'JetBrains Mono, monospace',
-                fontSize: '9px',
-                color: '#3d6b7a',
-                letterSpacing: '0.15em',
-              }}>
-                cluster/{group.streamId}
-              </span>
-              <span style={{
-                fontFamily: 'JetBrains Mono, monospace',
-                fontSize: '11px',
+                fontFamily: typography.fontSans,
+                fontSize: '14px',
+                fontWeight: 600,
                 color: group.color,
-                marginLeft: 'auto',
-                textShadow: `0 0 8px ${group.color}80`,
+                letterSpacing: '0.05em',
               }}>
                 {group.category}
               </span>
+              <div style={{ flex: 1, height: '1px', background: `linear-gradient(90deg, ${group.color}40, transparent)` }} />
             </div>
+
             <div style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: '6px',
-              paddingLeft: '16px',
-              borderLeft: `2px solid ${group.color}30`,
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))',
+              gap: '12px',
             }}>
               {group.items.map(item => (
-                <span key={item} style={{
-                  display: 'inline-block',
-                  padding: '4px 10px',
-                  borderRadius: '3px',
-                  fontFamily: 'JetBrains Mono, monospace',
-                  fontSize: '10px',
-                  border: `1px solid ${group.color}40`,
-                  color: group.color,
-                  background: `${group.color}0f`,
-                  transition: 'all 0.2s ease',
+                <div key={item} className="card" style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '16px 12px',
+                  fontFamily: typography.fontSans,
+                  fontSize: '13px',
+                  fontWeight: 500,
+                  color: colors.neutral[100],
                   cursor: 'default',
-                }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.background = `${group.color}25`
-                  e.currentTarget.style.boxShadow = `0 0 10px ${group.color}40`
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.background = `${group.color}0f`
-                  e.currentTarget.style.boxShadow = 'none'
-                }}
-                >
+                }}>
                   {item}
-                </span>
+                </div>
               ))}
             </div>
           </div>

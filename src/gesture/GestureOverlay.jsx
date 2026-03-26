@@ -1,90 +1,54 @@
 import { useState, useEffect } from 'react'
-import { useGestureEngine, GESTURE_LABELS } from './GestureEngine.js'
+import { useGestureEngine } from './GestureEngine.js'
+import { colors, typography, motion } from '../design-tokens.js'
 
 /**
  * GestureOverlay — Camera view + gesture instructions + toggle button
- * Simplified: only fist/open gestures + hand position tracking
+ * Updated with finger-count gesture guide and persistent hint
  */
 export default function GestureOverlay({ enabled, onToggle, onGesture, onNavigate, onHandPosition }) {
   const [showInstructions, setShowInstructions] = useState(false)
+  const [navFlash, setNavFlash] = useState(null)
   const { videoRef, canvasRef, gestureLabel, handVisible } = useGestureEngine({
     enabled,
     onGesture,
-    onNavigate,
+    onNavigate: (dir) => {
+      onNavigate(dir)
+      setNavFlash(dir === 'home' ? 'HOME' : 'NEXT')
+      setTimeout(() => setNavFlash(null), 800)
+    },
     onHandPosition,
   })
 
-  useEffect(() => {
-    if (enabled) {
-      setShowInstructions(true)
-      const t = setTimeout(() => setShowInstructions(false), 8000)
-      return () => clearTimeout(t)
-    } else {
-      setShowInstructions(false)
-    }
-  }, [enabled])
-
-  // Animated guide components
-  const GuideFist = () => (
-    <div style={{ position: 'relative', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ position: 'absolute', inset: 2, border: '1px solid rgba(0,212,255,0.4)', borderRadius: '50%', animation: 'rippleIn 1.5s infinite' }} />
-      <span style={{ fontSize: '18px', zIndex: 2 }}>✊</span>
-    </div>
-  )
-
-  const GuideOpen = () => (
-    <div style={{ position: 'relative', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ position: 'absolute', inset: 6, border: '1px solid rgba(10,245,160,0.4)', borderRadius: '50%', animation: 'rippleOut 1.5s infinite' }} />
-      <span style={{ fontSize: '18px', zIndex: 2 }}>🖐</span>
-    </div>
-  )
-
-  const GuideMove = () => (
-    <div style={{ position: 'relative', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ position: 'absolute', inset: 4, border: '1px solid rgba(139,92,246,0.4)', borderRadius: '50%', animation: 'rippleOut 1.5s infinite' }} />
-      <span style={{ fontSize: '18px', zIndex: 2 }}>👋</span>
-    </div>
-  )
-
-  const GuideSwipeL = () => <div style={{ fontSize: '24px', opacity: 0.8 }}>👈</div>
-  const GuideSwipeR = () => <div style={{ fontSize: '24px', opacity: 0.8 }}>👉</div>
-  const GuideSwipeU = () => <div style={{ fontSize: '24px', opacity: 0.8 }}>👆</div>
-
   return (
     <>
-      {/* Help toggle */}
-      {enabled && (
-        <button
-          onClick={() => setShowInstructions(p => !p)}
-          style={{
-            position: 'fixed',
-            top: '20px',
-            left: '20px', // moved from right: 180px to left to prevent clash on mobile
-            zIndex: 100,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '32px',
-            height: '32px',
-            border: `1px solid ${showInstructions ? 'rgba(0,212,255,0.8)' : 'rgba(0,212,255,0.25)'}`,
-            borderRadius: '4px',
-            background: showInstructions ? 'rgba(0,212,255,0.1)' : 'rgba(5,10,14,0.8)',
-            color: showInstructions ? '#00d4ff' : '#7ab3cc',
-            fontFamily: 'JetBrains Mono, monospace',
-            fontSize: '14px',
-            cursor: 'pointer',
-            transition: 'all 0.3s ease',
-            backdropFilter: 'blur(8px)',
-          }}
-          title="Toggle Gesture Instructions"
+      {/* Persistent hint when gesture mode active */}
+      {enabled && !showInstructions && (
+        <div style={{
+          position: 'fixed',
+          top: '72px',
+          right: '20px',
+          zIndex: 99,
+          fontFamily: typography.fontMono,
+          fontSize: '9px',
+          color: colors.neutral[500],
+          letterSpacing: '0.08em',
+          padding: '4px 8px',
+          background: 'rgba(10,10,15,0.8)',
+          borderRadius: '4px',
+          border: `1px solid ${colors.neutral[700]}40`,
+          cursor: 'pointer',
+        }}
+        onClick={() => setShowInstructions(true)}
         >
-          ?
-        </button>
+          ✌ NEXT &nbsp;·&nbsp; 🤟 HOME &nbsp;·&nbsp; ? HELP
+        </div>
       )}
 
       {/* Mode toggle */}
       <button
         onClick={onToggle}
+        id="gesture-toggle"
         style={{
           position: 'fixed',
           top: '20px',
@@ -94,30 +58,31 @@ export default function GestureOverlay({ enabled, onToggle, onGesture, onNavigat
           alignItems: 'center',
           gap: '8px',
           padding: '8px 16px',
-          border: `1px solid ${enabled ? 'rgba(0,212,255,0.8)' : 'rgba(0,212,255,0.25)'}`,
-          borderRadius: '4px',
-          background: enabled ? 'rgba(0,212,255,0.1)' : 'rgba(5,10,14,0.8)',
-          color: enabled ? '#00d4ff' : '#7ab3cc',
-          fontFamily: 'JetBrains Mono, monospace',
+          border: `1px solid ${enabled ? colors.accent + '80' : colors.neutral[700] + '60'}`,
+          borderRadius: '8px',
+          background: enabled ? `${colors.accent}15` : 'rgba(10,10,15,0.85)',
+          color: enabled ? colors.accent : colors.neutral[400],
+          fontFamily: typography.fontSans,
           fontSize: '11px',
+          fontWeight: 600,
           cursor: 'pointer',
-          letterSpacing: '0.1em',
-          transition: 'all 0.3s ease',
+          letterSpacing: '0.05em',
+          transition: `all ${motion.base}`,
           backdropFilter: 'blur(8px)',
-          boxShadow: enabled ? '0 0 20px rgba(0,212,255,0.2)' : 'none',
+          boxShadow: enabled ? `0 0 20px ${colors.accent}15` : 'none',
         }}
       >
         <span style={{
           width: 8, height: 8,
           borderRadius: '50%',
-          background: enabled ? '#00d4ff' : '#3d6b7a',
-          boxShadow: enabled ? '0 0 6px #00d4ff' : 'none',
-          transition: 'all 0.3s ease',
+          background: enabled ? colors.accent : colors.neutral[600],
+          boxShadow: enabled ? `0 0 6px ${colors.accent}` : 'none',
+          transition: `all ${motion.base}`,
         }} />
         {enabled ? 'GESTURE MODE' : 'NORMAL MODE'}
       </button>
 
-      {/* Hidden video element for MediaPipe */}
+      {/* Hidden video */}
       <video
         ref={videoRef}
         style={{ position: 'fixed', top: -9999, left: -9999, width: 1, height: 1 }}
@@ -126,17 +91,17 @@ export default function GestureOverlay({ enabled, onToggle, onGesture, onNavigat
         muted
       />
 
-      {/* Hand landmark canvas — bottom right corner */}
+      {/* Camera feed — bottom right */}
       {enabled && (
         <div style={{
           position: 'fixed',
           bottom: '20px',
           right: '20px',
           zIndex: 100,
-          border: '1px solid rgba(0,212,255,0.2)',
-          borderRadius: '4px',
+          border: `1px solid ${colors.neutral[700]}60`,
+          borderRadius: '8px',
           overflow: 'hidden',
-          background: 'rgba(5,10,14,0.7)',
+          background: 'rgba(10,10,15,0.85)',
           backdropFilter: 'blur(8px)',
         }}>
           <canvas
@@ -147,15 +112,34 @@ export default function GestureOverlay({ enabled, onToggle, onGesture, onNavigat
           />
           <div style={{
             padding: '4px 8px',
-            fontFamily: 'JetBrains Mono, monospace',
+            fontFamily: typography.fontMono,
             fontSize: '9px',
-            color: handVisible ? '#00d4ff' : '#3d6b7a',
-            borderTop: '1px solid rgba(0,212,255,0.15)',
+            color: handVisible ? colors.accent : colors.neutral[500],
+            borderTop: `1px solid ${colors.neutral[700]}40`,
             textAlign: 'center',
             letterSpacing: '0.05em',
           }}>
             {handVisible ? gestureLabel : 'NO HAND DETECTED'}
           </div>
+        </div>
+      )}
+
+      {/* Navigation flash */}
+      {navFlash && (
+        <div className="section-flash" style={{
+          position: 'fixed',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          zIndex: 300,
+          fontFamily: typography.fontSans,
+          fontSize: '24px',
+          fontWeight: 800,
+          color: colors.accent,
+          letterSpacing: '0.1em',
+          pointerEvents: 'none',
+        }}>
+          {navFlash}
         </div>
       )}
 
@@ -167,53 +151,69 @@ export default function GestureOverlay({ enabled, onToggle, onGesture, onNavigat
           left: '50%',
           transform: 'translate(-50%, -50%)',
           zIndex: 200,
-          padding: '24px', // Reduced padding for mobile
+          padding: '24px',
           width: '90vw',
           maxWidth: '460px',
           maxHeight: '80vh',
           overflowY: 'auto',
-          border: '1px solid rgba(0,212,255,0.3)',
-          borderRadius: '8px',
-          background: 'rgba(5,10,14,0.92)',
+          border: `1px solid ${colors.neutral[700]}60`,
+          borderRadius: '12px',
+          background: 'rgba(10,10,15,0.95)',
           backdropFilter: 'blur(16px)',
-          fontFamily: 'JetBrains Mono, monospace',
+          fontFamily: typography.fontSans,
           animation: 'panelIn 0.3s ease forwards',
           textAlign: 'center',
         }}>
-          <div style={{ fontSize: '10px', color: '#3d6b7a', letterSpacing: '0.15em', marginBottom: '8px' }}>
-            GESTURE CONTROL ACTIVE
-          </div>
-          <div style={{ fontSize: '11px', color: '#7ab3cc', marginBottom: '24px', maxWidth: '280px', lineHeight: 1.5 }}>
-            Move your hand to control particles. The particles follow your hand position.
-          </div>
-          
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '16px', textAlign: 'left' }}>
-            {[
-              [<GuideFist key="1" />, 'Closed Fist', 'Attract to hand'],
-              [<GuideOpen key="2" />, 'Open Hand', 'Repel from hand'],
-              [<GuideMove key="3" />, 'Move Hand', 'Particles follow'],
-              [<GuideSwipeL key="4" />, 'Flick Left', 'Prev Node'],
-              [<GuideSwipeR key="5" />, 'Flick Right', 'Next Node'],
-              [<GuideSwipeU key="6" />, 'Flick Up', 'Home Screen'],
-            ].map(([Icon, name, desc]) => (
-              <div key={name} style={{
-                display: 'flex', alignItems: 'center', gap: '12px',
-                padding: '12px',
-                background: 'rgba(0,212,255,0.03)',
-                border: '1px solid rgba(0,212,255,0.1)',
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+            <div style={{ fontSize: '10px', color: colors.neutral[500], letterSpacing: '0.15em', fontWeight: 600 }}>
+              GESTURE CONTROL ACTIVE
+            </div>
+            <button
+              onClick={() => setShowInstructions(false)}
+              style={{
+                background: 'rgba(255,255,255,0.03)',
+                border: `1px solid ${colors.neutral[700]}60`,
+                color: colors.neutral[400],
+                cursor: 'pointer',
+                width: '28px', height: '28px',
                 borderRadius: '6px',
+                fontSize: '11px',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}
+            >✕</button>
+          </div>
+
+          <div style={{ fontSize: '12px', color: colors.neutral[400], marginBottom: '20px', lineHeight: 1.6 }}>
+            Move your hand in front of the camera. Particles respond to your gestures.
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '12px', textAlign: 'left' }}>
+            {[
+              ['✊', '0 Fingers', 'Converge', 'Pull particles'],
+              ['🖐', '5 Fingers', 'Scatter', 'Push particles'],
+              ['☝', '1 Finger', 'Focus', 'Particles follow'],
+              ['✌', '2 Fingers', 'Next', 'Hold 0.4s → next section'],
+              ['🤟', '3 Fingers', 'Home', 'Hold 0.4s → home'],
+            ].map(([icon, fingers, label, desc]) => (
+              <div key={label} style={{
+                display: 'flex', alignItems: 'center', gap: '10px',
+                padding: '10px',
+                background: `${colors.neutral[700]}15`,
+                border: `1px solid ${colors.neutral[700]}40`,
+                borderRadius: '8px',
               }}>
-                {Icon}
+                <span style={{ fontSize: '20px', width: '28px', textAlign: 'center' }}>{icon}</span>
                 <div>
-                  <div style={{ fontSize: '12px', color: '#00d4ff', marginBottom: '2px', fontWeight: 600 }}>{name}</div>
-                  <div style={{ fontSize: '10px', color: '#7ab3cc' }}>{desc}</div>
+                  <div style={{ fontSize: '11px', color: colors.accent, fontWeight: 600 }}>{label}</div>
+                  <div style={{ fontSize: '9px', color: colors.neutral[500], marginTop: '2px' }}>{fingers}</div>
+                  <div style={{ fontSize: '9px', color: colors.neutral[400], marginTop: '1px' }}>{desc}</div>
                 </div>
               </div>
             ))}
           </div>
 
-          <div style={{ fontSize: '9px', color: '#3d6b7a', marginTop: '20px' }}>
-            Use the nav buttons below for page navigation.
+          <div style={{ fontSize: '9px', color: colors.neutral[600], marginTop: '16px' }}>
+            Use the nav bar below for direct section navigation.
           </div>
         </div>
       )}
