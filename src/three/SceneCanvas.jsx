@@ -87,11 +87,24 @@ export default function SceneCanvas({ gestureState, activeNode, handPosition }) 
       grid.setActiveSection(currentActive)
       grid.update(delta, elapsed)
 
-      // Gentle camera drift
+      // Smooth 3D scene horizontal shift:
+      // When a panel is open (active), we slide the camera LEFT (-3.5)
+      // which visually pushes the 3D data formations to the RIGHT side of the screen,
+      // perfectly balancing the left-aligned UI panel.
+      const isMobile = window.innerWidth < 768
+      const targetFocusX = currentActive && !isMobile ? -3.5 : 0
+
+      // Let the camera drift gently around the target focus point
       const t = elapsed
-      camera.position.x = Math.sin(t * 0.05) * 0.3
-      camera.position.y = Math.cos(t * 0.07) * 0.15
-      camera.lookAt(0, 0, 0)
+      const camDriftX = Math.sin(t * 0.05) * 0.3
+      const camDriftY = Math.cos(t * 0.07) * 0.15
+      
+      // Lerp camera position
+      camera.position.x += ((targetFocusX + camDriftX) - camera.position.x) * delta * 5
+      camera.position.y += (camDriftY - camera.position.y) * delta * 5
+      
+      // Keep camera pointed at the shifting center
+      camera.lookAt(camera.position.x - camDriftX, 0, 0)
 
       renderer.render(scene, camera)
     }
