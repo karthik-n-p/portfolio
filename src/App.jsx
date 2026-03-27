@@ -123,30 +123,32 @@ export default function App() {
           onClick={() => handleNodeSelect('connect')}
           style={{
             display: 'flex', alignItems: 'center', gap: '8px',
-            padding: '8px 16px', borderRadius: '20px',
-            background: `rgba(52, 211, 153, 0.1)`, // emerald 10%
-            border: `1px solid rgba(52, 211, 153, 0.25)`,
-            color: '#6ee7b7', // emerald 300
-            fontFamily: typography.fontSans, fontSize: '11px', fontWeight: 700,
-            letterSpacing: '0.05em',
-            backdropFilter: 'blur(8px)',
+            padding: '10px 20px', borderRadius: '12px',
+            background: `rgba(0, 240, 255, 0.05)`, // cyan tint
+            border: `1px solid rgba(0, 240, 255, 0.2)`,
+            color: '#00F0FF', // cyan text
+            fontFamily: typography.fontSans, fontSize: '12px', fontWeight: 800,
+            letterSpacing: '0.1em',
+            backdropFilter: 'blur(12px)',
             cursor: 'pointer',
-            transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+            transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
           }}
           onMouseEnter={e => {
-            e.currentTarget.style.background = `rgba(52, 211, 153, 0.2)`
-            e.currentTarget.style.borderColor = `rgba(52, 211, 153, 0.5)`
+            e.currentTarget.style.background = `rgba(0, 240, 255, 0.15)`
+            e.currentTarget.style.borderColor = `rgba(0, 240, 255, 0.6)`
             e.currentTarget.style.transform = 'translateY(-2px)'
-            e.currentTarget.style.boxShadow = `0 8px 16px rgba(52, 211, 153, 0.15)`
+            e.currentTarget.style.boxShadow = `0 12px 24px rgba(0, 240, 255, 0.2), 0 0 12px rgba(0, 240, 255, 0.1) inset`
+            e.currentTarget.style.color = '#ffffff'
           }}
           onMouseLeave={e => {
-            e.currentTarget.style.background = `rgba(52, 211, 153, 0.1)`
-            e.currentTarget.style.borderColor = `rgba(52, 211, 153, 0.25)`
+            e.currentTarget.style.background = `rgba(0, 240, 255, 0.05)`
+            e.currentTarget.style.borderColor = `rgba(0, 240, 255, 0.2)`
             e.currentTarget.style.transform = 'translateY(0)'
             e.currentTarget.style.boxShadow = 'none'
+            e.currentTarget.style.color = '#00F0FF'
           }}
         >
-          <div style={{ width: 6, height: 6, borderRadius: '50%', background: colors.emerald, boxShadow: `0 0 8px ${colors.emerald}` }} className="cursor-blink" />
+          <div style={{ width: 6, height: 6, borderRadius: '50%', background: colors.accent, boxShadow: `0 0 10px ${colors.accent}` }} className="cursor-blink" />
           HIRE ME
         </button>
       </div>
@@ -232,26 +234,50 @@ export default function App() {
   visibility: activeNode ? 'hidden' : 'visible',
   transition: 'opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
 }}>
+  {/* Greeting */}
+  <div style={{
+    fontSize: 'clamp(14px, 4vw, 22px)',
+    fontFamily: typography.fontMono,
+    fontWeight: 800,
+    letterSpacing: '0.25em',
+    color: '#00F0FF',
+    textShadow: '0 0 15px rgba(0, 240, 255, 0.8), 0 0 30px rgba(0, 240, 255, 0.4)',
+    marginBottom: '16px',
+    textTransform: 'uppercase',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+    background: 'rgba(10, 10, 15, 0.7)',
+    border: '1px solid rgba(0, 240, 255, 0.5)',
+    padding: '8px 20px',
+    borderRadius: '30px',
+    backdropFilter: 'blur(16px)',
+    boxShadow: '0 8px 32px rgba(0,0,0,0.8), inset 0 0 16px rgba(0, 240, 255, 0.2)',
+  }}>
+    <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#ffffff', boxShadow: '0 0 16px #ffffff' }} className="cursor-blink" />
+    HI, I AM
+  </div>
+
   {/* Name */}
   <div style={{
-    fontSize: 'clamp(44px, 9vw, 72px)',
+    fontSize: 'clamp(48px, 10vw, 96px)',
     fontFamily: typography.fontSans,
     fontWeight: 900,
-    letterSpacing: '-0.045em',
-    lineHeight: 0.95,
-    color: '#ffffff',
-    marginBottom: '6px', // Tightened from 20px
-  }}>
+    letterSpacing: '-0.03em',
+    lineHeight: 1,
+    marginBottom: '12px',
+  }} className="text-gradient">
     KARTHIK NP
   </div>
 
   {/* Divider */}
   <div style={{
-    width: '40px',
-    height: '2px',
-    background: `linear-gradient(90deg, transparent, ${colors.emerald}80, transparent)`,
-    marginBottom: '16px', // Tightened from 20px
-    borderRadius: '1px',
+    width: '60px',
+    height: '3px',
+    background: `linear-gradient(90deg, transparent, ${colors.accent}, transparent)`,
+    marginBottom: '24px',
+    borderRadius: '2px',
+    boxShadow: `0 0 15px ${colors.accent}`,
   }} />
 
   {/* Role pill */}
@@ -259,60 +285,37 @@ export default function App() {
     display: 'inline-flex',
     alignItems: 'center',
     fontFamily: typography.fontMono,
-    fontSize: 'clamp(14px, 3.5vw, 19px)', // slightly larger
-    fontWeight: 900, // max boldness
-    letterSpacing: '0.08em',
+    fontSize: 'clamp(14px, 3.5vw, 20px)',
+    fontWeight: 700,
+    letterSpacing: '0.05em',
     textTransform: 'uppercase',
-    color: '#ffffff', // pure white for extreme visibility
-    textShadow: `0 0 16px ${colors.emerald}, 0 0 4px ${colors.emerald}`, // strong neon glow against the purple 3D void
-    background: `${colors.emerald}15`, // slightly more opacity to separate from 3D lines
-    border: `1px solid ${colors.emerald}40`,
-    borderRadius: '8px',
-    padding: '10px 18px',
-    boxShadow: `0 8px 32px rgba(0,0,0,0.4), inset 0 0 16px ${colors.emerald}15`,
+    color: '#ffffff',
+    textShadow: `0 0 10px ${colors.accent}`,
+    background: 'rgba(10, 10, 15, 0.5)',
+    backdropFilter: 'blur(16px)',
+    border: `1px solid rgba(0, 240, 255, 0.3)`,
+    borderRadius: '12px',
+    padding: '12px 24px',
+    boxShadow: `0 16px 40px rgba(0,0,0,0.6), inset 0 0 20px rgba(0, 240, 255, 0.05)`,
   }}>
     <span style={{
-      color: 'rgba(255,255,255,0.4)',
+      color: 'rgba(255,255,255,0.3)',
       marginRight: '12px',
-      fontWeight: 600,
+      fontWeight: 500,
       textShadow: 'none',
     }}>~$</span>
     {currentText}
     <span style={{
       display: 'inline-block',
-      width: '5px',
-      height: '1.1em',
+      width: '6px',
+      height: '18px',
       backgroundColor: '#ffffff',
-      boxShadow: `0 0 12px ${colors.emerald}`,
+      boxShadow: `0 0 12px ${colors.accent}`,
       marginLeft: '10px',
       verticalAlign: 'middle',
     }} className="cursor-blink" />
   </div>
 
-  {/* Hint */}
-  <div style={{
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    marginTop: '32px',
-    opacity: 0.8,
-  }}>
-    <div style={{
-      fontFamily: typography.fontSans,
-      textTransform: 'uppercase',
-      letterSpacing: '0.15em',
-      fontSize: '12px',
-      fontWeight: 600,
-      color: colors.neutral[200], // Huge visibility boost
-      display: 'flex',
-      alignItems: 'center',
-      gap: '8px',
-    }}>
-      <div style={{ width: 4, height: 4, borderRadius: '50%', background: colors.emerald, boxShadow: `0 0 8px ${colors.emerald}` }} className="cursor-blink" />
-      SELECT A SECTION TO EXPLORE
-      <div style={{ width: 4, height: 4, borderRadius: '50%', background: colors.emerald, boxShadow: `0 0 8px ${colors.emerald}` }} className="cursor-blink" />
-    </div>
-  </div>
 </div>
 
       {/* Click-outside to close panel */}
@@ -330,7 +333,7 @@ export default function App() {
 
       {/* Floating panel wrapper */}
       {ActivePanel && (
-        <div className="panel-layout-wrapper">
+        <div className="panel-layout-wrapper" style={{ zIndex: 80 }}>
           <ActivePanel onClose={() => setActiveNode(null)} />
         </div>
       )}

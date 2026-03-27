@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import { nodePositions } from '../data/karthik.js'
+import { threeColors } from '../design-tokens.js'
 
 /**
  * SpatialGraph — Renders scene nodes and animated flow connections
@@ -7,12 +8,12 @@ import { nodePositions } from '../data/karthik.js'
  */
 
 const NODE_CONFIG = {
-  hub:       { label: 'KARTHIK NP',   color: 0x3B82F6, size: 0.25, boundaries: 0.5 },
-  pipeline:  { label: 'EXPERIENCE',   color: 0x10B981, size: 0.15, boundaries: 0.35 },
-  projects:  { label: 'PROJECTS',     color: 0x8B5CF6, size: 0.15, boundaries: 0.35 },
-  skills:    { label: 'SKILLS',       color: 0xF59E0B, size: 0.15, boundaries: 0.35 },
-  certs:     { label: 'CERTIFICATIONS', color: 0xF43F5E, size: 0.12, boundaries: 0.3 },
-  education: { label: 'EDUCATION',    color: 0x3B82F6, size: 0.12, boundaries: 0.3 },
+  hub:       { label: 'KARTHIK NP',   color: threeColors.section.hub, size: 0.25, boundaries: 0.5 },
+  pipeline:  { label: 'EXPERIENCE',   color: threeColors.section.pipeline, size: 0.15, boundaries: 0.35 },
+  projects:  { label: 'PROJECTS',     color: threeColors.section.projects, size: 0.15, boundaries: 0.35 },
+  skills:    { label: 'SKILLS',       color: threeColors.section.skills, size: 0.15, boundaries: 0.35 },
+  certs:     { label: 'CERTIFICATIONS', color: threeColors.section.certs, size: 0.12, boundaries: 0.3 },
+  education: { label: 'EDUCATION',    color: threeColors.section.education, size: 0.12, boundaries: 0.3 },
 }
 
 const CONNECTIONS = [
@@ -49,15 +50,15 @@ export class SpatialGraph {
       group.position.set(pos.x, pos.y, pos.z)
       group.userData = { nodeKey: key, config: cfg }
 
-      // Core Data Node (Icosahedron for a structured, geometric feel)
-      const coreGeo = new THREE.IcosahedronGeometry(cfg.size, 1) // low poly
-      const coreMat = new THREE.MeshStandardMaterial({
+      // Core Data Node (Frosted Glass / Crystal feel)
+      const coreGeo = new THREE.IcosahedronGeometry(cfg.size, 2) // slightly higher poly
+      const coreMat = new THREE.MeshPhysicalMaterial({
         color: cfg.color,
-        roughness: 0.2,
-        metalness: 0.8,
-        flatShading: true,
+        roughness: 0.15,
+        transmission: 0.95,
+        thickness: 0.5,
         transparent: true,
-        opacity: 0.9,
+        opacity: 1,
       })
       const core = new THREE.Mesh(coreGeo, coreMat)
       group.add(core)
@@ -127,9 +128,9 @@ export class SpatialGraph {
       const points = curve.getPoints(50)
       const lineGeo = new THREE.BufferGeometry().setFromPoints(points)
       const lineMat = new THREE.LineBasicMaterial({
-        color: 0x52525B, // Slate/Zinc color for muted structural connections
+        color: 0x3A3A48, // slate accent for dark theme
         transparent: true,
-        opacity: 0.25,
+        opacity: 0.3,
       })
       const line = new THREE.Line(lineGeo, lineMat)
       this.scene.add(line)

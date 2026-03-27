@@ -6,18 +6,18 @@
 // ─── COLOR PALETTE ───────────────────────────────────────
 export const colors = {
   // Functional accent colors
-  accent:    '#6366F1',  // indigo — primary
-  emerald:   '#34D399',  // live/success/connect
-  violet:    '#8B5CF6',  // secondary emphasis
-  amber:     '#FBBF24',  // highlights/awards
-  rose:      '#FB7185',  // certs/alerts
+  accent:    '#00F0FF',  // neon cyan — primary
+  emerald:   '#00F0FF',  // using cyan for 'emerald' semantic to match vibe
+  violet:    '#7000FF',  // deep purple emphasis
+  amber:     '#FFB800',  // golden highlights
+  rose:      '#FF0055',  // true neon pink
 
-  // Neutral scale (dark to light)
+  // Neutral scale (dark to light) - Obsidian to Stark White
   neutral: {
-    950: '#0A0A0F',  // deepest background
-    900: '#111118',  // surface background
-    850: '#18181F',  // elevated surface
-    800: '#1E1E26',  // card background
+    950: '#030305',  // deepest obsidian background
+    900: '#0A0A0F',  // surface background
+    850: '#111116',  // elevated surface
+    800: '#1A1A22',  // card background
     700: '#2A2A35',  // border strong
     600: '#3A3A48',  // border subtle
     500: '#52525B',  // text dim
@@ -30,20 +30,20 @@ export const colors = {
 
   // Section nav colors (maps to activeNode keys)
   section: {
-    hub:       '#6366F1',
-    pipeline:  '#34D399',
-    projects:  '#8B5CF6',
-    skills:    '#FBBF24',
-    certs:     '#FB7185',
-    education: '#6366F1',
-    connect:   '#34D399',
+    hub:       '#00F0FF',
+    pipeline:  '#7000FF',
+    projects:  '#FFB800',
+    skills:    '#FF0055',
+    certs:     '#00F0FF',
+    education: '#7000FF',
+    connect:   '#00F0FF',
   },
 }
 
 // ─── TYPOGRAPHY ──────────────────────────────────────────
 export const typography = {
-  fontSans:  "'Inter', sans-serif",
-  fontMono:  "'JetBrains Mono', monospace",
+  fontSans:  "'Outfit', 'Inter', sans-serif",
+  fontMono:  "'Space Grotesk', 'JetBrains Mono', monospace",
 
   // Modular scale (ratio ~1.25)
   display:  { size: '64px', weight: 800, tracking: '-0.04em', leading: 1.0 },
@@ -79,13 +79,14 @@ export const motion = {
 // ─── COMPONENT PRESETS ──────────────────────────────────
 export const components = {
   panel: {
-    background: 'rgba(14, 14, 20, 0.88)',
-    border: `1px solid ${colors.neutral[700]}`,
-    borderRadius: '16px',
-    backdropFilter: 'blur(24px)',
-    shadow: '0 24px 48px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04)',
+    background: 'rgba(10, 10, 15, 0.6)',
+    border: `1px solid rgba(255, 255, 255, 0.05)`,
+    borderRadius: '20px',
+    backdropFilter: 'blur(32px)',
+    shadow: '0 32px 64px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.1)',
     padding: '32px',
     maxWidth: '560px',
+    width: '90vw',
   },
   card: {
     background: 'rgba(255,255,255,0.02)',
@@ -112,23 +113,23 @@ export const components = {
 
 // ─── THREE.JS COLORS (hex integers for materials) ──────
 export const threeColors = {
-  background:    0x0A0A0F,
-  accent:        0x6366F1,
-  emerald:       0x34D399,
-  violet:        0x8B5CF6,
-  amber:         0xFBBF24,
-  rose:          0xFB7185,
-  gridLine:      0x1A1A2E,
-  gridDot:       0x2A2A4A,
-  gridAccent:    0x3A3A48,
+  background:    0x030305,
+  accent:        0x00F0FF,
+  emerald:       0x00F0FF,
+  violet:        0x7000FF,
+  amber:         0xFFB800,
+  rose:          0xFF0055,
+  gridLine:      0x0A0A0F,
+  gridDot:       0x1A1A22,
+  gridAccent:    0x2A2A35,
 
   section: {
-    hub:       0x6366F1,
-    pipeline:  0x34D399,
-    projects:  0x8B5CF6,
-    skills:    0xFBBF24,
-    certs:     0xFB7185,
-    education: 0x6366F1,
-    connect:   0x34D399,
+    hub:       0x00F0FF,
+    pipeline:  0x7000FF,
+    projects:  0xFFB800,
+    skills:    0xFF0055,
+    certs:     0x00F0FF,
+    education: 0x7000FF,
+    connect:   0x00F0FF,
   },
 }

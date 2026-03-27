@@ -28,21 +28,30 @@ export default function SceneCanvas({ gestureState, activeNode, handPosition }) 
     mount.appendChild(renderer.domElement)
 
     // --- Camera ---
+    const aspect = W / H
     const isMobileInit = W < 768
-    const camera = new THREE.PerspectiveCamera(isMobileInit ? 75 : 55, W / H, 0.1, 100)
-    camera.position.set(0, 0, isMobileInit ? 14 : 8)
+    const camera = new THREE.PerspectiveCamera(isMobileInit ? Math.max(75, 90 - aspect * 20) : 55, aspect, 0.1, 100)
+    camera.position.set(0, 0, isMobileInit ? Math.max(14, 18 - aspect * 6) : 8)
 
     // --- Scene ---
     const scene = new THREE.Scene()
     scene.fog = new THREE.FogExp2(threeColors.background, 0.025)
 
-    // Clean lighting: 1 directional + 1 ambient
-    const ambient = new THREE.AmbientLight(0x2A2A35, 0.8)
+    // Premium lighting for physical materials
+    const ambient = new THREE.AmbientLight(0x1A1A22, 1.5)
     scene.add(ambient)
 
-    const directional = new THREE.DirectionalLight(0xEDEDED, 0.3)
+    const directional = new THREE.DirectionalLight(0xffffff, 0.5)
     directional.position.set(3, 5, 4)
     scene.add(directional)
+
+    const pointCyan = new THREE.PointLight(threeColors.accent, 2, 20)
+    pointCyan.position.set(-5, 0, 5)
+    scene.add(pointCyan)
+
+    const pointPurple = new THREE.PointLight(threeColors.violet, 2, 20)
+    pointPurple.position.set(5, 5, 5)
+    scene.add(pointPurple)
 
     // --- Systems ---
     const dataFlow = new DataFlowField(scene)
@@ -52,10 +61,11 @@ export default function SceneCanvas({ gestureState, activeNode, handPosition }) 
     const onResize = () => {
       const w = mount.clientWidth
       const h = mount.clientHeight
+      const currentAspect = w / h
       const isMobile = w < 768
-      camera.aspect = w / h
-      camera.fov = isMobile ? 75 : 55
-      camera.position.z = isMobile ? 14 : 8
+      camera.aspect = currentAspect
+      camera.fov = isMobile ? Math.max(75, 90 - currentAspect * 20) : 55
+      camera.position.z = isMobile ? Math.max(14, 18 - currentAspect * 6) : 8
       camera.updateProjectionMatrix()
       renderer.setSize(w, h)
     }
@@ -87,12 +97,12 @@ export default function SceneCanvas({ gestureState, activeNode, handPosition }) 
       grid.setActiveSection(currentActive)
       grid.update(delta, elapsed)
 
-      // Smooth 3D scene horizontal shift:
-      // When a panel is open (active), we slide the camera LEFT (-3.5)
-      // which visually pushes the 3D data formations to the RIGHT side of the screen,
-      // perfectly balancing the left-aligned UI panel.
-      const isMobile = window.innerWidth < 768
-      const targetFocusX = currentActive && !isMobile ? -3.5 : 0
+      // Smooth 3D scene shift:
+      // Desktop: panel is on left, shift camera LEFT -> object to RIGHT
+      // Mobile: panel is on bottom, shift camera DOWN -> object to TOP
+      const isMobileNow = window.innerWidth < 768
+      const targetFocusX = currentActive && !isMobileNow ? -4.0 : 0
+      const targetFocusY = currentActive && isMobileNow ? -3.5 : 0
 
       // Let the camera drift gently around the target focus point
       const t = elapsed
@@ -101,10 +111,10 @@ export default function SceneCanvas({ gestureState, activeNode, handPosition }) 
       
       // Lerp camera position
       camera.position.x += ((targetFocusX + camDriftX) - camera.position.x) * delta * 5
-      camera.position.y += (camDriftY - camera.position.y) * delta * 5
+      camera.position.y += ((targetFocusY + camDriftY) - camera.position.y) * delta * 5
       
-      // Keep camera pointed at the shifting center
-      camera.lookAt(camera.position.x - camDriftX, 0, 0)
+      // Keep camera pointed at the shifting center (with drift)
+      camera.lookAt(camera.position.x - camDriftX, camera.position.y - camDriftY, 0)
 
       renderer.render(scene, camera)
     }

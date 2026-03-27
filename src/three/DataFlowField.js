@@ -238,6 +238,11 @@ export class DataFlowField {
       this.handWorld.y += (this.handPos.y * 4 - this.handWorld.y) * 0.1
     }
 
+    // Dynamically adjust maximum offset to let particles aggregate to a single point on 'fist'
+    this.currentMaxOff = this.currentMaxOff || 3
+    const targetMaxOff = isFist ? 30 : 3
+    this.currentMaxOff += (targetMaxOff - this.currentMaxOff) * (delta * 5)
+
     const lerpSpeed = 0.02 + delta * 2  // ~0.02-0.05 per frame
     const hx = this.handWorld.x
     const hy = this.handWorld.y
@@ -258,10 +263,40 @@ export class DataFlowField {
 
       // Gesture offsets
       if (isFist && this.handPos) {
-        const pull = 0.06
-        p.ox += (hx - p.x - p.ox) * pull
-        p.oy += (hy - p.y - p.oy) * pull
-        p.oz += (0 - p.z - p.oz) * pull * 0.3
+        // World-class Data Engineer Transition: Assemble particles into a rapidly spinning, structured holographic data core
+        const phi = Math.acos(1 - 2 * (i + 0.5) / this.count)
+        const theta = Math.PI * (1 + Math.sqrt(5)) * (i + 0.5)
+        
+        // Dynamic rotation to simulate an active processing core
+        const rT = t * 2.5
+        const cY = Math.cos(rT), sY = Math.sin(rT)
+        const cX = Math.cos(rT * 0.7), sX = Math.sin(rT * 0.7)
+
+        const r = 0.9 + Math.sin(t * 8 + p.phase) * 0.06
+        
+        let bx = Math.cos(theta) * Math.sin(phi) * r
+        let by = Math.cos(phi) * r
+        let bz = Math.sin(theta) * Math.sin(phi) * r
+
+        // Rotate core around X then Y
+        let y1 = by * cX - bz * sX
+        let z1 = by * sX + bz * cX
+        let x2 = bx * cY + z1 * sY
+        let z2 = -bx * sY + z1 * cY
+        let y2 = y1
+
+        const targetX = hx + x2
+        const targetY = hy + y2
+        const targetZ = z2
+
+        const dx = targetX - (p.x + p.ox)
+        const dy = targetY - (p.y + p.oy)
+        const dz = targetZ - (p.z + p.oz)
+        
+        const pull = 0.16
+        p.ox += dx * pull
+        p.oy += dy * pull
+        p.oz += dz * pull
       } else if (isOpen && this.handPos) {
         const dx = p.x + p.ox - hx
         const dy = p.y + p.oy - hy
@@ -292,7 +327,7 @@ export class DataFlowField {
       }
 
       // Clamp offsets
-      const maxOff = 3
+      const maxOff = this.currentMaxOff
       p.ox = Math.max(-maxOff, Math.min(maxOff, p.ox))
       p.oy = Math.max(-maxOff, Math.min(maxOff, p.oy))
       p.oz = Math.max(-maxOff / 2, Math.min(maxOff / 2, p.oz))
