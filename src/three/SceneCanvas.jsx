@@ -102,7 +102,7 @@ export default function SceneCanvas({ gestureState, activeNode, handPosition }) 
       // Mobile: panel is on bottom, shift camera DOWN -> object to TOP
       const isMobileNow = window.innerWidth < 768
       const targetFocusX = currentActive && !isMobileNow ? -4.0 : 0
-      const targetFocusY = currentActive && isMobileNow ? -3.5 : 0
+      const targetFocusY = currentActive && isMobileNow ? -8.5 : 0
 
       // Let the camera drift gently around the target focus point
       const t = elapsed

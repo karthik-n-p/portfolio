@@ -194,6 +194,19 @@ html, body, #root {
   pointer-events: auto;
   max-height: calc(100vh - 140px);
 }
+@media (max-width: 767px) {
+  .panel-layout-wrapper {
+    bottom: 160px;
+  }
+  .panel-layout-wrapper > * {
+    background: rgba(8, 8, 12, 0.35) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    border-top: 1px solid rgba(0, 240, 255, 0.4) !important;
+    max-height: 40vh !important;
+    overflow-y: auto !important;
+  }
+}
 @media (min-width: 768px) {
   .panel-layout-wrapper {
     bottom: auto;
