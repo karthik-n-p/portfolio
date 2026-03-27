@@ -4,24 +4,24 @@
 
 /* ─── DESIGN TOKENS (CSS Custom Properties) ─────────── */
 :root {
-  --c-bg:          #0A0A0F;
-  --c-surface:     #111118;
-  --c-elevated:    #18181F;
-  --c-card:        #1E1E26;
+  --c-bg:          #030305;
+  --c-surface:     #0A0A0F;
+  --c-elevated:    #111116;
+  --c-card:        #1A1A22;
   --c-border:      #2A2A35;
   --c-border-sub:  #3A3A48;
-  --c-accent:      #6366F1;
-  --c-emerald:     #34D399;
-  --c-violet:      #8B5CF6;
-  --c-amber:       #FBBF24;
-  --c-rose:        #FB7185;
+  --c-accent:      #00F0FF;
+  --c-emerald:     #00F0FF;
+  --c-violet:      #7000FF;
+  --c-amber:       #FFB800;
+  --c-rose:        #FF0055;
   --c-text:        #EDEDED;
   --c-text-sec:    #A1A1AA;
   --c-text-dim:    #52525B;
   --c-text-muted:  #71717A;
 
-  --font-sans:     'Inter', sans-serif;
-  --font-mono:     'JetBrains Mono', monospace;
+  --font-sans:     'Outfit', 'Inter', sans-serif;
+  --font-mono:     'Space Grotesk', 'JetBrains Mono', monospace;
 
   --ease:          cubic-bezier(0.16, 1, 0.3, 1);
   --transition:    0.25s var(--ease);
@@ -136,6 +136,29 @@ html, body, #root {
   margin-bottom: 14px;
 }
 
+/* ─── PREMIUM UTILITIES ─────────────────────────────── */
+.glass-panel {
+  background: rgba(10, 10, 15, 0.4);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 32px 64px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, #ffffff 0%, #A1A1AA 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.text-gradient-accent {
+  background: linear-gradient(135deg, var(--c-accent), var(--c-violet));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+}
+
 /* ─── BLINKING CURSOR ───────────────────────────────── */
 @keyframes blink {
   0%, 100% { opacity: 1; }
@@ -158,18 +181,29 @@ html, body, #root {
 /* ─── RESPONSIVE PANEL LAYOUT ───────────────────────── */
 .panel-layout-wrapper {
   position: absolute;
-  top: 50%;
+  bottom: 90px; /* Leave room for bottom nav */
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translateX(-50%);
+  width: 100vw;
+  display: flex;
+  justify-content: center;
   pointer-events: none;
+  z-index: 80; /* Enforce global panel z-index */
 }
 .panel-layout-wrapper > * {
   pointer-events: auto;
+  max-height: calc(100vh - 140px);
 }
 @media (min-width: 768px) {
   .panel-layout-wrapper {
+    bottom: auto;
+    top: 50%;
     left: 8vw;
+    width: auto;
     transform: translateY(-50%);
+  }
+  .panel-layout-wrapper > * {
+    max-height: calc(100vh - 80px); /* Taller on desktop */
   }
 }
 
