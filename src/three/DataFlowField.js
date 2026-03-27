@@ -32,91 +32,130 @@ function isMobile() {
 // Each returns (index, total) => { x, y, z } target position
 const FORMATIONS = {
   idle: (i, total) => {
-    // Parallel streams flowing gently
-    const lane = (i % 5) - 2
-    const progress = (i / total) * 12 - 6
+    // Premium Global Data Core (Fibonacci Sphere)
+    // A flawless, mathematically perfect sphere of data points.
+    // Extremely minimalist, ordered, and world-class, conveying absolute control over data.
+    const phi = Math.acos(1 - 2 * (i + 0.5) / total)
+    const theta = Math.PI * (1 + Math.sqrt(5)) * (i + 0.5)
+    
+    // Large, imposing but clean radius with microscopic breathing
+    const R = 3.8 + Math.sin(i * 0.1) * 0.05
+
     return {
-      x: progress + Math.sin(i * 0.3) * 0.3,
-      y: lane * 1.5 + Math.cos(i * 0.7) * 0.3,
-      z: Math.sin(i * 0.4) * 1.5 - 1,
+      x: R * Math.cos(theta) * Math.sin(phi),
+      y: R * Math.cos(phi) * 0.9, // Slight polar flattening like an oblate spheroid
+      z: R * Math.sin(theta) * Math.sin(phi) - 1.5,
     }
   },
   hub: (i, total) => {
-    // Dense rotating cluster at center
-    const phi = (i / total) * Math.PI * 2 * 6
-    const r = (i / total) * 2.5
-    const h = ((i / total) - 0.5) * 3
+    // Central Data Lake: A dense, dual-shell spherical storage core representing centralized raw data
+    const isInner = i % 2 === 0
+    const r = isInner ? 1.2 : 2.5
+    const chunkTotal = total / 2
+    const idx = Math.floor(i / 2)
+    const phi = Math.acos(1 - 2 * (idx + 0.5) / chunkTotal)
+    const theta = Math.PI * (1 + Math.sqrt(5)) * (idx + 0.5)
     return {
-      x: Math.cos(phi) * r * 0.8,
-      y: h,
-      z: Math.sin(phi) * r * 0.8 - 1,
+      x: r * Math.cos(theta) * Math.sin(phi),
+      y: r * Math.cos(phi),
+      z: r * Math.sin(theta) * Math.sin(phi) - 1,
     }
   },
   pipeline: (i, total) => {
-    // Horizontal pipeline lanes flowing L→R
-    const lane = (i % 4) - 1.5
+    // High-Velocity ETL Streaming Pipeline
+    // 3 pristine, strict parallel channels (Extract, Transform, Load) flowing rapidly
+    const track = i % 3
     const t = (i / total)
     return {
-      x: t * 10 - 5,
-      y: lane * 1.2,
-      z: Math.sin(i * 0.2) * 0.5 - 1,
+      x: t * 14 - 7, // long stretch for velocity impact
+      y: (track - 1) * 1.5, // 3 distinct vertical lanes
+      z: Math.sin(i * 0.1) * 0.5 - 1.5, // strict alignment
     }
   },
   projects: (i, total) => {
-    // 2-3 distinct clusters
+    // Isolated Production Deployments: 3 perfectly distinct, dense functional spheres (Nodes)
     const cluster = i % 3
-    const cx = [-3, 0, 3][cluster]
-    const cy = [0.5, -0.8, 0.5][cluster]
-    const perCluster = total / 3
-    const localIdx = Math.floor(i / 3)
-    const angle = (localIdx / perCluster) * Math.PI * 2
-    const r = 0.4 + (localIdx / perCluster) * 1.2
+    const cx = [-3.5, 0, 3.5][cluster]
+    const cy = [1.0, -1.0, 1.0][cluster]
+    
+    const chunkTotal = total / 3
+    const idx = Math.floor(i / 3)
+    const phi = Math.acos(1 - 2 * (idx + 0.5) / chunkTotal)
+    const theta = Math.PI * (1 + Math.sqrt(5)) * (idx + 0.5)
+    const r = 0.8
+    
     return {
-      x: cx + Math.cos(angle) * r,
-      y: cy + Math.sin(angle) * r,
-      z: Math.sin(angle * 2) * 0.5 - 1,
+      x: cx + r * Math.cos(theta) * Math.sin(phi),
+      y: cy + r * Math.cos(phi),
+      z: r * Math.sin(theta) * Math.sin(phi) - 1,
     }
   },
   skills: (i, total) => {
-    // Radial burst pattern
-    const angle = (i / total) * Math.PI * 2 * 3
-    const r = 0.5 + (i / total) * 3.5
+    // Architectural Stack Orbits: 4 concentric planetary rings representing the layered tech stack
+    const orbitLayer = i % 4
+    const r = [1.2, 2.4, 3.6, 4.8][orbitLayer]
+    
+    const chunkTotal = total / 4
+    const idx = Math.floor(i / 4)
+    const angle = (idx / chunkTotal) * Math.PI * 2
+    
     return {
       x: Math.cos(angle) * r,
-      y: Math.sin(angle) * r,
-      z: ((i / total) - 0.5) * 2 - 1,
+      y: (orbitLayer - 1.5) * 0.5, // slightly tiered vertically for massive 3D depth
+      z: Math.sin(angle) * r - 1,
     }
   },
   certs: (i, total) => {
-    // Stacked horizontal bands
-    const band = i % 3
-    const perBand = total / 3
-    const localIdx = Math.floor(i / 3)
+    // Verified Ledgers (Blockchain blocks / Milestones): Stacked, pristine crystalline server plates
+    const tier = i % 3
+    const chunkTotal = total / 3
+    const idx = Math.floor(i / 3)
+    
+    // Arrange in a dense flat grid pattern
+    const cols = Math.ceil(Math.sqrt(chunkTotal))
+    const row = Math.floor(idx / cols)
+    const col = idx % cols
+    
+    const spacing = 0.35
+    const width = cols * spacing
+    
     return {
-      x: (localIdx / perBand) * 8 - 4,
-      y: (band - 1) * 2,
-      z: Math.sin(localIdx * 0.15) * 0.5 - 1,
+      x: col * spacing - (width / 2),
+      y: (tier - 1) * 2.0, // 3 stacked verification plates
+      z: row * spacing - (width / 2) - 1,
     }
   },
   education: (i, total) => {
-    // Ascending spiral
-    const t = i / total
-    const angle = t * Math.PI * 2 * 4
-    const r = 1.0 + t * 2
+    // The Knowledge Foundation: A majestic, ascending DNA Double Helix structure
+    const strand = i % 2
+    const chunkTotal = total / 2
+    const idx = Math.floor(i / 2)
+    const t = idx / chunkTotal
+    
+    const height = 9
+    const loops = 3
+    const r = 1.4
+    
+    const angle = t * Math.PI * 2 * loops + (strand * Math.PI)
+    
     return {
       x: Math.cos(angle) * r,
-      y: t * 5 - 2.5,
+      y: t * height - (height / 2),
       z: Math.sin(angle) * r - 1,
     }
   },
   connect: (i, total) => {
-    // Expanding ring
-    const angle = (i / total) * Math.PI * 2
-    const r = 2.0 + Math.sin(i * 0.5) * 0.8
-    const h = ((i / total) - 0.5) * 2
+    // Radar Sonar Pulse: Flat, infinite concentric rings broadcasting a connection signal
+    const ring = i % 5
+    const chunkTotal = total / 5
+    const idx = Math.floor(i / 5)
+    
+    const r = 0.6 + ring * 1.2
+    const angle = (idx / chunkTotal) * Math.PI * 2
+    
     return {
       x: Math.cos(angle) * r,
-      y: h,
+      y: 0, // Perfectly flat to resemble radar arrays
       z: Math.sin(angle) * r - 1,
     }
   },
@@ -225,12 +264,37 @@ export class DataFlowField {
 
   setGestureState(state) { this.gestureState = state }
   setHandPosition(pos)  { this.handPos = pos }
+  setMousePosition(pos) { this.mousePos = pos }
 
   update(delta) {
     const t = this.clock.getElapsedTime()
     const dummy = this._dummy
     const isFist = this.gestureState === 'fist'
     const isOpen = this.gestureState === 'open'
+
+    // Gentle, minimalist rotation of the global sphere in Home state
+    if (!this.activeSection) {
+      // Keep track of the continuous ambient spin
+      this.baseRotY = (this.baseRotY || 0) + delta * 0.04
+      this.baseRotX = (this.baseRotX || 0) + delta * 0.01
+
+      let targetRotX = this.baseRotX
+      let targetRotY = this.baseRotY
+
+      // Premium interactive tilt — the core leans toward the cursor
+      if (this.mousePos) {
+        targetRotX += -this.mousePos.y * 0.45
+        targetRotY += this.mousePos.x * 0.35
+      }
+
+      // Smoothly interpolate current rotation toward the interactive target
+      this.mesh.rotation.y += (targetRotY - this.mesh.rotation.y) * delta * 4
+      this.mesh.rotation.x += (targetRotX - this.mesh.rotation.x) * delta * 4
+    } else {
+      // Smoothly snap back to origin instantly on navigation
+      this.mesh.rotation.y += (0 - this.mesh.rotation.y) * delta * 4
+      this.mesh.rotation.x += (0 - this.mesh.rotation.x) * delta * 4
+    }
 
     // Smooth hand world position
     if (this.handPos) {

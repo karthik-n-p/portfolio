@@ -75,6 +75,14 @@ export default function SceneCanvas({ gestureState, activeNode, handPosition }) 
     // --- Clock ---
     const clock = new THREE.Clock()
 
+    // --- Interaction ---
+    const mouseParams = { x: 0, y: 0 }
+    const onMouseMove = (e) => {
+      mouseParams.x = (e.clientX / window.innerWidth) * 2 - 1
+      mouseParams.y = -(e.clientY / window.innerHeight) * 2 + 1
+    }
+    window.addEventListener('mousemove', onMouseMove)
+
     // --- Animate ---
     let animId
     const animate = () => {
@@ -90,6 +98,7 @@ export default function SceneCanvas({ gestureState, activeNode, handPosition }) 
       dataFlow.setGestureState(currentGesture)
       dataFlow.setHandPosition(currentHandPos)
       dataFlow.setActiveSection(currentActive)
+      if (dataFlow.setMousePosition) dataFlow.setMousePosition(mouseParams)
       dataFlow.update(delta)
 
       grid.setGestureState(currentGesture)
@@ -124,6 +133,7 @@ export default function SceneCanvas({ gestureState, activeNode, handPosition }) 
     stateRef.current._cleanup = () => {
       cancelAnimationFrame(animId)
       resizeObs.disconnect()
+      window.removeEventListener('mousemove', onMouseMove)
       dataFlow.dispose()
       grid.dispose()
       renderer.dispose()
