@@ -22,23 +22,6 @@ export default function HubPanel({ onClose }) {
         </button>
       </div>
 
-      <div style={{ marginBottom: '28px' }}>
-        <h1 className="text-hero" style={{ color: colors.neutral[100], margin: 0 }}>
-          {profile.name}
-        </h1>
-        <div style={{
-          fontFamily: typography.fontSans,
-          fontWeight: 500,
-          fontSize: '14px',
-          color: colors.accent,
-          letterSpacing: '0.1em',
-          marginTop: '8px',
-          textTransform: 'uppercase'
-        }}>
-          {profile.title} <span className="cursor-blink">_</span>
-        </div>
-      </div>
-
       <div style={{
         fontFamily: typography.fontSans,
         fontSize: '14px',

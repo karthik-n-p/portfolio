@@ -8,7 +8,7 @@ import SkillsPanel from './ui/SkillsPanel.jsx'
 import CertsPanel from './ui/CertsPanel.jsx'
 import EducationPanel from './ui/EducationPanel.jsx'
 import ConnectPanel from './ui/ConnectPanel.jsx'
-import { colors } from './design-tokens.js'
+import { colors, typography } from './design-tokens.js'
 
 /**
  * App — Root component
@@ -114,23 +114,41 @@ export default function App() {
         handPosition={handPosition}
       />
 
-      {/* Freelance Badge */}
+      {/* Hire Me Badge */}
       <div style={{
         position: 'fixed', top: '24px', left: '24px', zIndex: 100,
         display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'flex-start'
       }}>
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: '8px',
-          padding: '6px 12px', borderRadius: '20px',
-          background: `${colors.emerald}15`,
-          border: `1px solid ${colors.emerald}40`,
-          color: colors.emerald,
-          fontFamily: "'Inter', sans-serif", fontSize: '11px', fontWeight: 600,
-          backdropFilter: 'blur(8px)'
-        }}>
+        <button
+          onClick={() => handleNodeSelect('connect')}
+          style={{
+            display: 'flex', alignItems: 'center', gap: '8px',
+            padding: '8px 16px', borderRadius: '20px',
+            background: `rgba(52, 211, 153, 0.1)`, // emerald 10%
+            border: `1px solid rgba(52, 211, 153, 0.25)`,
+            color: '#6ee7b7', // emerald 300
+            fontFamily: typography.fontSans, fontSize: '11px', fontWeight: 700,
+            letterSpacing: '0.05em',
+            backdropFilter: 'blur(8px)',
+            cursor: 'pointer',
+            transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+          }}
+          onMouseEnter={e => {
+            e.currentTarget.style.background = `rgba(52, 211, 153, 0.2)`
+            e.currentTarget.style.borderColor = `rgba(52, 211, 153, 0.5)`
+            e.currentTarget.style.transform = 'translateY(-2px)'
+            e.currentTarget.style.boxShadow = `0 8px 16px rgba(52, 211, 153, 0.15)`
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.background = `rgba(52, 211, 153, 0.1)`
+            e.currentTarget.style.borderColor = `rgba(52, 211, 153, 0.25)`
+            e.currentTarget.style.transform = 'translateY(0)'
+            e.currentTarget.style.boxShadow = 'none'
+          }}
+        >
           <div style={{ width: 6, height: 6, borderRadius: '50%', background: colors.emerald, boxShadow: `0 0 8px ${colors.emerald}` }} className="cursor-blink" />
-          AVAILABLE FOR FREELANCE
-        </div>
+          HIRE ME
+        </button>
       </div>
 
       {/* Node navigation — bottom center */}
@@ -198,63 +216,104 @@ export default function App() {
         ))}
       </nav>
 
-      {/* Hero — when no panel active */}
-      {!activeNode && (
-        <div style={{
-          position: 'fixed',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          pointerEvents: 'none',
-          userSelect: 'none',
-          zIndex: 10,
-        }}>
-          <div className="text-display" style={{
-            color: colors.neutral[50],
-            marginBottom: '16px',
-            textShadow: '0 8px 32px rgba(255,255,255,0.04)'
-          }}>
-            KARTHIK NP
-          </div>
-          <div style={{
-            fontFamily: "'Inter', sans-serif",
-            fontSize: 'clamp(12px, 2.5vw, 15px)',
-            fontWeight: 600,
-            color: colors.accent,
-            letterSpacing: '0.35em',
-            textTransform: 'uppercase',
-            marginBottom: '32px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            minHeight: '24px'
-          }}>
-            {currentText}
-            <span style={{
-              display: 'inline-block',
-              width: '3px',
-              height: '1.1em',
-              backgroundColor: colors.accent,
-              marginLeft: '6px',
-            }} className="cursor-blink" />
-          </div>
+      {/* Hero Header */}
+<div style={{
+  position: 'fixed',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  pointerEvents: 'none',
+  userSelect: 'none',
+  zIndex: 90,
+  opacity: activeNode ? 0 : 1,
+  visibility: activeNode ? 'hidden' : 'visible',
+  transition: 'opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
+}}>
+  {/* Name */}
+  <div style={{
+    fontSize: 'clamp(44px, 9vw, 72px)',
+    fontFamily: typography.fontSans,
+    fontWeight: 900,
+    letterSpacing: '-0.045em',
+    lineHeight: 0.95,
+    color: '#ffffff',
+    marginBottom: '6px', // Tightened from 20px
+  }}>
+    KARTHIK NP
+  </div>
 
-          {/* Subtle separator line */}
-          <div style={{
-            width: '40px',
-            height: '2px',
-            background: `linear-gradient(90deg, transparent, ${colors.neutral[600]}, transparent)`,
-            marginBottom: '24px'
-          }} />
+  {/* Divider */}
+  <div style={{
+    width: '40px',
+    height: '2px',
+    background: `linear-gradient(90deg, transparent, ${colors.emerald}80, transparent)`,
+    marginBottom: '16px', // Tightened from 20px
+    borderRadius: '1px',
+  }} />
 
-          <div className="text-micro" style={{ textTransform: 'uppercase' }}>
-            Select a section to explore
-          </div>
-        </div>
-      )}
+  {/* Role pill */}
+  <div style={{
+    display: 'inline-flex',
+    alignItems: 'center',
+    fontFamily: typography.fontMono,
+    fontSize: 'clamp(14px, 3.5vw, 19px)', // slightly larger
+    fontWeight: 900, // max boldness
+    letterSpacing: '0.08em',
+    textTransform: 'uppercase',
+    color: '#ffffff', // pure white for extreme visibility
+    textShadow: `0 0 16px ${colors.emerald}, 0 0 4px ${colors.emerald}`, // strong neon glow against the purple 3D void
+    background: `${colors.emerald}15`, // slightly more opacity to separate from 3D lines
+    border: `1px solid ${colors.emerald}40`,
+    borderRadius: '8px',
+    padding: '10px 18px',
+    boxShadow: `0 8px 32px rgba(0,0,0,0.4), inset 0 0 16px ${colors.emerald}15`,
+  }}>
+    <span style={{
+      color: 'rgba(255,255,255,0.4)',
+      marginRight: '12px',
+      fontWeight: 600,
+      textShadow: 'none',
+    }}>~$</span>
+    {currentText}
+    <span style={{
+      display: 'inline-block',
+      width: '5px',
+      height: '1.1em',
+      backgroundColor: '#ffffff',
+      boxShadow: `0 0 12px ${colors.emerald}`,
+      marginLeft: '10px',
+      verticalAlign: 'middle',
+    }} className="cursor-blink" />
+  </div>
+
+  {/* Hint */}
+  <div style={{
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    marginTop: '32px',
+    opacity: 0.8,
+  }}>
+    <div style={{
+      fontFamily: typography.fontSans,
+      textTransform: 'uppercase',
+      letterSpacing: '0.15em',
+      fontSize: '12px',
+      fontWeight: 600,
+      color: colors.neutral[200], // Huge visibility boost
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px',
+    }}>
+      <div style={{ width: 4, height: 4, borderRadius: '50%', background: colors.emerald, boxShadow: `0 0 8px ${colors.emerald}` }} className="cursor-blink" />
+      SELECT A SECTION TO EXPLORE
+      <div style={{ width: 4, height: 4, borderRadius: '50%', background: colors.emerald, boxShadow: `0 0 8px ${colors.emerald}` }} className="cursor-blink" />
+    </div>
+  </div>
+</div>
 
       {/* Click-outside to close panel */}
       {activeNode && (
@@ -271,18 +330,8 @@ export default function App() {
 
       {/* Floating panel wrapper */}
       {ActivePanel && (
-        <div style={{
-          position: 'fixed',
-          inset: 0,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 82,
-          pointerEvents: 'none',
-        }}>
-          <div style={{ pointerEvents: 'all' }}>
-            <ActivePanel onClose={() => setActiveNode(null)} />
-          </div>
+        <div className="panel-layout-wrapper">
+          <ActivePanel onClose={() => setActiveNode(null)} />
         </div>
       )}
 
