@@ -8,6 +8,7 @@ import SkillsPanel from './ui/SkillsPanel.jsx'
 import CertsPanel from './ui/CertsPanel.jsx'
 import EducationPanel from './ui/EducationPanel.jsx'
 import ConnectPanel from './ui/ConnectPanel.jsx'
+import Preloader from './ui/Preloader.jsx'
 import { colors, typography } from './design-tokens.js'
 
 /**
@@ -43,6 +44,7 @@ const ROLES = [
 ]
 
 export default function App() {
+  const [appLoaded, setAppLoaded] = useState(false)
   const [activeNode, setActiveNode] = useState(null)
   const [gestureMode, setGestureMode] = useState(false)
   const [gestureState, setGestureState] = useState('normal')
@@ -107,12 +109,27 @@ export default function App() {
 
   return (
     <div style={{ width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden', background: colors.neutral[950] }}>
-      {/* Three.js scene */}
+      {/* Three.js scene renders immediately in background to compile shaders */}
       <SceneCanvas
         gestureState={gestureState}
         activeNode={activeNode}
         handPosition={handPosition}
       />
+
+      {/* Cinematic Greeting Preloader */}
+      {!appLoaded && <Preloader onComplete={() => setAppLoaded(true)} />}
+
+      {/* All interactive UI fades in only after preloader is entirely complete */}
+      <div style={{
+        opacity: appLoaded ? 1 : 0,
+        pointerEvents: appLoaded ? 'auto' : 'none',
+        transition: 'opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1)',
+        width: '100%',
+        height: '100%',
+        position: 'absolute',
+        inset: 0,
+        zIndex: 10,
+      }}>
 
       {/* Hire Me Badge */}
       <div style={{
@@ -124,9 +141,9 @@ export default function App() {
           style={{
             display: 'flex', alignItems: 'center', gap: '8px',
             padding: '10px 20px', borderRadius: '12px',
-            background: `rgba(0, 240, 255, 0.05)`, // cyan tint
-            border: `1px solid rgba(0, 240, 255, 0.2)`,
-            color: '#00F0FF', // cyan text
+            background: `rgba(0, 85, 255, 0.05)`, // azure tint
+            border: `1px solid rgba(0, 85, 255, 0.2)`,
+            color: colors.accent, // azure text
             fontFamily: typography.fontSans, fontSize: '12px', fontWeight: 800,
             letterSpacing: '0.1em',
             backdropFilter: 'blur(12px)',
@@ -134,18 +151,18 @@ export default function App() {
             transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
           }}
           onMouseEnter={e => {
-            e.currentTarget.style.background = `rgba(0, 240, 255, 0.15)`
-            e.currentTarget.style.borderColor = `rgba(0, 240, 255, 0.6)`
+            e.currentTarget.style.background = `rgba(0, 85, 255, 0.15)`
+            e.currentTarget.style.borderColor = `rgba(0, 85, 255, 0.6)`
             e.currentTarget.style.transform = 'translateY(-2px)'
-            e.currentTarget.style.boxShadow = `0 12px 24px rgba(0, 240, 255, 0.2), 0 0 12px rgba(0, 240, 255, 0.1) inset`
+            e.currentTarget.style.boxShadow = `0 12px 24px rgba(0, 85, 255, 0.2), 0 0 12px rgba(0, 85, 255, 0.1) inset`
             e.currentTarget.style.color = '#ffffff'
           }}
           onMouseLeave={e => {
-            e.currentTarget.style.background = `rgba(0, 240, 255, 0.05)`
-            e.currentTarget.style.borderColor = `rgba(0, 240, 255, 0.2)`
+            e.currentTarget.style.background = `rgba(0, 85, 255, 0.05)`
+            e.currentTarget.style.borderColor = `rgba(0, 85, 255, 0.2)`
             e.currentTarget.style.transform = 'translateY(0)'
             e.currentTarget.style.boxShadow = 'none'
-            e.currentTarget.style.color = '#00F0FF'
+            e.currentTarget.style.color = colors.accent
           }}
         >
           <div style={{ width: 6, height: 6, borderRadius: '50%', background: colors.accent, boxShadow: `0 0 10px ${colors.accent}` }} className="cursor-blink" />
@@ -240,19 +257,19 @@ export default function App() {
     fontFamily: typography.fontMono,
     fontWeight: 800,
     letterSpacing: '0.25em',
-    color: '#00F0FF',
-    textShadow: '0 0 15px rgba(0, 240, 255, 0.8), 0 0 30px rgba(0, 240, 255, 0.4)',
+    color: colors.accent,
+    textShadow: '0 0 15px rgba(0, 85, 255, 0.8), 0 0 30px rgba(0, 85, 255, 0.4)',
     marginBottom: '16px',
     textTransform: 'uppercase',
     display: 'flex',
     alignItems: 'center',
     gap: '12px',
-    background: 'rgba(10, 10, 15, 0.7)',
-    border: '1px solid rgba(0, 240, 255, 0.5)',
+    background: 'rgba(5, 5, 5, 0.7)', // True Obsidian
+    border: '1px solid rgba(0, 85, 255, 0.5)',
     padding: '8px 20px',
     borderRadius: '30px',
     backdropFilter: 'blur(16px)',
-    boxShadow: '0 8px 32px rgba(0,0,0,0.8), inset 0 0 16px rgba(0, 240, 255, 0.2)',
+    boxShadow: '0 8px 32px rgba(0,0,0,0.8), inset 0 0 16px rgba(0, 85, 255, 0.2)',
   }}>
     <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#ffffff', boxShadow: '0 0 16px #ffffff' }} className="cursor-blink" />
     HI, I AM
@@ -267,7 +284,7 @@ export default function App() {
     lineHeight: 1,
     marginBottom: '12px',
   }} className="text-gradient">
-    KARTHIK NP
+    KARTHIK
   </div>
 
   {/* Divider */}
@@ -291,12 +308,12 @@ export default function App() {
     textTransform: 'uppercase',
     color: '#ffffff',
     textShadow: `0 0 10px ${colors.accent}`,
-    background: 'rgba(10, 10, 15, 0.5)',
+    background: 'rgba(5, 5, 5, 0.5)',
     backdropFilter: 'blur(16px)',
-    border: `1px solid rgba(0, 240, 255, 0.3)`,
+    border: `1px solid rgba(0, 85, 255, 0.3)`,
     borderRadius: '12px',
     padding: '12px 24px',
-    boxShadow: `0 16px 40px rgba(0,0,0,0.6), inset 0 0 20px rgba(0, 240, 255, 0.05)`,
+    boxShadow: `0 16px 40px rgba(0,0,0,0.6), inset 0 0 20px rgba(0, 85, 255, 0.05)`,
   }}>
     <span style={{
       color: 'rgba(255,255,255,0.3)',
@@ -346,6 +363,8 @@ export default function App() {
         onNavigate={handleNavigate}
         onHandPosition={handleHandPosition}
       />
+
+      </div> {/* App Loaded Wrapper End */}
     </div>
   )
 }

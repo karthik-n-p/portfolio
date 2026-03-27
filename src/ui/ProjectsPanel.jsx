@@ -10,7 +10,7 @@ export default function ProjectsPanel({ onClose }) {
     <div className="panel-animate" style={panelStyle}>
       <div style={headerStyle}>
         <span style={labelStyle}>
-          <div style={{ width: 6, height: 6, borderRadius: '50%', background: colors.violet, boxShadow: `0 0 8px ${colors.violet}90` }} />
+          <div style={{ width: 6, height: 6, borderRadius: '50%', background: colors.neutral[100], boxShadow: `0 0 8px ${colors.neutral[100]}90` }} />
           PROJECTS PORTFOLIO
         </span>
         <button
@@ -45,7 +45,7 @@ export default function ProjectsPanel({ onClose }) {
                     fontFamily: typography.fontSans,
                     fontSize: '13px',
                     fontWeight: 500,
-                    color: colors.violet,
+                    color: colors.neutral[300],
                     marginTop: '4px',
                     letterSpacing: '0.05em',
                   }}>
@@ -56,15 +56,15 @@ export default function ProjectsPanel({ onClose }) {
                   <a href={project.link} target="_blank" rel="noreferrer" style={{
                     display: 'inline-flex', alignItems: 'center', gap: '6px',
                     fontFamily: typography.fontSans, fontSize: '11px', fontWeight: 600, letterSpacing: '0.05em',
-                    color: colors.emerald, border: `1px solid ${colors.emerald}40`,
+                    color: colors.accent, border: `1px solid ${colors.accent}40`,
                     padding: '6px 12px', borderRadius: '20px', textDecoration: 'none',
-                    background: `${colors.emerald}15`, whiteSpace: 'nowrap',
+                    background: `${colors.accent}15`, whiteSpace: 'nowrap',
                     transition: 'all 0.2s ease',
                   }}
-                  onMouseOver={e => e.currentTarget.style.background = `${colors.emerald}28`}
-                  onMouseOut={e => e.currentTarget.style.background = `${colors.emerald}15`}
+                  onMouseOver={e => e.currentTarget.style.background = `${colors.accent}28`}
+                  onMouseOut={e => e.currentTarget.style.background = `${colors.accent}15`}
                   >
-                    <span style={{ width: 6, height: 6, borderRadius: '50%', background: colors.emerald }} />
+                    <span style={{ width: 6, height: 6, borderRadius: '50%', background: colors.accent }} />
                     LIVE VIEW
                   </a>
                 )}
@@ -145,7 +145,7 @@ function DagVisualization({ project }) {
         if (!pos) return null
         const isSource = n.id.startsWith('source') || n.id === 'api'
         const isSink = n.id === 'delta' || n.id === 'dashboard' || n.id === 'ui'
-        const color = isSource ? colors.amber : isSink ? colors.emerald : colors.accent
+        const color = isSource ? colors.neutral[300] : isSink ? colors.neutral[100] : colors.accent
 
         return (
           <g key={n.id} transform={`translate(${pos.x}, ${pos.y})`}>

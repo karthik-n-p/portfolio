@@ -6,44 +6,40 @@
 // ─── COLOR PALETTE ───────────────────────────────────────
 export const colors = {
   // Functional accent colors
-  accent:    '#00F0FF',  // neon cyan — primary
-  emerald:   '#00F0FF',  // using cyan for 'emerald' semantic to match vibe
-  violet:    '#7000FF',  // deep purple emphasis
-  amber:     '#FFB800',  // golden highlights
-  rose:      '#FF0055',  // true neon pink
+  accent:    '#0055FF',  // Electric Azure — primary interaction point
 
-  // Neutral scale (dark to light) - Obsidian to Stark White
+  // Neutral scale (dark to light) - Obsidian to Stark Titanium
   neutral: {
-    950: '#030305',  // deepest obsidian background
-    900: '#0A0A0F',  // surface background
-    850: '#111116',  // elevated surface
-    800: '#1A1A22',  // card background
-    700: '#2A2A35',  // border strong
-    600: '#3A3A48',  // border subtle
+    950: '#050505',  // deepest obsidian background
+    900: '#0A0A0A',  // surface background
+    850: '#111111',  // elevated surface
+    800: '#161616',  // card background
+    700: '#242424',  // border strong
+    600: '#333333',  // border subtle
     500: '#52525B',  // text dim
     400: '#71717A',  // text muted
     300: '#A1A1AA',  // text secondary
     200: '#D4D4D8',  // text primary
-    100: '#EDEDED',  // text bright
-    50:  '#F4F4F5',  // text max
+    100: '#E2E8F0',  // text bright (Titanium)
+    50:  '#F8F9FA',  // text max
   },
 
   // Section nav colors (maps to activeNode keys)
   section: {
-    hub:       '#00F0FF',
-    pipeline:  '#7000FF',
-    projects:  '#FFB800',
-    skills:    '#FF0055',
-    certs:     '#00F0FF',
-    education: '#7000FF',
-    connect:   '#00F0FF',
+    hub:       '#E2E8F0',
+    pipeline:  '#E2E8F0',
+    projects:  '#E2E8F0',
+    skills:    '#E2E8F0',
+    certs:     '#E2E8F0',
+    education: '#E2E8F0',
+    connect:   '#0055FF', // Only connect acts as a CTA glow
   },
 }
 
 // ─── TYPOGRAPHY ──────────────────────────────────────────
 export const typography = {
-  fontSans:  "'Outfit', 'Inter', sans-serif",
-  fontMono:  "'Space Grotesk', 'JetBrains Mono', monospace",
+  fontSans:  "'Inter', sans-serif",
+  fontMono:  "'JetBrains Mono', monospace",
 
   // Modular scale (ratio ~1.25)
   display:  { size: '64px', weight: 800, tracking: '-0.04em', leading: 1.0 },
@@ -113,23 +109,19 @@ export const components = {
 
 // ─── THREE.JS COLORS (hex integers for materials) ──────
 export const threeColors = {
-  background:    0x030305,
-  accent:        0x00F0FF,
-  emerald:       0x00F0FF,
-  violet:        0x7000FF,
-  amber:         0xFFB800,
-  rose:          0xFF0055,
-  gridLine:      0x0A0A0F,
-  gridDot:       0x1A1A22,
-  gridAccent:    0x2A2A35,
+  background:    0x050505,
+  accent:        0x0055FF, // Azure
+  gridLine:      0x1A1A1A,
+  gridDot:       0x333333,
+  gridAccent:    0x0055FF, // Azure energy pulse
 
   section: {
-    hub:       0x00F0FF,
-    pipeline:  0x7000FF,
-    projects:  0xFFB800,
-    skills:    0xFF0055,
-    certs:     0x00F0FF,
-    education: 0x7000FF,
-    connect:   0x00F0FF,
+    hub:       0xE2E8F0,
+    pipeline:  0xE2E8F0,
+    projects:  0xE2E8F0,
+    skills:    0xE2E8F0,
+    certs:     0xE2E8F0,
+    education: 0xE2E8F0,
+    connect:   0x0055FF,
   },
 }

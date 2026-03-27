@@ -7,7 +7,7 @@ import { colors, typography, motion } from '../design-tokens.js'
 export default function HubPanel({ onClose }) {
   return (
     <div className="panel-animate" style={panelStyle}>
-      <div style={headerStyle}>
+      <div style={headerStyle} className="stagger-item stagger-1">
         <span style={labelStyle}>
           <div style={{ width: 6, height: 6, borderRadius: '50%', background: colors.accent, boxShadow: `0 0 8px ${colors.accent}90` }} />
           CENTRAL HUB
@@ -22,7 +22,7 @@ export default function HubPanel({ onClose }) {
         </button>
       </div>
 
-      <div style={{
+      <div className="stagger-item stagger-2" style={{
         fontFamily: typography.fontSans,
         fontSize: '14px',
         color: colors.neutral[300],
@@ -38,7 +38,7 @@ export default function HubPanel({ onClose }) {
         {profile.summary}
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+      <div className="stagger-item stagger-3" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
         <div style={sectionLabel}>Contact Links</div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px' }}>
           {[

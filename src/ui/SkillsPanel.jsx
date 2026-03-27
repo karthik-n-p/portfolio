@@ -10,7 +10,7 @@ export default function SkillsPanel({ onClose }) {
     <div className="panel-animate" style={panelStyle}>
       <div style={headerStyle}>
         <span style={labelStyle}>
-           <div style={{ width: 6, height: 6, borderRadius: '50%', background: colors.amber, boxShadow: `0 0 8px ${colors.amber}90` }} />
+           <div style={{ width: 6, height: 6, borderRadius: '50%', background: colors.neutral[100], boxShadow: `0 0 8px ${colors.neutral[100]}90` }} />
            TECH INTEGRATIONS
         </span>
         <button

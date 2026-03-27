@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useGestureEngine } from './GestureEngine.js'
 import { colors, typography, motion } from '../design-tokens.js'
 
@@ -19,6 +19,32 @@ export default function GestureOverlay({ enabled, onToggle, onGesture, onNavigat
     },
     onHandPosition,
   })
+
+  // Fast dragging state via translate + pointer capture
+  const [translate, setTranslate] = useState({ x: 0, y: 0 })
+  const [isDragging, setIsDragging] = useState(false)
+  const dragRef = useRef({ startX: 0, startY: 0, isDragging: false })
+
+  const onPointerDown = (e) => {
+    dragRef.current.isDragging = true
+    dragRef.current.startX = e.clientX - translate.x
+    dragRef.current.startY = e.clientY - translate.y
+    setIsDragging(true)
+    e.currentTarget.setPointerCapture(e.pointerId)
+  }
+
+  const onPointerMove = (e) => {
+    if (!dragRef.current.isDragging) return
+    const x = e.clientX - dragRef.current.startX
+    const y = e.clientY - dragRef.current.startY
+    setTranslate({ x, y })
+  }
+
+  const onPointerUp = (e) => {
+    dragRef.current.isDragging = false
+    setIsDragging(false)
+    e.currentTarget.releasePointerCapture(e.pointerId)
+  }
 
   return (
     <>
@@ -91,19 +117,37 @@ export default function GestureOverlay({ enabled, onToggle, onGesture, onNavigat
         muted
       />
 
-      {/* Camera feed — bottom right */}
+      {/* Camera feed — draggable */}
       {enabled && (
-        <div style={{
+        <div 
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          onPointerCancel={onPointerUp}
+          style={{
           position: 'fixed',
           bottom: '20px',
           right: '20px',
+          transform: `translate(${translate.x}px, ${translate.y}px)`,
           zIndex: 100,
+          cursor: isDragging ? 'grabbing' : 'grab',
+          touchAction: 'none', // Prevent native touch scrolling
           border: `1px solid ${colors.neutral[700]}60`,
           borderRadius: '8px',
           overflow: 'hidden',
           background: 'rgba(10,10,15,0.85)',
           backdropFilter: 'blur(8px)',
+          boxShadow: isDragging ? '0 16px 40px rgba(0,0,0,0.8)' : '0 8px 16px rgba(0,0,0,0.3)',
+          transition: isDragging ? 'none' : 'box-shadow 0.2s cubic-bezier(0.16,1,0.3,1)',
         }}>
+          {/* Drag handle hint */}
+          <div style={{
+            width: '100%', height: '14px', background: 'rgba(255,255,255,0.02)',
+            display: 'flex', justifyContent: 'center', alignItems: 'center',
+            borderBottom: `1px solid ${colors.neutral[700]}40`,
+          }}>
+            <div style={{ width: '24px', height: '3px', background: colors.neutral[600], borderRadius: '2px' }} />
+          </div>
           <canvas
             ref={canvasRef}
             width={160}

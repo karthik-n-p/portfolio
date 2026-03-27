@@ -1,4 +1,5 @@
 // Structured data extracted from karthik.txt
+import { colors } from '../design-tokens.js'
 
 export const profile = {
   name: 'KARTHIK NP',
@@ -17,7 +18,7 @@ export const skills = [
     id: 'programming',
     category: 'Programming Languages',
     items: ['Python', 'SQL'],
-    color: '#00d4ff',
+    color: colors.neutral[100],
     clusterPos: { x: -2.5, y: 1.2 },
     streamId: 'stream_0x1a',
   },
@@ -25,7 +26,7 @@ export const skills = [
     id: 'bigdata',
     category: 'Big Data & Streaming',
     items: ['Apache Spark', 'PySpark', 'Kafka', 'Hadoop', 'HDFS'],
-    color: '#0af5a0',
+    color: colors.neutral[300],
     clusterPos: { x: 2.8, y: 1.0 },
     streamId: 'stream_0x2b',
   },
@@ -33,7 +34,7 @@ export const skills = [
     id: 'cloud',
     category: 'Cloud & Data Platforms',
     items: ['Databricks', 'Azure Data Factory', 'Azure Synapse', 'Snowflake'],
-    color: '#f43f5e',
+    color: colors.accent,
     clusterPos: { x: 2.8, y: -1.2 },
     streamId: 'stream_0x5e',
   },
@@ -41,7 +42,7 @@ export const skills = [
     id: 'databases',
     category: 'Databases & Data Lakes',
     items: ['Delta Lake', 'MongoDB', 'Azure SQL', 'IBM DB2'],
-    color: '#8b5cf6',
+    color: colors.neutral[100],
     clusterPos: { x: -2.5, y: -1.0 },
     streamId: 'stream_0x4d',
   },
@@ -49,7 +50,7 @@ export const skills = [
     id: 'dataeng',
     category: 'Engineering & Analytics',
     items: ['ETL / ELT', 'Data Warehousing', 'Data Modeling', 'dbt', 'Alteryx'],
-    color: '#f59e0b',
+    color: colors.neutral[300],
     clusterPos: { x: 0, y: -2.0 },
     streamId: 'stream_0x3c',
   },
@@ -57,7 +58,7 @@ export const skills = [
     id: 'workflow',
     category: 'Tools & Methodologies',
     items: ['Git', 'GitHub', 'Agile / Scrum', 'CI/CD'],
-    color: '#e879f9',
+    color: colors.neutral[500],
     clusterPos: { x: 0, y: 2.2 },
     streamId: 'stream_0x6f',
   },
@@ -96,7 +97,7 @@ export const projects = [
     subtitle: 'for Sales Analysis',
     description: 'Built a scalable data pipeline to integrate and process sales data from multiple sources, enabling insights through PySpark transformations and Spark SQL dashboards.',
     stack: ['Azure Data Factory', 'Databricks', 'PySpark', 'Spark SQL', 'Delta Lake'],
-    stackColors: ['#0088cc', '#0af5a0', '#00d4ff', '#f59e0b', '#8b5cf6'],
+    stackColors: [colors.accent, colors.neutral[100], colors.neutral[300], colors.neutral[100], colors.neutral[300]],
     dag: [
       { id: 'source-a', label: 'Sales DB', pos: { x: 0, y: 0 } },
       { id: 'source-b', label: 'API Feeds', pos: { x: 0, y: 1 } },
@@ -120,7 +121,7 @@ export const projects = [
     description: 'Developed an interactive 3D web application to visualize regional movie data fetched from a curated API. Users can explore a dynamically generated universe of films directly in the browser, utilizing advanced WebGL rendering techniques for a deeply immersive, spatial experience.',
     link: 'https://cineverse-omuz.onrender.com',
     stack: ['Three.js', 'React', 'REST APIs', 'Supabase', 'Node.js'],
-    stackColors: ['#0af5a0', '#00d4ff', '#f59e0b', '#8b5cf6', '#e879f9'],
+    stackColors: [colors.neutral[100], colors.neutral[300], colors.neutral[100], colors.accent, colors.neutral[300]],
     dag: [
       { id: 'api', label: 'Movie API', pos: { x: 0, y: 0.5 } },
       { id: 'fetch', label: 'Data Fetcher', pos: { x: 1, y: 0.5 } },
@@ -141,21 +142,21 @@ export const certifications = [
     name: 'Azure Data Engineer Associate',
     code: 'DP-203',
     issuer: 'Microsoft',
-    color: '#0088cc',
+    color: colors.accent,
   },
   {
     id: 'dp600',
     name: 'Fabric Analytics Engineer Associate',
     code: 'DP-600',
     issuer: 'Microsoft',
-    color: '#0af5a0',
+    color: colors.neutral[100],
   },
   {
     id: 'dp700',
     name: 'Fabric Data Engineer Associate',
     code: 'DP-700',
     issuer: 'Microsoft',
-    color: '#00d4ff',
+    color: colors.neutral[300],
   },
 ]
 
