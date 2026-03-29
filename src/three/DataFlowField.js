@@ -265,6 +265,7 @@ export class DataFlowField {
 
   setGestureState(state) { this.gestureState = state }
   setHandPosition(pos)  { this.handPos = pos }
+  setHoverPosition(pos) { this.hoverPos = pos }
 
   update(delta) {
     const t = this.clock.getElapsedTime()
@@ -379,6 +380,21 @@ export class DataFlowField {
         p.ox *= 0.96
         p.oy *= 0.96
         p.oz *= 0.96
+      } else if (this.hoverPos) {
+        // Mouse hover interaction (gentle push)
+        const dx = (p.x + p.ox) - this.hoverPos.x
+        const dy = (p.y + p.oy) - this.hoverPos.y
+        const dz = (p.z + p.oz) - this.hoverPos.z
+        const dist = Math.sqrt(dx * dx + dy * dy + dz * dz) || 0.1
+        if (dist < 2.0) {
+          const force = 0.6 * (2.0 - dist)
+          p.ox += (dx / dist) * force * delta * 5
+          p.oy += (dy / dist) * force * delta * 5
+          p.oz += (dz / dist) * force * delta * 5
+        }
+        p.ox *= 0.92
+        p.oy *= 0.92
+        p.oz *= 0.92
       } else {
         p.ox *= 0.94
         p.oy *= 0.94

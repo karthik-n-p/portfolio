@@ -97,6 +97,23 @@ export default function SceneCanvas({ gestureState, activeNode, handPosition }) 
     }
     window.addEventListener('click', onCanvasClick)
 
+    const onPointerMove = (e) => {
+      const rect = mount.getBoundingClientRect()
+      const x = ((e.clientX - rect.left) / rect.width) * 2 - 1
+      const y = -((e.clientY - rect.top) / rect.height) * 2 + 1
+      
+      const raycaster = new THREE.Raycaster()
+      raycaster.setFromCamera(new THREE.Vector2(x, y), camera)
+      const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0)
+      const target = new THREE.Vector3()
+      if (raycaster.ray.intersectPlane(plane, target)) {
+        dataFlow.setHoverPosition(target)
+      } else {
+        dataFlow.setHoverPosition(null)
+      }
+    }
+    window.addEventListener('pointermove', onPointerMove)
+
     // --- Animate ---
     let animId
     const animate = () => {
@@ -148,6 +165,7 @@ export default function SceneCanvas({ gestureState, activeNode, handPosition }) 
     // Store cleanup
     stateRef.current._cleanup = () => {
       window.removeEventListener('click', onCanvasClick)
+      window.removeEventListener('pointermove', onPointerMove)
       cancelAnimationFrame(animId)
       resizeObs.disconnect()
       dataFlow.dispose()
