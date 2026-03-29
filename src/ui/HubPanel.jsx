@@ -1,47 +1,28 @@
 import { profile } from '../data/karthik.js'
-import { colors, typography, motion } from '../design-tokens.js'
-import ScrambleText from './ScrambleText.jsx'
+import { colors, typography } from '../design-tokens.js'
 
 /**
- * HubPanel — Central node panel: name, title, contact, summary
+ * HubPanel — Central hub: name, title, summary, contact links
+ * Also exports shared panel style objects used by all panels.
  */
-export default function HubPanel({ onClose }) {
+export default function HubPanel() {
   return (
-    <div className="panel-animate" style={panelStyle}>
-      <div style={headerStyle} className="stagger-item stagger-1">
-        <span style={labelStyle}>
-          <div style={{ width: 6, height: 6, borderRadius: '50%', background: colors.accent, boxShadow: `0 0 8px ${colors.accent}90` }} />
-          <ScrambleText text="CENTRAL HUB" speed={30} delay={100} />
-        </span>
-        <button
-          onClick={onClose}
-          style={closeStyle}
-          onMouseOver={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = colors.neutral[100]; }}
-          onMouseOut={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; e.currentTarget.style.color = colors.neutral[300]; }}
-        >
-          ✕
-        </button>
-      </div>
-
-      <div className="stagger-item stagger-2" style={{
+    <div className="panel-animate" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <div className="stagger-item stagger-1" style={{
         fontFamily: typography.fontSans,
         fontSize: '14px',
         color: colors.neutral[300],
         lineHeight: 1.7,
-        marginBottom: '32px',
         maxWidth: '460px',
-        borderLeft: `2px solid ${colors.accent}60`,
+        borderLeft: `2px solid ${colors.accent}50`,
         paddingLeft: '16px',
-        background: `linear-gradient(90deg, ${colors.accent}08 0%, transparent 100%)`,
-        padding: '12px 12px 12px 16px',
-        borderRadius: '0 6px 6px 0'
       }}>
         {profile.summary}
       </div>
 
-      <div className="stagger-item stagger-3" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+      <div className="stagger-item stagger-2" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
         <div style={sectionLabel}>Contact Links</div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '10px' }}>
           {[
             { key: 'Email', value: profile.contact.email, href: `mailto:${profile.contact.email}`, icon: '✉' },
             { key: 'LinkedIn', value: profile.contact.linkedin, href: `https://linkedin.com/in/${profile.contact.linkedin}`, icon: 'in' },
@@ -51,22 +32,18 @@ export default function HubPanel({ onClose }) {
               key={key}
               href={href}
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
               className="card"
               style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px',
-                fontFamily: typography.fontSans,
-                fontSize: '13px',
-                color: colors.neutral[100],
-                textDecoration: 'none',
+                display: 'flex', alignItems: 'center', gap: '12px',
+                fontFamily: typography.fontSans, fontSize: '13px',
+                color: colors.neutral[100], textDecoration: 'none',
                 padding: '10px 14px',
               }}
             >
               <span style={{ color: colors.accent, width: '20px', textAlign: 'center', fontSize: '14px' }}>{icon}</span>
               <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <span style={{ color: colors.neutral[300], fontSize: '11px', marginBottom: '2px' }}>{key}</span>
+                <span style={{ color: colors.neutral[400], fontSize: '10px', marginBottom: '2px', letterSpacing: '0.05em' }}>{key}</span>
                 <span style={{ fontFamily: typography.fontMono, fontSize: '11px' }}>{value}</span>
               </div>
             </a>
@@ -77,63 +54,55 @@ export default function HubPanel({ onClose }) {
   )
 }
 
-/* Shared panel styles — imported by all panels */
+// ─── SHARED PANEL STYLE EXPORTS ─────────────────────────
+// Used by all section panels for consistent styling
+
 export const panelStyle = {
-  position: 'relative',
-  padding: '32px',
-  border: 'none',
-  borderRadius: '16px',
-  background: 'transparent',
-  backdropFilter: 'none',
-  boxShadow: 'none',
-  maxWidth: '560px',
-  width: '90vw',
-  maxHeight: '85vh',
-  overflowY: 'auto',
-  scrollbarWidth: 'thin',
-  scrollbarColor: 'rgba(255,255,255,0.1) transparent',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '20px',
 }
 
 export const headerStyle = {
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'center',
-  marginBottom: '28px',
+  marginBottom: '4px',
 }
 
 export const labelStyle = {
-  fontFamily: typography.fontSans,
-  fontSize: '11px',
-  fontWeight: 600,
-  color: colors.neutral[300],
-  letterSpacing: '0.1em',
-  textTransform: 'uppercase',
   display: 'flex',
   alignItems: 'center',
-  gap: '10px'
-}
-
-export const sectionLabel = {
-  fontFamily: typography.fontSans,
-  fontSize: '11px',
+  gap: '10px',
+  fontFamily: typography.fontMono,
+  fontSize: '10px',
   fontWeight: 600,
+  letterSpacing: '0.12em',
   color: colors.neutral[300],
-  letterSpacing: '0.08em',
-  marginBottom: '14px',
   textTransform: 'uppercase',
 }
 
 export const closeStyle = {
-  background: 'rgba(255,255,255,0.03)',
-  border: '1px solid rgba(255,255,255,0.08)',
-  color: colors.neutral[300],
-  cursor: 'pointer',
-  width: '32px',
-  height: '32px',
-  borderRadius: '8px',
-  fontSize: '12px',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  transition: `all ${motion.base}`,
+  width: '28px',
+  height: '28px',
+  borderRadius: '6px',
+  border: `1px solid rgba(255,255,255,0.06)`,
+  background: 'rgba(255,255,255,0.03)',
+  color: colors.neutral[300],
+  fontSize: '11px',
+  cursor: 'pointer',
+  transition: 'all 0.2s ease',
+}
+
+export const sectionLabel = {
+  fontFamily: typography.fontSans,
+  fontSize: '10px',
+  fontWeight: 600,
+  color: colors.neutral[400],
+  letterSpacing: '0.1em',
+  marginBottom: '10px',
+  textTransform: 'uppercase',
 }

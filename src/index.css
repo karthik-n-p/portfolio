@@ -4,24 +4,20 @@
 
 /* ─── DESIGN TOKENS (CSS Custom Properties) ─────────── */
 :root {
-  --c-bg:          #030305;
-  --c-surface:     #0A0A0F;
-  --c-elevated:    #111116;
-  --c-card:        #1A1A22;
-  --c-border:      #2A2A35;
-  --c-border-sub:  #3A3A48;
-  --c-accent:      #00F0FF;
-  --c-emerald:     #00F0FF;
-  --c-violet:      #7000FF;
-  --c-amber:       #FFB800;
-  --c-rose:        #FF0055;
-  --c-text:        #EDEDED;
+  --c-bg:          #050508;
+  --c-surface:     #0A0A10;
+  --c-elevated:    #101018;
+  --c-card:        #16161E;
+  --c-border:      #22222E;
+  --c-border-sub:  #333340;
+  --c-accent:      #0055FF;
+  --c-text:        #E2E8F0;
   --c-text-sec:    #A1A1AA;
   --c-text-dim:    #52525B;
   --c-text-muted:  #71717A;
 
-  --font-sans:     'Outfit', 'Inter', sans-serif;
-  --font-mono:     'Space Grotesk', 'JetBrains Mono', monospace;
+  --font-sans:     'Inter', sans-serif;
+  --font-mono:     'JetBrains Mono', monospace;
 
   --ease:          cubic-bezier(0.16, 1, 0.3, 1);
   --transition:    0.25s var(--ease);
@@ -46,7 +42,7 @@ html, body, #root {
 ::-webkit-scrollbar-thumb { background: var(--c-border); border-radius: 2px; }
 * { scrollbar-width: thin; scrollbar-color: var(--c-border) transparent; }
 
-/* ─── PREMIUM NATIVE SVG CURSORS ───────────────────────── */
+/* ─── PREMIUM CURSOR ───────────────────────────────────── */
 @media (pointer: fine) {
   body {
     cursor: url("data:image/svg+xml,%3Csvg width='32' height='32' viewBox='0 0 32 32' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 5L23 15.5L14.5 17.5L10 26L7 5Z' fill='%23E2E8F0' stroke='%230055FF' stroke-width='1.5' stroke-linejoin='round'/%3E%3C/svg%3E") 7 5, auto;
@@ -56,59 +52,82 @@ html, body, #root {
   }
 }
 
-.panel-scroll {
-  overflow-y: auto;
-  max-height: calc(100vh - 120px);
-}
-
 /* ─── TYPOGRAPHY UTILITIES ──────────────────────────── */
-.text-display {
-  font-size: clamp(40px, 8vw, 64px);
-  font-weight: 800;
-  letter-spacing: -0.04em;
-  line-height: 1;
-}
-.text-hero {
-  font-size: clamp(28px, 4vw, 40px);
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  line-height: 1.1;
-}
-.text-h2 {
-  font-size: 24px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1.2;
-}
-.text-h3 {
-  font-size: 18px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  line-height: 1.3;
-}
-.text-body {
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 1.7;
-  color: var(--c-text-sec);
-}
-.text-caption {
-  font-family: var(--font-sans);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--c-text-sec);
-}
-.text-micro {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.1em;
-  color: var(--c-text-dim);
+.text-gradient {
+  background: linear-gradient(135deg, #ffffff 0%, #B0B8C4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-/* ─── COMPONENT CLASSES ─────────────────────────────── */
+/* ─── CUSTOM ANIMATIONS ─────────────────────────────── */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+.cursor-blink {
+  display: inline-block;
+  animation: blink 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%   { opacity: 0.4; transform: translateY(0); }
+  50%  { opacity: 1; transform: translateY(6px); }
+  100% { opacity: 0.4; transform: translateY(0); }
+}
+
+/* ─── SECTION CONTENT ANIMATIONS — LEFT SIDE ─────────── */
+@keyframes sectionEnterLeft {
+  from { opacity: 0; transform: translateX(-40px); filter: blur(6px); }
+  to   { opacity: 1; transform: translateX(0); filter: blur(0); }
+}
+.section-enter-left {
+  animation: sectionEnterLeft 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes sectionExitLeft {
+  from { opacity: 1; transform: translateX(0); filter: blur(0); }
+  to   { opacity: 0; transform: translateX(-24px); filter: blur(4px); }
+}
+.section-exit-left {
+  animation: sectionExitLeft 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ─── SECTION CONTENT ANIMATIONS — RIGHT SIDE ────────── */
+@keyframes sectionEnterRight {
+  from { opacity: 0; transform: translateX(40px); filter: blur(6px); }
+  to   { opacity: 1; transform: translateX(0); filter: blur(0); }
+}
+.section-enter-right {
+  animation: sectionEnterRight 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes sectionExitRight {
+  from { opacity: 1; transform: translateX(0); filter: blur(0); }
+  to   { opacity: 0; transform: translateX(24px); filter: blur(4px); }
+}
+.section-exit-right {
+  animation: sectionExitRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Legacy fallback — keeping old names for compatibility */
+@keyframes sectionFadeIn {
+  from { opacity: 0; transform: translateY(24px); filter: blur(6px); }
+  to   { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+.section-enter {
+  animation: sectionFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes sectionFadeOut {
+  from { opacity: 1; transform: translateY(0); filter: blur(0); }
+  to   { opacity: 0; transform: translateY(-16px); filter: blur(4px); }
+}
+.section-exit {
+  animation: sectionFadeOut 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ─── CARD ──────────────────────────────────────────── */
 .card {
   padding: 20px;
   border: 1px solid rgba(255,255,255,0.05);
@@ -123,6 +142,7 @@ html, body, #root {
   transform: translateY(-2px);
 }
 
+/* ─── CHIP ──────────────────────────────────────────── */
 .chip {
   display: inline-flex;
   align-items: center;
@@ -137,109 +157,169 @@ html, body, #root {
   transition: all var(--transition);
 }
 
-.section-label {
-  font-family: var(--font-sans);
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--c-text-sec);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  margin-bottom: 14px;
-}
-
-/* ─── PREMIUM UTILITIES ─────────────────────────────── */
+/* ─── GLASS PANEL ───────────────────────────────────── */
 .glass-panel {
-  background: rgba(10, 10, 15, 0.4);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  box-shadow: 0 32px 64px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  background: rgba(8, 8, 14, 0.65);
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 32px 64px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
-.text-gradient {
-  background: linear-gradient(135deg, #ffffff 0%, #E2E8F0 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+/* ─── SCROLL PROGRESS INDICATOR ─────────────────────── */
+.scroll-progress {
+  position: fixed;
+  right: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
 }
-.text-gradient-accent {
-  background: linear-gradient(135deg, var(--c-accent), var(--c-violet));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  text-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
-}
-
-/* ─── BLINKING CURSOR ───────────────────────────────── */
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
-}
-.cursor-blink {
-  display: inline-block;
-  animation: blink 1s ease-in-out infinite;
-}
-
-/* ─── PANEL ANIMATION ───────────────────────────────── */
-@keyframes panelIn {
-  from { opacity: 0; transform: translateY(16px) scale(0.98); filter: blur(8px); }
-  to   { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
-}
-.panel-animate {
-  animation: panelIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-/* ─── RESPONSIVE PANEL LAYOUT ───────────────────────── */
-.panel-layout-wrapper {
+.scroll-progress::before {
+  content: '';
   position: absolute;
-  bottom: 90px; /* Leave room for bottom nav */
+  top: 4px;
+  bottom: 4px;
+  width: 2px;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.02) 100%);
   left: 50%;
   transform: translateX(-50%);
-  width: 100vw;
-  display: flex;
-  justify-content: center;
+  z-index: 0;
+}
+.scroll-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--c-border-sub);
+  box-shadow: 0 0 0 2px var(--c-bg);
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  position: relative;
+  z-index: 1;
+}
+.scroll-dot.active {
+  width: 12px;
+  height: 12px;
+  box-shadow: 0 0 0 2px var(--c-bg);
+}
+.scroll-dot::after {
+  content: attr(data-label);
+  position: absolute;
+  right: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: rgba(255,255,255,0);
+  transition: all 0.3s ease;
   pointer-events: none;
-  z-index: 80; /* Enforce global panel z-index */
 }
-.panel-layout-wrapper > * {
-  pointer-events: auto;
-  max-height: calc(100vh - 140px);
-}
-@media (max-width: 767px) {
-  .panel-layout-wrapper {
-    bottom: 160px;
-  }
-  .panel-layout-wrapper > * {
-    background: rgba(5, 5, 8, 0.5) !important;
-    backdrop-filter: blur(12px) !important;
-    -webkit-backdrop-filter: blur(12px) !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    border-top: 1px solid rgba(0, 85, 255, 0.6) !important;
-    box-shadow: 0 16px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05) !important;
-    max-height: 40vh !important;
-    overflow-y: auto !important;
-  }
-}
-@media (min-width: 768px) {
-  .panel-layout-wrapper {
-    bottom: auto;
-    top: 50%;
-    left: 6%;
-    width: auto;
-    transform: translateY(-50%);
-  }
-  .panel-layout-wrapper > * {
-    max-height: calc(100vh - 80px); /* Taller on desktop */
-  }
+.scroll-dot:hover::after,
+.scroll-dot.active::after {
+  color: var(--c-text-sec);
 }
 
-/* ─── NAV TRANSITION FLASH ──────────────────────────── */
-@keyframes sectionFlash {
-  0%   { opacity: 1; transform: scale(1); }
-  100% { opacity: 0; transform: scale(1.5); }
+/* ─── SECTION CONTENT LAYOUT ────────────────────────── */
+.section-content {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
 }
-.section-flash {
-  animation: sectionFlash 0.5s var(--ease) forwards;
+.section-content > * {
+  pointer-events: auto;
+}
+
+/* ─── PANEL LAYOUT ──────────────────────────────────── */
+.scene-canvas-container {
+  z-index: 1;
+}
+
+.content-panel {
+  position: relative;
+  padding: 32px;
+  border-radius: 16px;
+  max-width: 520px;
+  width: 90vw;
+  max-height: 75vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.1) transparent;
+}
+
+@media (max-width: 767px) {
+  .section-content > div {
+    align-items: flex-end !important;
+    padding-bottom: 24px !important;
+  }
+  .content-panel {
+    max-width: 100%;
+    width: 92vw;
+    max-height: 40vh; /* Shorter to make room for heading underneath 3D model */
+    padding: 24px;
+    border-radius: 12px;
+    background: rgba(8, 8, 14, 0.75); /* Darker on mobile for readability */
+  }
+  .scene-canvas-container:not(.is-hero) {
+    height: 48vh !important;
+    top: 2vh !important;
+    bottom: auto !important;
+    z-index: 1 !important;
+  }
+  .bottom-hud:not(.is-hero) .hud-diagram {
+    position: fixed !important;
+    top: 44vh !important;
+    left: 16px !important;
+    z-index: 70 !important;
+  }
+  .bottom-hud.is-hero .hud-diagram {
+    position: fixed !important;
+    bottom: 56px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: 100vw !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    z-index: 70 !important;
+  }
+  .hud-scroll {
+    position: fixed !important;
+    bottom: 8px !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100vw !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    margin: 0 !important;
+  }
+  .scroll-progress {
+    right: 12px;
+    gap: 16px;
+  }
+  .scroll-dot::after {
+    display: none;
+  }
+  /* Mobile: always slide up from bottom */
+  .section-enter-left,
+  .section-enter-right {
+    animation: staggerFadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  .section-exit-left,
+  .section-exit-right {
+    animation: sectionFadeOut 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
 }
 
 /* ─── STAGGERED FADE IN UTILITIES ───────────────────── */
@@ -252,22 +332,32 @@ html, body, #root {
   opacity: 0;
   animation: staggerFadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
-
 .stagger-1 { animation-delay: 0.1s; }
 .stagger-2 { animation-delay: 0.2s; }
 .stagger-3 { animation-delay: 0.3s; }
 .stagger-4 { animation-delay: 0.4s; }
 .stagger-5 { animation-delay: 0.5s; }
 
-/* ─── RIPPLE EFFECTS (gesture feedback) ─────────────── */
+/* ─── RIPPLE FX ─────────────────────────────────────── */
 @keyframes rippleOut {
   0%   { transform: scale(1); opacity: 0.6; }
   100% { transform: scale(3); opacity: 0; }
 }
-@keyframes rippleIn {
-  0%   { transform: scale(1.5); opacity: 0; }
-  50%  { transform: scale(1.2); opacity: 0.6; }
-  100% { transform: scale(0.8); opacity: 0; }
+
+/* ─── SECTION FLASH ─────────────────────────────────── */
+@keyframes sectionFlash {
+  0%   { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.5); }
+}
+.section-flash {
+  animation: sectionFlash 0.5s var(--ease) forwards;
 }
 
-/* Removed old crosshair cursor styles */
+/* ─── PANEL ANIMATION ───────────────────────────────── */
+@keyframes panelIn {
+  from { opacity: 0; transform: translateY(16px) scale(0.98); filter: blur(8px); }
+  to   { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+.panel-animate {
+  animation: panelIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}

@@ -53,8 +53,8 @@ export default function GestureOverlay({ enabled, onToggle, onGesture, onNavigat
       {enabled && !showInstructions && (
         <div style={{
           position: 'fixed',
-          top: '72px',
-          right: '20px',
+          top: '110px',
+          right: '24px',
           zIndex: 99,
           fontFamily: typography.fontMono,
           fontSize: '9px',
@@ -71,43 +71,6 @@ export default function GestureOverlay({ enabled, onToggle, onGesture, onNavigat
           ✌ NEXT &nbsp;·&nbsp; 🤟 HOME &nbsp;·&nbsp; ? HELP
         </div>
       )}
-
-      {/* Mode toggle */}
-      <button
-        onClick={onToggle}
-        id="gesture-toggle"
-        style={{
-          position: 'fixed',
-          top: '20px',
-          right: '20px',
-          zIndex: 100,
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          padding: '8px 16px',
-          border: `1px solid ${enabled ? colors.accent + '80' : colors.neutral[700] + '60'}`,
-          borderRadius: '8px',
-          background: enabled ? `${colors.accent}15` : 'rgba(10,10,15,0.85)',
-          color: enabled ? colors.accent : colors.neutral[400],
-          fontFamily: typography.fontSans,
-          fontSize: '11px',
-          fontWeight: 600,
-          cursor: 'pointer',
-          letterSpacing: '0.05em',
-          transition: `all ${motion.base}`,
-          backdropFilter: 'blur(8px)',
-          boxShadow: enabled ? `0 0 20px ${colors.accent}15` : 'none',
-        }}
-      >
-        <span style={{
-          width: 8, height: 8,
-          borderRadius: '50%',
-          background: enabled ? colors.accent : colors.neutral[600],
-          boxShadow: enabled ? `0 0 6px ${colors.accent}` : 'none',
-          transition: `all ${motion.base}`,
-        }} />
-        {enabled ? 'GESTURE MODE' : 'NORMAL MODE'}
-      </button>
 
       {/* Hidden video */}
       <video
@@ -127,8 +90,8 @@ export default function GestureOverlay({ enabled, onToggle, onGesture, onNavigat
           onPointerCancel={onPointerUp}
           style={{
           position: 'fixed',
-          bottom: '20px',
-          right: '20px',
+          top: '150px',
+          right: '24px',
           transform: `translate(${translate.x}px, ${translate.y}px)`,
           zIndex: 100,
           cursor: isDragging ? 'grabbing' : 'grab',

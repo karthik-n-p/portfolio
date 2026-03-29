@@ -1,39 +1,48 @@
 /**
  * Design Tokens — Single source of truth
  * Colors, typography, spacing, motion for UI + Three.js
+ *
+ * Fonts: Inter (sans) + JetBrains Mono (mono) — nothing else.
+ * Palette: Deep Obsidian neutrals + Electric Azure accent + premium section colors.
  */
 
 // ─── COLOR PALETTE ───────────────────────────────────────
 export const colors = {
-  // Functional accent colors
-  accent:    '#0055FF',  // Electric Azure — primary interaction point
+  accent:    '#0055FF',  // Electric Azure — primary interaction color
 
-  // Neutral scale (dark to light) - Obsidian to Stark Titanium
+  // Semantic status colors
+  emerald:   '#34D399',  // Success / active
+  amber:     '#FBBF24',  // Warning / caution
+  rose:      '#FB7185',  // Error / destructive
+
+  // Neutral scale (dark → light): Obsidian → Titanium
   neutral: {
-    950: '#050505',  // deepest obsidian background
-    900: '#0A0A0A',  // surface background
-    850: '#111111',  // elevated surface
-    800: '#161616',  // card background
-    700: '#242424',  // border strong
-    600: '#333333',  // border subtle
-    500: '#52525B',  // text dim
-    400: '#71717A',  // text muted
-    300: '#A1A1AA',  // text secondary
-    200: '#D4D4D8',  // text primary
-    100: '#E2E8F0',  // text bright (Titanium)
-    50:  '#F8F9FA',  // text max
+    950: '#050508',
+    900: '#0A0A10',
+    850: '#101018',
+    800: '#16161E',
+    700: '#22222E',
+    600: '#333340',
+    500: '#52525B',
+    400: '#71717A',
+    300: '#A1A1AA',
+    200: '#D4D4D8',
+    100: '#E2E8F0',
+    50:  '#F8F9FA',
   },
+}
 
-  // Section nav colors (maps to activeNode keys)
-  section: {
-    hub:       '#E2E8F0',
-    pipeline:  '#E2E8F0',
-    projects:  '#E2E8F0',
-    skills:    '#E2E8F0',
-    certs:     '#E2E8F0',
-    education: '#E2E8F0',
-    connect:   '#E2E8F0', // Matched with others
-  },
+// ─── PREMIUM SECTION COLOR PALETTE ──────────────────────
+// Each section of the data journey gets a unique premium color
+export const sectionColors = {
+  hero:      { primary: '#6366F1', secondary: '#818CF8', glow: '#4F46E5' },   // Indigo Nebula
+  hub:       { primary: '#0EA5E9', secondary: '#38BDF8', glow: '#0284C7' },   // Cyan Stream
+  pipeline:  { primary: '#F59E0B', secondary: '#FCD34D', glow: '#D97706' },   // Amber ETL
+  skills:    { primary: '#8B5CF6', secondary: '#A78BFA', glow: '#7C3AED' },   // Violet Warehouse
+  projects:  { primary: '#10B981', secondary: '#34D399', glow: '#059669' },   // Emerald DAG
+  certs:     { primary: '#F43F5E', secondary: '#FB7185', glow: '#E11D48' },   // Rose Validation
+  education: { primary: '#06B6D4', secondary: '#22D3EE', glow: '#0891B2' },   // Teal Foundation
+  connect:   { primary: '#EC4899', secondary: '#F472B6', glow: '#DB2777' },   // Pink Output
 }
 
 // ─── TYPOGRAPHY ──────────────────────────────────────────
@@ -41,7 +50,6 @@ export const typography = {
   fontSans:  "'Inter', sans-serif",
   fontMono:  "'JetBrains Mono', monospace",
 
-  // Modular scale (ratio ~1.25)
   display:  { size: '64px', weight: 800, tracking: '-0.04em', leading: 1.0 },
   hero:     { size: '40px', weight: 700, tracking: '-0.03em', leading: 1.1 },
   h1:       { size: '32px', weight: 700, tracking: '-0.02em', leading: 1.15 },
@@ -69,59 +77,39 @@ export const motion = {
   fast:    '0.15s cubic-bezier(0.16, 1, 0.3, 1)',
   base:    '0.25s cubic-bezier(0.16, 1, 0.3, 1)',
   smooth:  '0.4s cubic-bezier(0.16, 1, 0.3, 1)',
-  morph:   '1.2s cubic-bezier(0.22, 1, 0.36, 1)',  // DataFlowField formation transitions
+  morph:   '1.2s cubic-bezier(0.22, 1, 0.36, 1)',
 }
 
-// ─── COMPONENT PRESETS ──────────────────────────────────
-export const components = {
-  panel: {
-    background: 'rgba(10, 10, 15, 0.6)',
-    border: `1px solid rgba(255, 255, 255, 0.05)`,
-    borderRadius: '20px',
-    backdropFilter: 'blur(32px)',
-    shadow: '0 32px 64px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.1)',
-    padding: '32px',
-    maxWidth: '560px',
-    width: '90vw',
-  },
-  card: {
-    background: 'rgba(255,255,255,0.02)',
-    border: `1px solid ${colors.neutral[700]}30`,
-    borderRadius: '12px',
-    padding: '20px',
-  },
-  chip: {
-    background: 'rgba(255,255,255,0.03)',
-    border: `1px solid ${colors.neutral[700]}40`,
-    borderRadius: '6px',
-    padding: '6px 10px',
-    fontSize: typography.caption.size,
-    fontWeight: typography.caption.weight,
-  },
-  navButton: {
-    padding: '8px 16px',
-    borderRadius: '8px',
-    fontSize: typography.caption.size,
-    fontWeight: 600,
-    letterSpacing: '0.05em',
-  },
-}
+// ─── SECTION DATA (scroll-based journey) ────────────────
+// Each section gets a narrative label and a brief line
+export const SECTIONS = [
+  { key: 'hero',      label: 'RAW DATA',          tagline: 'Unstructured. Unrefined. Unlimited potential.', diagram: 'BRONZE: INGEST' },
+  { key: 'hub',       label: 'PROFILE',           tagline: 'Core identity and specialized focus areas.', diagram: 'BRONZE → SILVER' },
+  { key: 'pipeline',  label: 'EXPERIENCE',        tagline: 'Professional history and corporate impact.', diagram: 'SILVER: CONFORMED' },
+  { key: 'skills',    label: 'SKILLS',            tagline: 'Technical toolkit and domain expertise.', diagram: 'DAG ORCHESTRATION' },
+  { key: 'projects',  label: 'PROJECTS',          tagline: 'Architecting dynamic data products at scale.', diagram: 'GOLD: AGGREGATED' },
+  { key: 'certs',     label: 'CERTIFICATION',     tagline: 'Industry-verified engineering credentials.', diagram: 'DATA GOVERNANCE' },
+  { key: 'education', label: 'EDUCATION',         tagline: 'The academic bedrock of this practice.', diagram: 'DATA CATALOG' },
+  { key: 'connect',   label: 'CONNECT',           tagline: 'Ready to deliver. Let\'s build together.', diagram: 'SERVING: BI APPS' },
+]
 
-// ─── THREE.JS COLORS (hex integers for materials) ──────
+// ─── THREE.JS COLORS (hex integers) ────────────────────
 export const threeColors = {
-  background:    0x050505,
-  accent:        0x0055FF, // Azure
-  gridLine:      0x111111,
-  gridDot:       0x1A1A1A,
-  gridAccent:    0x0044CC, // Less intense Azure
+  background:    0x050508,
+  accent:        0x0055FF,
+  gridLine:      0x111118,
+  gridDot:       0x1A1A22,
+  gridAccent:    0x0044CC,
+}
 
-  section: {
-    hub:       0x444444,
-    pipeline:  0x444444,
-    projects:  0x444444,
-    skills:    0x444444,
-    certs:     0x444444,
-    education: 0x444444,
-    connect:   0x444444,
-  },
+// ─── THREE.JS SECTION COLORS (hex integers for Three.js) ─
+export const threeSectionColors = {
+  hero:      { primary: 0x6366F1, secondary: 0x818CF8, dim: 0x312E81 },
+  hub:       { primary: 0x0EA5E9, secondary: 0x38BDF8, dim: 0x0C4A6E },
+  pipeline:  { primary: 0xF59E0B, secondary: 0xFCD34D, dim: 0x78350F },
+  skills:    { primary: 0x8B5CF6, secondary: 0xA78BFA, dim: 0x4C1D95 },
+  projects:  { primary: 0x10B981, secondary: 0x34D399, dim: 0x064E3B },
+  certs:     { primary: 0xF43F5E, secondary: 0xFB7185, dim: 0x881337 },
+  education: { primary: 0x06B6D4, secondary: 0x22D3EE, dim: 0x164E63 },
+  connect:   { primary: 0xEC4899, secondary: 0xF472B6, dim: 0x831843 },
 }

@@ -1,5 +1,8 @@
 // Structured data extracted from karthik.txt
-import { colors } from '../design-tokens.js'
+import { colors, sectionColors } from '../design-tokens.js'
+
+const certsPalette = sectionColors.certs
+const skillsPalette = sectionColors.skills
 
 export const profile = {
   name: 'KARTHIK NP',
@@ -18,7 +21,7 @@ export const skills = [
     id: 'programming',
     category: 'Programming Languages',
     items: ['Python', 'SQL'],
-    color: colors.neutral[100],
+    color: skillsPalette.primary,
     clusterPos: { x: -2.5, y: 1.2 },
     streamId: 'stream_0x1a',
   },
@@ -26,7 +29,7 @@ export const skills = [
     id: 'bigdata',
     category: 'Big Data & Streaming',
     items: ['Apache Spark', 'PySpark', 'Kafka', 'Hadoop', 'HDFS'],
-    color: colors.neutral[300],
+    color: skillsPalette.secondary,
     clusterPos: { x: 2.8, y: 1.0 },
     streamId: 'stream_0x2b',
   },
@@ -34,7 +37,7 @@ export const skills = [
     id: 'cloud',
     category: 'Cloud & Data Platforms',
     items: ['Databricks', 'Azure Data Factory', 'Azure Synapse', 'Snowflake'],
-    color: colors.accent,
+    color: skillsPalette.glow,
     clusterPos: { x: 2.8, y: -1.2 },
     streamId: 'stream_0x5e',
   },
@@ -42,7 +45,7 @@ export const skills = [
     id: 'databases',
     category: 'Databases & Data Lakes',
     items: ['Delta Lake', 'MongoDB', 'Azure SQL', 'IBM DB2'],
-    color: colors.neutral[100],
+    color: skillsPalette.primary,
     clusterPos: { x: -2.5, y: -1.0 },
     streamId: 'stream_0x4d',
   },
@@ -50,7 +53,7 @@ export const skills = [
     id: 'dataeng',
     category: 'Engineering & Analytics',
     items: ['ETL / ELT', 'Data Warehousing', 'Data Modeling', 'dbt', 'Alteryx'],
-    color: colors.neutral[300],
+    color: skillsPalette.secondary,
     clusterPos: { x: 0, y: -2.0 },
     streamId: 'stream_0x3c',
   },
@@ -58,7 +61,7 @@ export const skills = [
     id: 'workflow',
     category: 'Tools & Methodologies',
     items: ['Git', 'GitHub', 'Agile / Scrum', 'CI/CD'],
-    color: colors.neutral[500],
+    color: skillsPalette.glow,
     clusterPos: { x: 0, y: 2.2 },
     streamId: 'stream_0x6f',
   },
@@ -142,21 +145,21 @@ export const certifications = [
     name: 'Azure Data Engineer Associate',
     code: 'DP-203',
     issuer: 'Microsoft',
-    color: colors.accent,
+    color: certsPalette.primary,
   },
   {
     id: 'dp600',
     name: 'Fabric Analytics Engineer Associate',
     code: 'DP-600',
     issuer: 'Microsoft',
-    color: colors.neutral[100],
+    color: certsPalette.secondary,
   },
   {
     id: 'dp700',
     name: 'Fabric Data Engineer Associate',
     code: 'DP-700',
     issuer: 'Microsoft',
-    color: colors.neutral[300],
+    color: certsPalette.glow,
   },
 ]
 

@@ -1,23 +1,25 @@
 import { projects } from '../data/karthik.js'
 import { panelStyle, headerStyle, labelStyle, closeStyle, sectionLabel } from './HubPanel.jsx'
-import { colors, typography } from '../design-tokens.js'
+import { colors, sectionColors, typography } from '../design-tokens.js'
 import ScrambleText from './ScrambleText.jsx'
 
 /**
  * ProjectsPanel — Projects as interactive DAG nodes
  */
 export default function ProjectsPanel({ onClose }) {
+  const theme = sectionColors.projects
+
   return (
     <div className="panel-animate" style={panelStyle}>
       <div style={headerStyle}>
         <span style={labelStyle}>
-          <div style={{ width: 6, height: 6, borderRadius: '50%', background: colors.neutral[100], boxShadow: `0 0 8px ${colors.neutral[100]}90` }} />
+          <div style={{ width: 6, height: 6, borderRadius: '50%', background: theme.primary, boxShadow: `0 0 8px ${theme.primary}90` }} />
           <ScrambleText text="PROJECTS PORTFOLIO" speed={30} delay={100} />
         </span>
         <button
           onClick={onClose}
           style={closeStyle}
-          onMouseOver={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = colors.neutral[100]; }}
+          onMouseOver={e => { e.currentTarget.style.background = `${theme.primary}22`; e.currentTarget.style.color = theme.secondary; e.currentTarget.style.borderColor = `${theme.primary}55`; }}
           onMouseOut={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; e.currentTarget.style.color = colors.neutral[300]; }}
         >✕</button>
       </div>
@@ -57,15 +59,15 @@ export default function ProjectsPanel({ onClose }) {
                   <a href={project.link} target="_blank" rel="noreferrer" style={{
                     display: 'inline-flex', alignItems: 'center', gap: '6px',
                     fontFamily: typography.fontSans, fontSize: '11px', fontWeight: 600, letterSpacing: '0.05em',
-                    color: colors.accent, border: `1px solid ${colors.accent}40`,
+                    color: theme.primary, border: `1px solid ${theme.primary}40`,
                     padding: '6px 12px', borderRadius: '20px', textDecoration: 'none',
-                    background: `${colors.accent}15`, whiteSpace: 'nowrap',
+                    background: `${theme.primary}15`, whiteSpace: 'nowrap',
                     transition: 'all 0.2s ease',
                   }}
-                  onMouseOver={e => e.currentTarget.style.background = `${colors.accent}28`}
-                  onMouseOut={e => e.currentTarget.style.background = `${colors.accent}15`}
+                  onMouseOver={e => e.currentTarget.style.background = `${theme.primary}28`}
+                  onMouseOut={e => e.currentTarget.style.background = `${theme.primary}15`}
                   >
-                    <span style={{ width: 6, height: 6, borderRadius: '50%', background: colors.accent }} />
+                    <span style={{ width: 6, height: 6, borderRadius: '50%', background: theme.primary }} />
                     LIVE VIEW
                   </a>
                 )}
@@ -74,7 +76,7 @@ export default function ProjectsPanel({ onClose }) {
 
             {/* DAG visualization */}
             <div style={sectionLabel}>Architecture DAG</div>
-            <DagVisualization project={project} />
+            <DagVisualization project={project} theme={theme} />
 
             <div style={sectionLabel}>Description</div>
             <div className="text-body" style={{ margin: '0 0 24px 0' }}>
@@ -84,7 +86,7 @@ export default function ProjectsPanel({ onClose }) {
             <div style={sectionLabel}>Technology Stack</div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
               {project.stack.map((tech) => (
-                <span key={tech} className="chip" style={{ color: colors.neutral[100] }}>
+                <span key={tech} className="chip" style={{ color: colors.neutral[100], borderColor: `${theme.primary}45`, background: `${theme.primary}14` }}>
                   {tech}
                 </span>
               ))}
@@ -96,7 +98,7 @@ export default function ProjectsPanel({ onClose }) {
   )
 }
 
-function DagVisualization({ project }) {
+function DagVisualization({ project, theme }) {
   const canvasW = 440
   const canvasH = 140
 
@@ -146,7 +148,7 @@ function DagVisualization({ project }) {
         if (!pos) return null
         const isSource = n.id.startsWith('source') || n.id === 'api'
         const isSink = n.id === 'delta' || n.id === 'dashboard' || n.id === 'ui'
-        const color = isSource ? colors.neutral[300] : isSink ? colors.neutral[100] : colors.accent
+        const color = isSource ? colors.neutral[300] : isSink ? theme.secondary : theme.primary
 
         return (
           <g key={n.id} transform={`translate(${pos.x}, ${pos.y})`}>

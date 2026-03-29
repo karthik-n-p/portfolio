@@ -1,24 +1,30 @@
 import { skills } from '../data/karthik.js'
 import { panelStyle, headerStyle, labelStyle, closeStyle } from './HubPanel.jsx'
-import { colors, typography } from '../design-tokens.js'
+import { colors, sectionColors, typography } from '../design-tokens.js'
 import ScrambleText from './ScrambleText.jsx'
 
 /**
  * SkillsPanel — Skills as distributed stream clusters
  */
 export default function SkillsPanel({ onClose }) {
+  const theme = sectionColors.skills
+
   return (
     <div className="panel-animate" style={panelStyle}>
       <div style={headerStyle}>
         <span style={labelStyle}>
-           <div style={{ width: 6, height: 6, borderRadius: '50%', background: colors.neutral[100], boxShadow: `0 0 8px ${colors.neutral[100]}90` }} />
+           <div style={{ width: 6, height: 6, borderRadius: '50%', background: theme.primary, boxShadow: `0 0 8px ${theme.primary}90` }} />
            <ScrambleText text="TECH INTEGRATIONS" speed={30} delay={100} />
         </span>
         <button
           onClick={onClose}
           style={closeStyle}
-          onMouseOver={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = colors.neutral[100]; }}
-          onMouseOut={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; e.currentTarget.style.color = colors.neutral[300]; }}
+          onMouseOver={e => { e.currentTarget.style.background = `${theme.primary}22`; e.currentTarget.style.color = theme.secondary; e.currentTarget.style.borderColor = `${theme.primary}55`; }}
+          onMouseOut={e => {
+            e.currentTarget.style.background = 'rgba(255,255,255,0.03)'
+            e.currentTarget.style.color = colors.neutral[300]
+            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'
+          }}
         >✕</button>
       </div>
 
@@ -65,6 +71,8 @@ export default function SkillsPanel({ onClose }) {
                   fontSize: '13px',
                   fontWeight: 500,
                   color: colors.neutral[100],
+                  borderColor: `${group.color}40`,
+                  background: `linear-gradient(180deg, ${group.color}14, rgba(255,255,255,0.02))`,
                   cursor: 'default',
                 }}>
                   {item}
