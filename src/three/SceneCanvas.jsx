@@ -76,12 +76,26 @@ export default function SceneCanvas({ gestureState, activeNode, handPosition }) 
     const clock = new THREE.Clock()
 
     // --- Interaction ---
-    const mouseParams = { x: 0, y: 0 }
-    const onMouseMove = (e) => {
-      mouseParams.x = (e.clientX / window.innerWidth) * 2 - 1
-      mouseParams.y = -(e.clientY / window.innerHeight) * 2 + 1
+    const onCanvasClick = (e) => {
+      // Only react if clicking directly on the canvas or its mount
+      if (e.target !== renderer.domElement && e.target !== mount) return;
+      
+      const rect = mount.getBoundingClientRect()
+      const x = ((e.clientX - rect.left) / rect.width) * 2 - 1
+      const y = -((e.clientY - rect.top) / rect.height) * 2 + 1
+      
+      const raycaster = new THREE.Raycaster()
+      raycaster.setFromCamera(new THREE.Vector2(x, y), camera)
+      
+      const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0)
+      const target = new THREE.Vector3()
+      if (raycaster.ray.intersectPlane(plane, target)) {
+        dataFlow.triggerPulse(target)
+      } else {
+        dataFlow.triggerPulse()
+      }
     }
-    window.addEventListener('mousemove', onMouseMove)
+    window.addEventListener('click', onCanvasClick)
 
     // --- Animate ---
     let animId
@@ -98,7 +112,6 @@ export default function SceneCanvas({ gestureState, activeNode, handPosition }) 
       dataFlow.setGestureState(currentGesture)
       dataFlow.setHandPosition(currentHandPos)
       dataFlow.setActiveSection(currentActive)
-      if (dataFlow.setMousePosition) dataFlow.setMousePosition(mouseParams)
       dataFlow.update(delta)
 
       grid.setGestureState(currentGesture)
@@ -107,11 +120,14 @@ export default function SceneCanvas({ gestureState, activeNode, handPosition }) 
       grid.update(delta, elapsed)
 
       // Smooth 3D scene shift:
-      // Desktop: panel is on left, shift camera LEFT -> object to RIGHT
-      // Mobile: panel is on bottom, shift camera DOWN -> object to TOP
-      const isMobileNow = window.innerWidth < 768
-      const targetFocusX = currentActive && !isMobileNow ? -4.0 : 0
-      const targetFocusY = currentActive && isMobileNow ? -8.5 : 0
+      const W = window.innerWidth
+      const isMobileNow = W < 768
+      
+      // Shift camera so 3D forms are visible alongside UI panels
+      // If mobile, panel is usually at bottom, so push camera down (scene moves up)
+      // If desktop, panel is usually centered or wide, let's push camera left (scene moves right)
+      const targetFocusX = currentActive ? (isMobileNow ? 0 : -4.5) : 0
+      const targetFocusY = currentActive ? (isMobileNow ? -5.5 : 0) : 0
 
       // Let the camera drift gently around the target focus point
       const t = elapsed
@@ -131,9 +147,9 @@ export default function SceneCanvas({ gestureState, activeNode, handPosition }) 
 
     // Store cleanup
     stateRef.current._cleanup = () => {
+      window.removeEventListener('click', onCanvasClick)
       cancelAnimationFrame(animId)
       resizeObs.disconnect()
-      window.removeEventListener('mousemove', onMouseMove)
       dataFlow.dispose()
       grid.dispose()
       renderer.dispose()

@@ -344,8 +344,8 @@ export default function App() {
             inset: 0,
             zIndex: 70,
             cursor: 'pointer',
-            backgroundColor: 'rgba(5, 5, 5, 0.7)',
-            backdropFilter: 'blur(16px)',
+            backgroundColor: 'transparent',
+            backdropFilter: 'none',
             transition: 'all 0.4s ease',
           }}
         />

@@ -89,22 +89,6 @@ export default function CertsPanel({ onClose }) {
               </div>
             </div>
 
-            {/* Checkpoint indicator */}
-            <div style={{
-              position: 'absolute',
-              top: '16px',
-              right: '20px',
-              fontFamily: typography.fontSans,
-              fontSize: '10px',
-              fontWeight: 600,
-              color: cert.color,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px'
-            }}>
-               <div style={{ width: 4, height: 4, borderRadius: '50%', background: cert.color }} />
-              VERIFIED
-            </div>
           </div>
         ))}
       </div>

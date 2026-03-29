@@ -82,18 +82,6 @@ export default function EducationPanel({ onClose }) {
               </span>
             </div>
 
-            {/* Record indicator */}
-            <div style={{
-              position: 'absolute',
-              top: '20px',
-              right: '20px',
-              fontFamily: typography.fontMono,
-              fontSize: '9px',
-              color: 'rgba(255,255,255,0.2)',
-              letterSpacing: '0.1em',
-            }}>
-              record_{String(i + 1).padStart(2, '0')}
-            </div>
           </div>
         ))}
       </div>

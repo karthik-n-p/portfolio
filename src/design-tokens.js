@@ -32,7 +32,7 @@ export const colors = {
     skills:    '#E2E8F0',
     certs:     '#E2E8F0',
     education: '#E2E8F0',
-    connect:   '#0055FF', // Only connect acts as a CTA glow
+    connect:   '#E2E8F0', // Matched with others
   },
 }
 
@@ -122,6 +122,6 @@ export const threeColors = {
     skills:    0x444444,
     certs:     0x444444,
     education: 0x444444,
-    connect:   0x0055FF,
+    connect:   0x444444,
   },
 }

@@ -44,7 +44,7 @@ const FORMATIONS = {
     return {
       x: R * Math.cos(theta) * Math.sin(phi),
       y: R * Math.cos(phi) * 0.9, // Slight polar flattening like an oblate spheroid
-      z: R * Math.sin(theta) * Math.sin(phi) - 1.5,
+      z: R * Math.sin(theta) * Math.sin(phi),
     }
   },
   hub: (i, total) => {
@@ -58,7 +58,7 @@ const FORMATIONS = {
     return {
       x: r * Math.cos(theta) * Math.sin(phi),
       y: r * Math.cos(phi),
-      z: r * Math.sin(theta) * Math.sin(phi) - 1,
+      z: r * Math.sin(theta) * Math.sin(phi) - 1.5,
     }
   },
   pipeline: (i, total) => {
@@ -69,20 +69,21 @@ const FORMATIONS = {
     return {
       x: t * 14 - 7, // long stretch for velocity impact
       y: (track - 1) * 1.5, // 3 distinct vertical lanes
-      z: Math.sin(i * 0.1) * 0.5 - 1.5, // strict alignment
+      z: Math.sin(i * 0.1) * 0.5 - 2, // strict alignment
     }
   },
   projects: (i, total) => {
     // Isolated Production Deployments: 3 perfectly distinct, dense functional spheres (Nodes)
+    const mobile = window.innerWidth < 768
     const cluster = i % 3
-    const cx = [-3.5, 0, 3.5][cluster]
-    const cy = [1.0, -1.0, 1.0][cluster]
+    const cx = mobile ? [-1.8, 0, 1.8][cluster] : [-3.5, 0, 3.5][cluster]
+    const cy = mobile ? [1.4, -0.4, 1.4][cluster] : [1.0, -1.0, 1.0][cluster]
     
     const chunkTotal = total / 3
     const idx = Math.floor(i / 3)
     const phi = Math.acos(1 - 2 * (idx + 0.5) / chunkTotal)
     const theta = Math.PI * (1 + Math.sqrt(5)) * (idx + 0.5)
-    const r = 0.8
+    const r = mobile ? 0.6 : 0.8
     
     return {
       x: cx + r * Math.cos(theta) * Math.sin(phi),
@@ -264,7 +265,6 @@ export class DataFlowField {
 
   setGestureState(state) { this.gestureState = state }
   setHandPosition(pos)  { this.handPos = pos }
-  setMousePosition(pos) { this.mousePos = pos }
 
   update(delta) {
     const t = this.clock.getElapsedTime()
@@ -280,12 +280,6 @@ export class DataFlowField {
 
       let targetRotX = this.baseRotX
       let targetRotY = this.baseRotY
-
-      // Premium interactive tilt — the core leans toward the cursor
-      if (this.mousePos) {
-        targetRotX += -this.mousePos.y * 0.45
-        targetRotY += this.mousePos.x * 0.35
-      }
 
       // Smoothly interpolate current rotation toward the interactive target
       this.mesh.rotation.y += (targetRotY - this.mesh.rotation.y) * delta * 4
@@ -307,7 +301,8 @@ export class DataFlowField {
     const targetMaxOff = isFist ? 30 : 3
     this.currentMaxOff += (targetMaxOff - this.currentMaxOff) * (delta * 5)
 
-    const lerpSpeed = 0.02 + delta * 2  // ~0.02-0.05 per frame
+    // Luxurious, smooth structural morphing (slower lerp)
+    const lerpSpeed = 0.01 + delta * 1.5  // ultra-premium smoothness
     const hx = this.handWorld.x
     const hy = this.handWorld.y
 
@@ -408,6 +403,34 @@ export class DataFlowField {
     }
 
     this.mesh.instanceMatrix.needsUpdate = true
+  }
+
+  triggerPulse(point) {
+    if (point) {
+      for (let i = 0; i < this.count; i++) {
+        const p = this.particles[i]
+        
+        // World position of the particle (approximate)
+        const dx = (p.x + p.ox) - point.x
+        const dy = (p.y + p.oy) - point.y
+        const dz = (p.z + p.oz) - point.z
+        
+        const dist = Math.sqrt(dx * dx + dy * dy + dz * dz)
+        if (dist < 6) {
+          const force = 5.0 / (dist + 0.1)
+          p.ox += (dx / dist) * force
+          p.oy += (dy / dist) * force
+          p.oz += (dz / dist) * force
+        }
+      }
+    } else {
+      for (let i = 0; i < this.count; i++) {
+        const p = this.particles[i]
+        p.ox += (Math.random() - 0.5) * 8
+        p.oy += (Math.random() - 0.5) * 8
+        p.oz += (Math.random() - 0.5) * 8
+      }
+    }
   }
 
   dispose() {
