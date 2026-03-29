@@ -258,20 +258,20 @@ export default function App() {
     fontWeight: 800,
     letterSpacing: '0.25em',
     color: colors.accent,
-    textShadow: '0 0 15px rgba(0, 85, 255, 0.8), 0 0 30px rgba(0, 85, 255, 0.4)',
+    textShadow: '0 0 10px rgba(0, 85, 255, 0.6), 0 0 20px rgba(0, 85, 255, 0.2)',
     marginBottom: '16px',
     textTransform: 'uppercase',
     display: 'flex',
     alignItems: 'center',
     gap: '12px',
-    background: 'rgba(5, 5, 5, 0.7)', // True Obsidian
-    border: '1px solid rgba(0, 85, 255, 0.5)',
+    background: 'rgba(10, 10, 15, 0.6)', // Steely Obsidian
+    border: '1px solid rgba(255, 255, 255, 0.1)',
     padding: '8px 20px',
     borderRadius: '30px',
     backdropFilter: 'blur(16px)',
-    boxShadow: '0 8px 32px rgba(0,0,0,0.8), inset 0 0 16px rgba(0, 85, 255, 0.2)',
+    boxShadow: '0 8px 32px rgba(0,0,0,0.5), inset 0 0 8px rgba(255, 255, 255, 0.05)',
   }}>
-    <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#ffffff', boxShadow: '0 0 16px #ffffff' }} className="cursor-blink" />
+    <div style={{ width: 8, height: 8, borderRadius: '50%', background: colors.accent, boxShadow: `0 0 12px ${colors.accent}` }} className="cursor-blink" />
     HI, I AM
   </div>
 
@@ -307,13 +307,13 @@ export default function App() {
     letterSpacing: '0.05em',
     textTransform: 'uppercase',
     color: '#ffffff',
-    textShadow: `0 0 10px ${colors.accent}`,
-    background: 'rgba(5, 5, 5, 0.5)',
+    textShadow: `0 0 8px ${colors.accent}`,
+    background: 'rgba(10, 10, 15, 0.6)',
     backdropFilter: 'blur(16px)',
-    border: `1px solid rgba(0, 85, 255, 0.3)`,
+    border: `1px solid rgba(255, 255, 255, 0.08)`,
     borderRadius: '12px',
     padding: '12px 24px',
-    boxShadow: `0 16px 40px rgba(0,0,0,0.6), inset 0 0 20px rgba(0, 85, 255, 0.05)`,
+    boxShadow: `0 16px 40px rgba(0,0,0,0.4)`,
   }}>
     <span style={{
       color: 'rgba(255,255,255,0.3)',
@@ -344,6 +344,9 @@ export default function App() {
             inset: 0,
             zIndex: 70,
             cursor: 'pointer',
+            backgroundColor: 'rgba(5, 5, 5, 0.7)',
+            backdropFilter: 'blur(16px)',
+            transition: 'all 0.4s ease',
           }}
         />
       )}

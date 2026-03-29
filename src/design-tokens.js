@@ -111,17 +111,17 @@ export const components = {
 export const threeColors = {
   background:    0x050505,
   accent:        0x0055FF, // Azure
-  gridLine:      0x1A1A1A,
-  gridDot:       0x333333,
-  gridAccent:    0x0055FF, // Azure energy pulse
+  gridLine:      0x111111,
+  gridDot:       0x1A1A1A,
+  gridAccent:    0x0044CC, // Less intense Azure
 
   section: {
-    hub:       0xE2E8F0,
-    pipeline:  0xE2E8F0,
-    projects:  0xE2E8F0,
-    skills:    0xE2E8F0,
-    certs:     0xE2E8F0,
-    education: 0xE2E8F0,
+    hub:       0x444444,
+    pipeline:  0x444444,
+    projects:  0x444444,
+    skills:    0x444444,
+    certs:     0x444444,
+    education: 0x444444,
     connect:   0x0055FF,
   },
 }

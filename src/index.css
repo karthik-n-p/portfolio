@@ -156,7 +156,7 @@ html, body, #root {
 }
 
 .text-gradient {
-  background: linear-gradient(135deg, #ffffff 0%, #A1A1AA 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #E2E8F0 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -209,10 +209,11 @@ html, body, #root {
     bottom: 160px;
   }
   .panel-layout-wrapper > * {
-    background: rgba(8, 8, 12, 0.35) !important;
-    backdrop-filter: blur(12px) !important;
-    -webkit-backdrop-filter: blur(12px) !important;
-    border-top: 1px solid rgba(0, 240, 255, 0.4) !important;
+    background: rgba(8, 8, 12, 0.85) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-top: 1px solid rgba(0, 50, 255, 0.5) !important;
     max-height: 40vh !important;
     overflow-y: auto !important;
   }

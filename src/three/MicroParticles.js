@@ -11,7 +11,7 @@ import * as THREE from 'three'
  */
 
 const MICRO_COUNT_DESKTOP = 2000
-const MICRO_COUNT_MOBILE = 600
+const MICRO_COUNT_MOBILE = 250
 
 function isMobile() {
   return window.innerWidth < 768
