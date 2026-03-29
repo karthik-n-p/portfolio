@@ -9,7 +9,7 @@ import { colors, typography, motion } from '../design-tokens.js'
 export default function GestureOverlay({ enabled, onToggle, onGesture, onNavigate, onHandPosition, onHeadPosition }) {
   const [showInstructions, setShowInstructions] = useState(false)
   const [navFlash, setNavFlash] = useState(null)
-  const { videoRef, canvasRef, gestureLabel, handVisible, headVisible, faceError } = useGestureEngine({
+  const { videoRef, canvasRef, gestureLabel, handVisible, headVisible, faceError, handError, lightError } = useGestureEngine({
     enabled,
     onGesture,
     onNavigate: (dir) => {
@@ -167,9 +167,19 @@ export default function GestureOverlay({ enabled, onToggle, onGesture, onNavigat
             <div style={{ color: handVisible ? colors.accent : colors.neutral[500] }}>
               {handVisible ? gestureLabel : 'NO HAND DETECTED'}
             </div>
+            {handError && (
+              <div style={{ color: colors.amber, marginTop: '4px' }}>
+                {handError}
+              </div>
+            )}
             <div style={{ color: faceError ? colors.rose : (headVisible ? colors.emerald : colors.neutral[500]), marginTop: '4px' }}>
               {faceError ? `FACE ERR: ${faceError}` : (headVisible ? 'FACE DETECTED' : 'NO FACE DETECTED')}
             </div>
+            {lightError && (
+              <div style={{ color: colors.amber, marginTop: '4px', borderTop: `1px dashed ${colors.amber}50`, paddingTop: '4px' }}>
+                {lightError}
+              </div>
+            )}
           </div>
         </div>
       )}

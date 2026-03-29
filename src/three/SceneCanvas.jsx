@@ -126,6 +126,16 @@ export default function SceneCanvas({ gestureState, activeNode, handPosition, he
       const currentHandPos = stateRef.current.handPosition || null
       const currentHeadPos = stateRef.current.headPosition || null
       const currentActive  = stateRef.current.activeNode || null
+      
+      // Hyperspace transition trigger
+      if (currentActive !== stateRef.current._prevActiveNode) {
+         stateRef.current._prevActiveNode = currentActive
+         stateRef.current._transitionPhase = 1.0
+      }
+      if (stateRef.current._transitionPhase > 0) {
+         stateRef.current._transitionPhase = Math.max(0, stateRef.current._transitionPhase - delta * 1.5)
+      }
+      const transition = stateRef.current._transitionPhase || 0
 
       dataFlow.setGestureState(currentGesture)
       dataFlow.setHandPosition(currentHandPos)
@@ -173,8 +183,37 @@ export default function SceneCanvas({ gestureState, activeNode, handPosition, he
       camera.position.x += (finalTargetX - camera.position.x) * delta * 5
       camera.position.y += (finalTargetY - camera.position.y) * delta * 5
       
+      // Volumetric pivot: physically rotate the whole structure gently to reveal lateral sides on mobile/desktop
+      let targetRotY = 0
+      let targetRotX = 0
+      if (currentHeadPos) {
+         // positive X head -> look left side -> pivot Y negatively to expose side
+         targetRotY = currentHeadPos.x * (isMobileNow ? 0.35 : 0.2)
+         // positive Y head -> look top side -> pivot X down to expose top
+         targetRotX = currentHeadPos.y * (isMobileNow ? -0.25 : -0.15)
+      }
+      scene.rotation.y += (targetRotY - scene.rotation.y) * delta * 5
+      scene.rotation.x += (targetRotX - scene.rotation.x) * delta * 5
+
       // Strictly look at the original content focus core so camera pivots correctly, generating massive 3D depth
       camera.lookAt(targetFocusX - camDriftX, targetFocusY - camDriftY, 0)
+      
+      // Cinematic Camera Choreography: apply FOV and Dutch Angle Z-roll during UI hyperjumps
+      if (transition > 0) {
+        const currentAspect = W / window.innerHeight
+        const baseFov = isMobileNow ? Math.max(75, 90 - currentAspect * 20) : 55
+        const jumpCurve = Math.sin(transition * Math.PI) // 0 -> 1 -> 0 parabolic arc
+        
+        camera.fov = baseFov + jumpCurve * 45 // extreme FOV pullback
+        camera.updateProjectionMatrix()
+        
+        // Add dynamic roll (Dutch angle) relative to the lookAt orientation
+        camera.rotateZ(jumpCurve * 0.15)
+      } else {
+        const currentAspect = W / window.innerHeight
+        camera.fov = isMobileNow ? Math.max(75, 90 - currentAspect * 20) : 55
+        camera.updateProjectionMatrix()
+      }
 
       renderer.render(scene, camera)
     }

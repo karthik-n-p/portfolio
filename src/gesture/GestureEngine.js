@@ -19,6 +19,7 @@ const GESTURE_LABELS = {
   point: '☝ Point — Focus',
   peace: '✌ Peace — Next',
   three: '🤟 Three — Home',
+  horns: '🤘 Horns — Quantum Torus',
   idle:  '...',
 }
 
@@ -62,6 +63,7 @@ function classifyGesture(landmarks) {
   if (count === 1 && flags[1]) return 'point'  // only index raised
   if (count === 2 && flags[1] && flags[2]) return 'peace'  // index + middle
   if (count === 3 && flags[1] && flags[2] && flags[3]) return 'three'  // index + middle + ring
+  if (flags[1] && !flags[2] && !flags[3] && flags[4]) return 'horns' // index + pinky (Rock on)
 
   return 'idle'
 }
@@ -82,12 +84,15 @@ export function useGestureEngine({ enabled, onGesture, onNavigate, onHandPositio
   const videoRef = useRef(null)
   const canvasRef = useRef(null)
   const handsRef = useRef(null)
-  const faceLandmarkerRef = useRef(null)
+  const faceMeshRef = useRef(null)
   const cameraRef = useRef(null)
   const [gestureLabel, setGestureLabel] = useState('idle')
   const [handVisible, setHandVisible] = useState(false)
   const [headVisible, setHeadVisible] = useState(false)
   const [faceError, setFaceError] = useState(null)
+  const [handError, setHandError] = useState(null)
+  const [lightError, setLightError] = useState(null)
+  const lumaCanvasRef = useRef(null)
 
   // Hold detection for peace/three
   const holdGestureRef = useRef(null)
@@ -119,6 +124,12 @@ export function useGestureEngine({ enabled, onGesture, onNavigate, onHandPositio
       holdGestureRef.current = null
       clearTimeout(holdTimerRef.current)
       return
+    }
+
+    if (results.multiHandLandmarks.length > 1) {
+      setHandError('MULTIPLE HANDS DETECTED: INTERFERENCE')
+    } else {
+      setHandError(null)
     }
 
     setHandVisible(true)
@@ -188,6 +199,11 @@ export function useGestureEngine({ enabled, onGesture, onNavigate, onHandPositio
       clearTimeout(holdTimerRef.current)
       onGestureRef.current('open')
       setGestureLabel(GESTURE_LABELS.open)
+    } else if (gesture === 'horns') {
+      holdGestureRef.current = null
+      clearTimeout(holdTimerRef.current)
+      onGestureRef.current('horns')
+      setGestureLabel(GESTURE_LABELS.horns)
     } else if (gesture === 'point') {
       holdGestureRef.current = null
       clearTimeout(holdTimerRef.current)
@@ -204,10 +220,10 @@ export function useGestureEngine({ enabled, onGesture, onNavigate, onHandPositio
   useEffect(() => {
     if (!enabled) {
       handsRef.current?.close?.()
-      faceLandmarkerRef.current?.close?.()
+      faceMeshRef.current?.close?.()
       cameraRef.current?.stop?.()
       handsRef.current = null
-      faceLandmarkerRef.current = null
+      faceMeshRef.current = null
       cameraRef.current = null
       onGestureRef.current('normal')
       onHandPositionRef.current?.(null)
@@ -239,20 +255,37 @@ export function useGestureEngine({ enabled, onGesture, onNavigate, onHandPositio
         handsRef.current = hands
 
         try {
-          const { FilesetResolver, FaceLandmarker } = await import('@mediapipe/tasks-vision')
-          const vision = await FilesetResolver.forVisionTasks(
-            "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.18/wasm"
-          )
-          faceLandmarkerRef.current = await FaceLandmarker.createFromOptions(vision, {
-            baseOptions: {
-              modelAssetPath: "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",
-              delegate: "GPU"
-            },
-            runningMode: "VIDEO",
-            numFaces: 1
+          const { FaceMesh } = await import('@mediapipe/face_mesh')
+          const faceMesh = new FaceMesh({
+            locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
           })
+          faceMesh.setOptions({
+            maxNumFaces: 2,
+            refineLandmarks: false,
+            minDetectionConfidence: 0.5,
+            minTrackingConfidence: 0.5,
+          })
+          faceMesh.onResults((results) => {
+             if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
+                if (results.multiFaceLandmarks.length > 1) {
+                   setFaceError("MULTIPLE FACES DETECTED")
+                   setHeadVisible(false)
+                   onHeadPositionRef.current?.(null)
+                } else {
+                   setFaceError(null)
+                   setHeadVisible(true)
+                   const nose = results.multiFaceLandmarks[0][1]
+                   onHeadPositionRef.current?.({ x: -(nose.x * 2 - 1), y: -(nose.y * 2 - 1) })
+                }
+             } else {
+               setHeadVisible(false)
+               onHeadPositionRef.current?.(null)
+               setFaceError(null)
+             }
+          })
+          faceMeshRef.current = faceMesh
         } catch(e) { 
-          console.warn("FaceLandmarker init failed:", e)
+          console.warn("FaceMesh init failed:", e)
           setFaceError(String(e.message || e))
         }
 
@@ -261,24 +294,29 @@ export function useGestureEngine({ enabled, onGesture, onNavigate, onHandPositio
 
         const cam = new Camera(video, {
           onFrame: async () => {
-            if (handsRef.current && active) {
-              await handsRef.current.send({ image: video })
+            if (!active) return
+            
+            if (handsRef.current) await handsRef.current.send({ image: video })
+            if (faceMeshRef.current) await faceMeshRef.current.send({ image: video })
+            
+            // Luma (brightness) check
+            if (!lumaCanvasRef.current) {
+              lumaCanvasRef.current = document.createElement('canvas')
+              lumaCanvasRef.current.width = 16
+              lumaCanvasRef.current.height = 12
             }
-            if (faceLandmarkerRef.current && active) {
-              const faceResults = faceLandmarkerRef.current.detectForVideo(video, performance.now())
-              if (faceResults.faceLandmarks && faceResults.faceLandmarks.length > 0) {
-                // Nose tip is index 1
-                const nose = faceResults.faceLandmarks[0][1]
-                const headPos = {
-                  x: -(nose.x * 2 - 1),
-                  y: -(nose.y * 2 - 1)
-                }
-                setHeadVisible(true)
-                onHeadPositionRef.current?.(headPos)
-              } else {
-                setHeadVisible(false)
-                onHeadPositionRef.current?.(null)
-              }
+            const lumaCtx = lumaCanvasRef.current.getContext('2d', { willReadFrequently: true })
+            lumaCtx.drawImage(video, 0, 0, 16, 12)
+            const data = lumaCtx.getImageData(0,0,16,12).data
+            let sum = 0
+            for (let i = 0; i < data.length; i += 4) {
+              sum += 0.299 * data[i] + 0.587 * data[i+1] + 0.114 * data[i+2]
+            }
+            const avg = sum / (16 * 12)
+            if (avg < 20) {
+              setLightError("LOW LIGHT DETECTED")
+            } else {
+              setLightError(null)
             }
           },
           width: 320,
@@ -298,14 +336,14 @@ export function useGestureEngine({ enabled, onGesture, onNavigate, onHandPositio
       active = false
       cameraRef.current?.stop?.()
       handsRef.current?.close?.()
-      faceLandmarkerRef.current?.close?.()
+      faceMeshRef.current?.close?.()
       handsRef.current = null
-      faceLandmarkerRef.current = null
+      faceMeshRef.current = null
       cameraRef.current = null
     }
   }, [enabled])
 
-  return { videoRef, canvasRef, gestureLabel, handVisible, headVisible, faceError }
+  return { videoRef, canvasRef, gestureLabel, handVisible, headVisible, faceError, handError, lightError }
 }
 
 export { GESTURE_LABELS }
