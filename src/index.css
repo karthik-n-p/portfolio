@@ -114,7 +114,8 @@ html, body, #root {
   border: 1px solid rgba(255,255,255,0.05);
   border-radius: 12px;
   background: rgba(255,255,255,0.02);
-  transition: all var(--transition);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .card:hover {
   background: rgba(255,255,255,0.04);
@@ -181,11 +182,11 @@ html, body, #root {
 
 /* ─── PANEL ANIMATION ───────────────────────────────── */
 @keyframes panelIn {
-  from { opacity: 0; transform: translateY(12px) scale(0.97); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
+  from { opacity: 0; transform: translateY(16px) scale(0.98); filter: blur(8px); }
+  to   { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
 }
 .panel-animate {
-  animation: panelIn 0.4s var(--ease) forwards;
+  animation: panelIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 /* ─── RESPONSIVE PANEL LAYOUT ───────────────────────── */
@@ -209,11 +210,12 @@ html, body, #root {
     bottom: 160px;
   }
   .panel-layout-wrapper > * {
-    background: rgba(8, 8, 12, 0.85) !important;
-    backdrop-filter: blur(16px) !important;
-    -webkit-backdrop-filter: blur(16px) !important;
+    background: rgba(5, 5, 8, 0.5) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    border-top: 1px solid rgba(0, 50, 255, 0.5) !important;
+    border-top: 1px solid rgba(0, 85, 255, 0.6) !important;
+    box-shadow: 0 16px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05) !important;
     max-height: 40vh !important;
     overflow-y: auto !important;
   }
@@ -222,7 +224,7 @@ html, body, #root {
   .panel-layout-wrapper {
     bottom: auto;
     top: 50%;
-    left: 8vw;
+    left: 6%;
     width: auto;
     transform: translateY(-50%);
   }
