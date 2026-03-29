@@ -76,14 +76,14 @@ const FORMATIONS = {
     // Isolated Production Deployments: 3 perfectly distinct, dense functional spheres (Nodes)
     const mobile = window.innerWidth < 768
     const cluster = i % 3
-    const cx = mobile ? [-1.8, 0, 1.8][cluster] : [-3.5, 0, 3.5][cluster]
-    const cy = mobile ? [1.4, -0.4, 1.4][cluster] : [1.0, -1.0, 1.0][cluster]
+    const cx = mobile ? [-1.2, 0, 1.2][cluster] : [-2.5, 0, 2.5][cluster]
+    const cy = mobile ? [1.2, 0, -1.2][cluster] : [1.0, -1.0, 1.0][cluster]
     
     const chunkTotal = total / 3
     const idx = Math.floor(i / 3)
     const phi = Math.acos(1 - 2 * (idx + 0.5) / chunkTotal)
     const theta = Math.PI * (1 + Math.sqrt(5)) * (idx + 0.5)
-    const r = mobile ? 0.6 : 0.8
+    const r = mobile ? 0.55 : 0.8
     
     return {
       x: cx + r * Math.cos(theta) * Math.sin(phi),

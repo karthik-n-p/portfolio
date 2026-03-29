@@ -1,6 +1,7 @@
 import { experience } from '../data/karthik.js'
 import { panelStyle, headerStyle, labelStyle, closeStyle, sectionLabel } from './HubPanel.jsx'
 import { colors, typography } from '../design-tokens.js'
+import ScrambleText from './ScrambleText.jsx'
 
 /**
  * PipelinePanel — Experience rendered as an ETL timeline
@@ -13,7 +14,7 @@ export default function PipelinePanel({ onClose }) {
       <div style={headerStyle}>
         <span style={labelStyle}>
           <div style={{ width: 6, height: 6, borderRadius: '50%', background: colors.emerald, boxShadow: `0 0 8px ${colors.emerald}90` }} />
-          EXPERIENCE PIPELINE
+          <ScrambleText text="EXPERIENCE PIPELINE" speed={30} delay={100} />
         </span>
         <button
           onClick={onClose}

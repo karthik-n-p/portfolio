@@ -9,6 +9,7 @@ import CertsPanel from './ui/CertsPanel.jsx'
 import EducationPanel from './ui/EducationPanel.jsx'
 import ConnectPanel from './ui/ConnectPanel.jsx'
 import Preloader from './ui/Preloader.jsx'
+import ScrambleText from './ui/ScrambleText.jsx'
 import { colors, typography } from './design-tokens.js'
 
 /**
@@ -49,35 +50,17 @@ export default function App() {
   const [gestureMode, setGestureMode] = useState(false)
   const [gestureState, setGestureState] = useState('normal')
   const [handPosition, setHandPosition] = useState(null)
+  const [headPosition, setHeadPosition] = useState(null)
 
   // Typography animation state
   const [roleIndex, setRoleIndex] = useState(0)
-  const [currentText, setCurrentText] = useState('')
-  const [isDeleting, setIsDeleting] = useState(false)
 
   useEffect(() => {
-    const fullText = ROLES[roleIndex]
-    let timer
-
-    if (isDeleting) {
-      timer = setTimeout(() => {
-        setCurrentText(fullText.substring(0, currentText.length - 1))
-        if (currentText.length <= 1) {
-          setIsDeleting(false)
-          setRoleIndex(i => (i + 1) % ROLES.length)
-        }
-      }, 40)
-    } else {
-      if (currentText === fullText) {
-        timer = setTimeout(() => setIsDeleting(true), 2500)
-      } else {
-        timer = setTimeout(() => {
-          setCurrentText(fullText.substring(0, currentText.length + 1))
-        }, 90)
-      }
-    }
-    return () => clearTimeout(timer)
-  }, [currentText, isDeleting, roleIndex])
+    const timer = setInterval(() => {
+      setRoleIndex(i => (i + 1) % ROLES.length)
+    }, 4000) // Change role every 4 seconds
+    return () => clearInterval(timer)
+  }, [])
 
   // Stable ref for activeNode to prevent handleNavigate from changing identity
   const activeNodeRef = useRef(activeNode)
@@ -104,6 +87,9 @@ export default function App() {
   const handleHandPosition = useCallback((pos) => {
     setHandPosition(pos)
   }, [])
+  const handleHeadPosition = useCallback((pos) => {
+    setHeadPosition(pos)
+  }, [])
 
   const ActivePanel = activeNode ? PANELS[activeNode] : null
 
@@ -114,6 +100,7 @@ export default function App() {
         gestureState={gestureState}
         activeNode={activeNode}
         handPosition={handPosition}
+        headPosition={headPosition}
       />
 
       {/* Cinematic Greeting Preloader */}
@@ -321,7 +308,7 @@ export default function App() {
       fontWeight: 500,
       textShadow: 'none',
     }}>~$</span>
-    {currentText}
+    <ScrambleText text={ROLES[roleIndex]} speed={35} />
     <span style={{
       display: 'inline-block',
       width: '6px',
@@ -365,6 +352,7 @@ export default function App() {
         onGesture={handleGesture}
         onNavigate={handleNavigate}
         onHandPosition={handleHandPosition}
+        onHeadPosition={handleHeadPosition}
       />
 
       </div> {/* App Loaded Wrapper End */}

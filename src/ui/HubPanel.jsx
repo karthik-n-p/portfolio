@@ -1,5 +1,6 @@
 import { profile } from '../data/karthik.js'
 import { colors, typography, motion } from '../design-tokens.js'
+import ScrambleText from './ScrambleText.jsx'
 
 /**
  * HubPanel — Central node panel: name, title, contact, summary
@@ -10,7 +11,7 @@ export default function HubPanel({ onClose }) {
       <div style={headerStyle} className="stagger-item stagger-1">
         <span style={labelStyle}>
           <div style={{ width: 6, height: 6, borderRadius: '50%', background: colors.accent, boxShadow: `0 0 8px ${colors.accent}90` }} />
-          CENTRAL HUB
+          <ScrambleText text="CENTRAL HUB" speed={30} delay={100} />
         </span>
         <button
           onClick={onClose}
