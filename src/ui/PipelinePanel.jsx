@@ -1,6 +1,6 @@
 import { experience } from '../data/karthik.js'
 import { panelStyle, headerStyle, labelStyle, closeStyle, sectionLabel } from './HubPanel.jsx'
-import { colors, typography } from '../design-tokens.js'
+import { colors, sectionColors, typography } from '../design-tokens.js'
 import ScrambleText from './ScrambleText.jsx'
 
 /**
@@ -8,31 +8,36 @@ import ScrambleText from './ScrambleText.jsx'
  */
 export default function PipelinePanel({ onClose }) {
   const exp = experience[0]
+  const theme = sectionColors.pipeline
 
   return (
     <div className="panel-animate" style={panelStyle}>
       <div style={headerStyle}>
         <span style={labelStyle}>
-          <div style={{ width: 6, height: 6, borderRadius: '50%', background: colors.emerald, boxShadow: `0 0 8px ${colors.emerald}90` }} />
+          <div style={{ width: 6, height: 6, borderRadius: '50%', background: theme.primary, boxShadow: `0 0 8px ${theme.primary}90` }} />
           <ScrambleText text="EXPERIENCE PIPELINE" speed={30} delay={100} />
         </span>
         <button
           onClick={onClose}
           style={closeStyle}
-          onMouseOver={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = colors.neutral[100]; }}
-          onMouseOut={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; e.currentTarget.style.color = colors.neutral[300]; }}
+          onMouseOver={e => { e.currentTarget.style.background = `${theme.primary}22`; e.currentTarget.style.color = theme.secondary; e.currentTarget.style.borderColor = `${theme.primary}55`; }}
+          onMouseOut={e => {
+            e.currentTarget.style.background = 'rgba(255,255,255,0.03)'
+            e.currentTarget.style.color = colors.neutral[300]
+            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'
+          }}
         >✕</button>
       </div>
 
       <div style={{ marginBottom: '28px' }}>
-        <h2 className="text-h2" style={{ color: colors.neutral[100], margin: '0 0 8px 0' }}>
+        <h2 className="text-h2" style={{ color: theme.secondary, margin: '0 0 8px 0' }}>
           {exp.company}
         </h2>
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-          <span className="chip" style={{ background: `${colors.emerald}15`, color: colors.emerald, borderColor: `${colors.emerald}40` }}>{exp.role}</span>
-          <span className="chip">{exp.period}</span>
-          <span className="chip">{exp.location}</span>
-          <span className="chip" style={{ background: `${colors.amber}15`, color: colors.amber, borderColor: `${colors.amber}40` }}>
+          <span className="chip" style={{ background: `${theme.primary}15`, color: theme.primary, borderColor: `${theme.primary}40` }}>{exp.role}</span>
+          <span className="chip" style={{ borderColor: `${theme.secondary}35`, color: colors.neutral[200], background: `${theme.secondary}10` }}>{exp.period}</span>
+          <span className="chip" style={{ borderColor: `${theme.secondary}35`, color: colors.neutral[200], background: `${theme.secondary}10` }}>{exp.location}</span>
+          <span className="chip" style={{ background: `${theme.glow}18`, color: theme.glow, borderColor: `${theme.glow}45` }}>
             ★ {exp.award}
           </span>
         </div>
@@ -86,7 +91,7 @@ export default function PipelinePanel({ onClose }) {
         {exp.highlights.map((h, i) => {
           const highlightText = typeof h === 'string' ? h.split(/(TB|\d+%|\d+x|\$|hours)/g).map((part, idx) =>
             /TB|\d+%|\d+x|\$|hours/.test(part) || (!isNaN(part) && part.trim() !== '') ?
-              <span key={idx} style={{ color: colors.emerald, fontWeight: 600 }}>{part}</span> : part
+              <span key={idx} style={{ color: theme.secondary, fontWeight: 600 }}>{part}</span> : part
           ) : h;
 
           return (
@@ -97,6 +102,9 @@ export default function PipelinePanel({ onClose }) {
               fontSize: '13px',
               color: colors.neutral[300],
               lineHeight: 1.6,
+              borderColor: `${theme.primary}28`,
+              background: `linear-gradient(135deg, ${theme.primary}0d 0%, rgba(255,255,255,0.02) 100%)`,
+              boxShadow: `inset 0 1px 0 ${theme.primary}14`,
             }}>
               <div style={{
                 display: 'flex',
@@ -105,8 +113,8 @@ export default function PipelinePanel({ onClose }) {
                 width: '24px',
                 height: '24px',
                 borderRadius: '50%',
-                background: `${colors.emerald}15`,
-                color: colors.emerald,
+                background: `${theme.primary}15`,
+                color: theme.primary,
                 fontFamily: typography.fontMono,
                 fontSize: '10px',
                 fontWeight: 600,
@@ -124,11 +132,14 @@ export default function PipelinePanel({ onClose }) {
 }
 
 function stageColor(type) {
+  const pipelinePrimary = sectionColors.pipeline.primary
+  const pipelineSecondary = sectionColors.pipeline.secondary
+  const pipelineGlow = sectionColors.pipeline.glow
   const map = {
-    source: colors.amber,
-    transform: colors.accent,
-    stream: colors.emerald,
-    sink: colors.violet,
+    source: pipelineGlow,
+    transform: pipelinePrimary,
+    stream: pipelineSecondary,
+    sink: pipelineGlow,
   }
   return map[type] || colors.neutral[300]
 }

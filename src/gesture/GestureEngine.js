@@ -237,8 +237,12 @@ export function useGestureEngine({ enabled, onGesture, onNavigate, onHandPositio
 
     async function initMediaPipe() {
       try {
-        const { Hands, HAND_CONNECTIONS } = await import('@mediapipe/hands')
-        const { Camera } = await import('@mediapipe/camera_utils')
+        const mpHands = await import('@mediapipe/hands')
+        const Hands = mpHands.Hands || mpHands.default?.Hands || window.Hands
+        const HAND_CONNECTIONS = mpHands.HAND_CONNECTIONS || mpHands.default?.HAND_CONNECTIONS || window.HAND_CONNECTIONS
+
+        const mpCam = await import('@mediapipe/camera_utils')
+        const Camera = mpCam.Camera || mpCam.default?.Camera || window.Camera
 
         window.HAND_CONNECTIONS = HAND_CONNECTIONS
 
@@ -255,7 +259,8 @@ export function useGestureEngine({ enabled, onGesture, onNavigate, onHandPositio
         handsRef.current = hands
 
         try {
-          const { FaceMesh } = await import('@mediapipe/face_mesh')
+          const mpFace = await import('@mediapipe/face_mesh')
+          const FaceMesh = mpFace.FaceMesh || mpFace.default?.FaceMesh || window.FaceMesh
           const faceMesh = new FaceMesh({
             locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
           })
