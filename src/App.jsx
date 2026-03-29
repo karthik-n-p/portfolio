@@ -39,7 +39,7 @@ const NAV_NODES = [
 
 const ROLES = [
   'DATA ENGINEER',
-  'HOBBYIST WEB DEVELOPER',
+  'WEB DEVELOPER',
   'PRODUCT BUILDER'
 ]
 
@@ -302,7 +302,7 @@ export default function App() {
     display: 'inline-flex',
     alignItems: 'center',
     fontFamily: typography.fontMono,
-    fontSize: 'clamp(14px, 3.5vw, 20px)',
+    fontSize: 'clamp(11px, 2.7vw, 18px)',
     fontWeight: 700,
     letterSpacing: '0.05em',
     textTransform: 'uppercase',
