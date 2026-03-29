@@ -70,11 +70,6 @@ html, body, #root {
   animation: blink 1s ease-in-out infinite;
 }
 
-@keyframes pulse {
-  0%   { opacity: 0.4; transform: translateY(0); }
-  50%  { opacity: 1; transform: translateY(6px); }
-  100% { opacity: 0.4; transform: translateY(0); }
-}
 
 /* ─── SECTION CONTENT ANIMATIONS — LEFT SIDE ─────────── */
 @keyframes sectionEnterLeft {
@@ -254,6 +249,7 @@ html, body, #root {
   width: 90vw;
   max-height: 75vh;
   overflow-y: auto;
+  overscroll-behavior: contain;
   scrollbar-width: thin;
   scrollbar-color: rgba(255,255,255,0.1) transparent;
 }
@@ -292,17 +288,6 @@ html, body, #root {
     justify-content: center !important;
     padding: 0 !important;
     z-index: 70 !important;
-  }
-  .hud-scroll {
-    position: fixed !important;
-    bottom: 8px !important;
-    left: 0 !important;
-    right: 0 !important;
-    width: 100vw !important;
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-    margin: 0 !important;
   }
   .scroll-progress {
     right: 12px;

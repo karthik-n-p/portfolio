@@ -109,25 +109,55 @@ export default function App() {
     }, 250) // Reduced delay for more responsive feel
   }, [sectionIndex])
 
+  // Helper to check if an event target is an internal scrollable panel and hasn't reached its boundary
+  const isInternalScrollScrolling = useCallback((target, deltaY) => {
+    let el = target
+    while (el && el !== document.body) {
+      if (el.classList?.contains('content-panel') || el.classList?.contains('panel-scroll')) {
+        const isScrollable = el.scrollHeight > el.clientHeight
+        if (isScrollable) {
+          const isAtTop = el.scrollTop <= 0
+          const isAtBottom = Math.abs(el.scrollHeight - el.clientHeight - el.scrollTop) < 2
+          
+          if (deltaY > 0 && !isAtBottom) return true // Scroll down, not at bottom
+          if (deltaY < 0 && !isAtTop) return true    // Scroll up, not at top
+        }
+      }
+      el = el.parentElement
+    }
+    return false
+  }, [])
+
   // Mouse wheel handler
   useEffect(() => {
     const onWheel = (e) => {
-      e.preventDefault()
+      // If we are scrolling inside a panel, don't trigger section change
+      if (isInternalScrollScrolling(e.target, e.deltaY)) return
+
       if (Math.abs(e.deltaY) < 30) return
       if (e.deltaY > 0) goToSection(sectionIndex + 1)
       else goToSection(sectionIndex - 1)
     }
     window.addEventListener('wheel', onWheel, { passive: false })
     return () => window.removeEventListener('wheel', onWheel)
-  }, [sectionIndex, goToSection])
+  }, [sectionIndex, goToSection, isInternalScrollScrolling])
 
   // Touch swipe handler
   useEffect(() => {
     let touchStartY = 0
-    const onTouchStart = (e) => { touchStartY = e.touches[0].clientY }
+    let touchTarget = null
+
+    const onTouchStart = (e) => { 
+      touchStartY = e.touches[0].clientY 
+      touchTarget = e.target
+    }
+
     const onTouchEnd = (e) => {
       const delta = touchStartY - e.changedTouches[0].clientY
       if (Math.abs(delta) > 60) {
+        // If the swipe is inside a scrollable panel, don't change section
+        if (isInternalScrollScrolling(touchTarget, delta)) return
+
         if (delta > 0) goToSection(sectionIndex + 1)
         else goToSection(sectionIndex - 1)
       }
@@ -138,7 +168,7 @@ export default function App() {
       window.removeEventListener('touchstart', onTouchStart)
       window.removeEventListener('touchend', onTouchEnd)
     }
-  }, [sectionIndex, goToSection])
+  }, [sectionIndex, goToSection, isInternalScrollScrolling])
 
   // Keyboard navigation
   useEffect(() => {
@@ -346,22 +376,6 @@ export default function App() {
             {currentSection.diagram}
           </div>
 
-          {/* Scroll Pipeline Hint */}
-          <div className="hud-scroll" style={{
-            fontFamily: typography.fontMono, fontSize: '9px', fontWeight: 500,
-            letterSpacing: '0.2em', color: colors.neutral[400],
-            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px',
-            animation: 'pulse 2s cubic-bezier(0.16, 1, 0.3, 1) infinite',
-            textTransform: 'uppercase',
-            textShadow: '0 2px 8px rgba(0,0,0,0.8)',
-            transition: 'all 0.6s ease',
-          }}>
-            SCROLL PIPELINE
-            <div style={{
-              width: '1px', height: '16px',
-              background: `linear-gradient(to bottom, ${colors.neutral[400]}, transparent)`
-            }} />
-          </div>
         </div>
 
         {/* ─── HERO SECTION ─── */}
