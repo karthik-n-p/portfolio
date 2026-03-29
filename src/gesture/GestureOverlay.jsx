@@ -6,10 +6,10 @@ import { colors, typography, motion } from '../design-tokens.js'
  * GestureOverlay — Camera view + gesture instructions + toggle button
  * Updated with finger-count gesture guide and persistent hint
  */
-export default function GestureOverlay({ enabled, onToggle, onGesture, onNavigate, onHandPosition }) {
+export default function GestureOverlay({ enabled, onToggle, onGesture, onNavigate, onHandPosition, onHeadPosition }) {
   const [showInstructions, setShowInstructions] = useState(false)
   const [navFlash, setNavFlash] = useState(null)
-  const { videoRef, canvasRef, gestureLabel, handVisible } = useGestureEngine({
+  const { videoRef, canvasRef, gestureLabel, handVisible, headVisible, faceError } = useGestureEngine({
     enabled,
     onGesture,
     onNavigate: (dir) => {
@@ -18,6 +18,7 @@ export default function GestureOverlay({ enabled, onToggle, onGesture, onNavigat
       setTimeout(() => setNavFlash(null), 800)
     },
     onHandPosition,
+    onHeadPosition,
   })
 
   // Fast dragging state via translate + pointer capture
@@ -163,7 +164,12 @@ export default function GestureOverlay({ enabled, onToggle, onGesture, onNavigat
             textAlign: 'center',
             letterSpacing: '0.05em',
           }}>
-            {handVisible ? gestureLabel : 'NO HAND DETECTED'}
+            <div style={{ color: handVisible ? colors.accent : colors.neutral[500] }}>
+              {handVisible ? gestureLabel : 'NO HAND DETECTED'}
+            </div>
+            <div style={{ color: faceError ? colors.rose : (headVisible ? colors.emerald : colors.neutral[500]), marginTop: '4px' }}>
+              {faceError ? `FACE ERR: ${faceError}` : (headVisible ? 'FACE DETECTED' : 'NO FACE DETECTED')}
+            </div>
           </div>
         </div>
       )}

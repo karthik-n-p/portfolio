@@ -1,6 +1,6 @@
 # Gesture Controlled 3JS MediaPipe Portfolio
 
-A personal portfolio built to showcase my experience as a Data Engineer and Web Developer. The site features an interactive 3D background that responds to navigation, representing data flows and systems.
+An interactive **3js portfolio** and **gesture controlled website** built to showcase my experience as a Data Engineer and Web Developer. This high-performance **3js website** features a dynamic 3D background that responds to real-time hand tracking and UI navigation, visually representing complex data flows and systems directly in the browser.
 
 🌐 **Live Website:** [karthiknpportfolio.vercel.app]
 

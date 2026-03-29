@@ -78,13 +78,16 @@ function getPalmCenter(landmarks) {
   return { x: -(cx * 2 - 1), y: -(cy * 2 - 1) }
 }
 
-export function useGestureEngine({ enabled, onGesture, onNavigate, onHandPosition }) {
+export function useGestureEngine({ enabled, onGesture, onNavigate, onHandPosition, onHeadPosition }) {
   const videoRef = useRef(null)
   const canvasRef = useRef(null)
   const handsRef = useRef(null)
+  const faceLandmarkerRef = useRef(null)
   const cameraRef = useRef(null)
   const [gestureLabel, setGestureLabel] = useState('idle')
   const [handVisible, setHandVisible] = useState(false)
+  const [headVisible, setHeadVisible] = useState(false)
+  const [faceError, setFaceError] = useState(null)
 
   // Hold detection for peace/three
   const holdGestureRef = useRef(null)
@@ -95,9 +98,11 @@ export function useGestureEngine({ enabled, onGesture, onNavigate, onHandPositio
   const onGestureRef = useRef(onGesture)
   const onNavigateRef = useRef(onNavigate)
   const onHandPositionRef = useRef(onHandPosition)
+  const onHeadPositionRef = useRef(onHeadPosition)
   useEffect(() => { onGestureRef.current = onGesture }, [onGesture])
   useEffect(() => { onNavigateRef.current = onNavigate }, [onNavigate])
   useEffect(() => { onHandPositionRef.current = onHandPosition }, [onHandPosition])
+  useEffect(() => { onHeadPositionRef.current = onHeadPosition }, [onHeadPosition])
 
   const handleResults = useCallback((results) => {
     const canvas = canvasRef.current
@@ -199,11 +204,14 @@ export function useGestureEngine({ enabled, onGesture, onNavigate, onHandPositio
   useEffect(() => {
     if (!enabled) {
       handsRef.current?.close?.()
+      faceLandmarkerRef.current?.close?.()
       cameraRef.current?.stop?.()
       handsRef.current = null
+      faceLandmarkerRef.current = null
       cameraRef.current = null
       onGestureRef.current('normal')
       onHandPositionRef.current?.(null)
+      onHeadPositionRef.current?.(null)
       holdGestureRef.current = null
       clearTimeout(holdTimerRef.current)
       return
@@ -230,6 +238,24 @@ export function useGestureEngine({ enabled, onGesture, onNavigate, onHandPositio
         hands.onResults(handleResults)
         handsRef.current = hands
 
+        try {
+          const { FilesetResolver, FaceLandmarker } = await import('@mediapipe/tasks-vision')
+          const vision = await FilesetResolver.forVisionTasks(
+            "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.18/wasm"
+          )
+          faceLandmarkerRef.current = await FaceLandmarker.createFromOptions(vision, {
+            baseOptions: {
+              modelAssetPath: "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",
+              delegate: "GPU"
+            },
+            runningMode: "VIDEO",
+            numFaces: 1
+          })
+        } catch(e) { 
+          console.warn("FaceLandmarker init failed:", e)
+          setFaceError(String(e.message || e))
+        }
+
         const video = videoRef.current
         if (!video || !active) return
 
@@ -237,6 +263,22 @@ export function useGestureEngine({ enabled, onGesture, onNavigate, onHandPositio
           onFrame: async () => {
             if (handsRef.current && active) {
               await handsRef.current.send({ image: video })
+            }
+            if (faceLandmarkerRef.current && active) {
+              const faceResults = faceLandmarkerRef.current.detectForVideo(video, performance.now())
+              if (faceResults.faceLandmarks && faceResults.faceLandmarks.length > 0) {
+                // Nose tip is index 1
+                const nose = faceResults.faceLandmarks[0][1]
+                const headPos = {
+                  x: -(nose.x * 2 - 1),
+                  y: -(nose.y * 2 - 1)
+                }
+                setHeadVisible(true)
+                onHeadPositionRef.current?.(headPos)
+              } else {
+                setHeadVisible(false)
+                onHeadPositionRef.current?.(null)
+              }
             }
           },
           width: 320,
@@ -256,12 +298,14 @@ export function useGestureEngine({ enabled, onGesture, onNavigate, onHandPositio
       active = false
       cameraRef.current?.stop?.()
       handsRef.current?.close?.()
+      faceLandmarkerRef.current?.close?.()
       handsRef.current = null
+      faceLandmarkerRef.current = null
       cameraRef.current = null
     }
   }, [enabled])
 
-  return { videoRef, canvasRef, gestureLabel, handVisible }
+  return { videoRef, canvasRef, gestureLabel, handVisible, headVisible, faceError }
 }
 
 export { GESTURE_LABELS }

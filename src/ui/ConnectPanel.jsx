@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { panelStyle, headerStyle, labelStyle, closeStyle } from './HubPanel.jsx'
 import { colors, typography, motion } from '../design-tokens.js'
+import ScrambleText from './ScrambleText.jsx'
 
 /**
  * ConnectPanel — Contact form using formsubmit.co for direct email delivery
@@ -72,7 +73,7 @@ export default function ConnectPanel({ onClose }) {
       <div style={headerStyle}>
         <span style={labelStyle}>
           <div style={{ width: 6, height: 6, borderRadius: '50%', background: colors.emerald, boxShadow: `0 0 8px ${colors.emerald}80` }} />
-          GET IN TOUCH
+          <ScrambleText text="GET IN TOUCH" speed={30} delay={100} />
         </span>
         <button
           onClick={onClose}

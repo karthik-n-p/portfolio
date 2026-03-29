@@ -20,9 +20,9 @@ const GRID_ROWS = 12
 const GRID_COLS = 18
 const SPACING = 1.2
 const LAYERS = [
-  { z: -4,  opacity: 0.035, dotSize: 1.2, scale: 1.0 },
-  { z: -8,  opacity: 0.02, dotSize: 0.9, scale: 0.85 },
-  { z: -14, opacity: 0.012, dotSize: 0.6, scale: 0.7 },
+  { z: -10,  opacity: 0.04, dotSize: 1.5, scale: 2.0 },
+  { z: -25,  opacity: 0.025, dotSize: 1.0, scale: 3.5 },
+  { z: -45, opacity: 0.015, dotSize: 0.7, scale: 5.0 },
 ]
 
 export class NetworkGrid {

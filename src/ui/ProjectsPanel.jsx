@@ -1,6 +1,7 @@
 import { projects } from '../data/karthik.js'
 import { panelStyle, headerStyle, labelStyle, closeStyle, sectionLabel } from './HubPanel.jsx'
 import { colors, typography } from '../design-tokens.js'
+import ScrambleText from './ScrambleText.jsx'
 
 /**
  * ProjectsPanel — Projects as interactive DAG nodes
@@ -11,7 +12,7 @@ export default function ProjectsPanel({ onClose }) {
       <div style={headerStyle}>
         <span style={labelStyle}>
           <div style={{ width: 6, height: 6, borderRadius: '50%', background: colors.neutral[100], boxShadow: `0 0 8px ${colors.neutral[100]}90` }} />
-          PROJECTS PORTFOLIO
+          <ScrambleText text="PROJECTS PORTFOLIO" speed={30} delay={100} />
         </span>
         <button
           onClick={onClose}

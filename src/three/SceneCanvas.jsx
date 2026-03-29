@@ -9,7 +9,7 @@ import { threeColors } from '../design-tokens.js'
  * Manages camera, renderer, DataFlowField, NetworkGrid.
  * No raycasting/click — navigation is UI-only.
  */
-export default function SceneCanvas({ gestureState, activeNode, handPosition }) {
+export default function SceneCanvas({ gestureState, activeNode, handPosition, headPosition }) {
   const mountRef = useRef(null)
   const stateRef = useRef({})
 
@@ -124,6 +124,7 @@ export default function SceneCanvas({ gestureState, activeNode, handPosition }) 
       // Sync state from parent via refs
       const currentGesture = stateRef.current.gestureState || 'normal'
       const currentHandPos = stateRef.current.handPosition || null
+      const currentHeadPos = stateRef.current.headPosition || null
       const currentActive  = stateRef.current.activeNode || null
 
       dataFlow.setGestureState(currentGesture)
@@ -151,12 +152,26 @@ export default function SceneCanvas({ gestureState, activeNode, handPosition }) 
       const camDriftX = Math.sin(t * 0.05) * 0.3
       const camDriftY = Math.cos(t * 0.07) * 0.15
       
-      // Lerp camera position
-      camera.position.x += ((targetFocusX + camDriftX) - camera.position.x) * delta * 5
-      camera.position.y += ((targetFocusY + camDriftY) - camera.position.y) * delta * 5
+      // Holographic parallax effect based on head position
+      let headParallaxX = 0
+      let headParallaxY = 0
+      if (currentHeadPos && !isMobileNow) {
+        // True "Looking Glass" effect: 
+        // X must be inverted since webcam space nose.x=0 (left) translates to positive. We want camera to move left (negative X).
+        headParallaxX = currentHeadPos.x * -8.0
+        // Y is kept positive because top of webcam (y=0) becomes positive, which moves camera UP (+Y).
+        headParallaxY = currentHeadPos.y * 8.0
+      }
+
+      const finalTargetX = targetFocusX + camDriftX + headParallaxX
+      const finalTargetY = targetFocusY + camDriftY + headParallaxY
       
-      // Keep camera pointed at the shifting center (with drift)
-      camera.lookAt(camera.position.x - camDriftX, camera.position.y - camDriftY, 0)
+      // Lerp camera physical position
+      camera.position.x += (finalTargetX - camera.position.x) * delta * 5
+      camera.position.y += (finalTargetY - camera.position.y) * delta * 5
+      
+      // Strictly look at the original content focus core so camera pivots correctly, generating massive 3D depth
+      camera.lookAt(targetFocusX - camDriftX, targetFocusY - camDriftY, 0)
 
       renderer.render(scene, camera)
     }
@@ -183,6 +198,7 @@ export default function SceneCanvas({ gestureState, activeNode, handPosition }) 
   useEffect(() => { stateRef.current.gestureState = gestureState }, [gestureState])
   useEffect(() => { stateRef.current.activeNode = activeNode }, [activeNode])
   useEffect(() => { stateRef.current.handPosition = handPosition }, [handPosition])
+  useEffect(() => { stateRef.current.headPosition = headPosition }, [headPosition])
 
   return (
     <div
