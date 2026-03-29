@@ -155,12 +155,15 @@ export default function SceneCanvas({ gestureState, activeNode, handPosition, he
       // Holographic parallax effect based on head position
       let headParallaxX = 0
       let headParallaxY = 0
-      if (currentHeadPos && !isMobileNow) {
+      if (currentHeadPos) {
         // True "Looking Glass" effect: 
         // X must be inverted since webcam space nose.x=0 (left) translates to positive. We want camera to move left (negative X).
-        headParallaxX = currentHeadPos.x * -8.0
+        const scalarX = isMobileNow ? -3.5 : -8.0
         // Y is kept positive because top of webcam (y=0) becomes positive, which moves camera UP (+Y).
-        headParallaxY = currentHeadPos.y * 8.0
+        const scalarY = isMobileNow ? 3.5 : 8.0
+        
+        headParallaxX = currentHeadPos.x * scalarX
+        headParallaxY = currentHeadPos.y * scalarY
       }
 
       const finalTargetX = targetFocusX + camDriftX + headParallaxX
