@@ -33,6 +33,7 @@ export class NetworkGrid {
     this.handWorld = new THREE.Vector3()
     this.activeSection = null
     this.layers = []
+    this.isMobile = window.innerWidth < 768
     this._init()
   }
 
@@ -177,6 +178,8 @@ export class NetworkGrid {
       let opMult = 1.0
       if (isFist) opMult = 1.8
       else if (isOpen) opMult = 0.6
+
+      if (this.isMobile) opMult *= 0.3
 
       layer.lineMat.opacity = layer.baseOpacity * opMult
       layer.dotMat.opacity = layer.baseOpacity * 2.5 * opMult
