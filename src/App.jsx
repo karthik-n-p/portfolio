@@ -109,19 +109,12 @@ export default function App() {
     }, 250) // Reduced delay for more responsive feel
   }, [sectionIndex])
 
-  // Helper to check if an event target is an internal scrollable panel and hasn't reached its boundary
-  const isInternalScrollScrolling = useCallback((target, deltaY) => {
+  // Helper to check if an event target is inside an internal content panel
+  const isPanelInteraction = useCallback((target) => {
     let el = target
     while (el && el !== document.body) {
       if (el.classList?.contains('content-panel') || el.classList?.contains('panel-scroll')) {
-        const isScrollable = el.scrollHeight > el.clientHeight
-        if (isScrollable) {
-          const isAtTop = el.scrollTop <= 0
-          const isAtBottom = Math.abs(el.scrollHeight - el.clientHeight - el.scrollTop) < 2
-          
-          if (deltaY > 0 && !isAtBottom) return true // Scroll down, not at bottom
-          if (deltaY < 0 && !isAtTop) return true    // Scroll up, not at top
-        }
+        return true
       }
       el = el.parentElement
     }
@@ -131,8 +124,8 @@ export default function App() {
   // Mouse wheel handler
   useEffect(() => {
     const onWheel = (e) => {
-      // If we are scrolling inside a panel, don't trigger section change
-      if (isInternalScrollScrolling(e.target, e.deltaY)) return
+      // If we are scrolling inside a panel, ignore it for navigation
+      if (isPanelInteraction(e.target)) return
 
       if (Math.abs(e.deltaY) < 30) return
       if (e.deltaY > 0) goToSection(sectionIndex + 1)
@@ -140,27 +133,60 @@ export default function App() {
     }
     window.addEventListener('wheel', onWheel, { passive: false })
     return () => window.removeEventListener('wheel', onWheel)
-  }, [sectionIndex, goToSection, isInternalScrollScrolling])
+  }, [sectionIndex, goToSection, isPanelInteraction])
 
   // Touch swipe handler
   useEffect(() => {
     let touchStartY = 0
     let touchTarget = null
+    let touchStartScrollTop = 0
 
-    const onTouchStart = (e) => { 
-      touchStartY = e.touches[0].clientY 
+    // Find the nearest ancestor that is BOTH a panel container AND actually overflows vertically.
+    // This handles cases where inner wrapper divs (e.g. .panel-scroll) exist but have no
+    // overflow style — we need the real scrollable element.
+    const getScrollablePanel = (el) => {
+      let node = el
+      while (node && node !== document.body) {
+        const isPanel =
+          node.classList?.contains('content-panel') ||
+          node.classList?.contains('panel-scroll')
+        if (isPanel && node.scrollHeight > node.clientHeight + 8) {
+          return node
+        }
+        node = node.parentElement
+      }
+      return null
+    }
+
+    const onTouchStart = (e) => {
+      touchStartY = e.touches[0].clientY
       touchTarget = e.target
+      const panel = getScrollablePanel(touchTarget)
+      touchStartScrollTop = panel ? panel.scrollTop : 0
     }
 
     const onTouchEnd = (e) => {
       const delta = touchStartY - e.changedTouches[0].clientY
-      if (Math.abs(delta) > 60) {
-        // If the swipe is inside a scrollable panel, don't change section
-        if (isInternalScrollScrolling(touchTarget, delta)) return
+      if (Math.abs(delta) < 60) return
 
-        if (delta > 0) goToSection(sectionIndex + 1)
-        else goToSection(sectionIndex - 1)
+      const panel = getScrollablePanel(touchTarget)
+      if (panel) {
+        // Only navigate if the panel is already scrolled to the edge in the swipe direction
+        const atBottom = panel.scrollTop + panel.clientHeight >= panel.scrollHeight - 4
+        const atTop = panel.scrollTop <= 4
+        const swipingDown = delta > 0  // user wants to go to next section
+        const swipingUp = delta < 0    // user wants to go to prev section
+
+        if (swipingDown && !atBottom) return  // panel still has content below — don't navigate
+        if (swipingUp && !atTop) return        // panel still has content above — don't navigate
+
+        // Also check that the scroll position was already at the edge when the touch started
+        if (swipingDown && touchStartScrollTop + panel.clientHeight < panel.scrollHeight - 4) return
+        if (swipingUp && touchStartScrollTop > 4) return
       }
+
+      if (delta > 0) goToSection(sectionIndex + 1)
+      else goToSection(sectionIndex - 1)
     }
     window.addEventListener('touchstart', onTouchStart, { passive: true })
     window.addEventListener('touchend', onTouchEnd, { passive: true })
@@ -168,11 +194,17 @@ export default function App() {
       window.removeEventListener('touchstart', onTouchStart)
       window.removeEventListener('touchend', onTouchEnd)
     }
-  }, [sectionIndex, goToSection, isInternalScrollScrolling])
+  }, [sectionIndex, goToSection])
 
   // Keyboard navigation
   useEffect(() => {
     const onKey = (e) => {
+      // Don't hijack keyboard input when user is typing in a form field
+      const tag = document.activeElement?.tagName?.toLowerCase()
+      const isTyping = tag === 'input' || tag === 'textarea' || tag === 'select' ||
+        document.activeElement?.isContentEditable
+      if (isTyping) return
+
       if (e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); goToSection(sectionIndex + 1) }
       if (e.key === 'ArrowUp') { e.preventDefault(); goToSection(sectionIndex - 1) }
     }
