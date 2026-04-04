@@ -447,10 +447,12 @@ export default function App() {
 
           {/* Name */}
           <h1 style={{
-            fontSize: 'clamp(64px, 12vw, 140px)',
+            fontSize: 'clamp(42px, 8.5vw, 110px)',
             fontFamily: typography.fontSans, fontWeight: 900,
-            letterSpacing: '-0.05em', lineHeight: 0.95,
+            letterSpacing: '-0.04em', lineHeight: 0.95,
             marginBottom: '16px',
+            whiteSpace: 'nowrap',
+            textAlign: 'center',
             filter: 'drop-shadow(0 10px 30px rgba(0,0,0,0.8))'
           }} className="text-gradient">
             KARTHIK NP
