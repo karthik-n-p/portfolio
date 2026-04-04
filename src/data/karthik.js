@@ -78,17 +78,15 @@ export const experience = [
     award: 'Shining Star Award',
     stages: [
       { id: 'source', label: 'Legacy DB2', type: 'source', icon: '⬡' },
-      { id: 'ingest', label: 'Python Pipelines', type: 'transform', icon: '⚡' },
       { id: 'transform', label: 'Databricks / PySpark', type: 'transform', icon: '◈' },
-      { id: 'kafka', label: 'Kafka Streams', type: 'stream', icon: '≋' },
-      { id: 'sink', label: 'MongoDB / Azure', type: 'sink', icon: '⬡' },
+      { id: 'sink', label: 'MongoDB', type: 'sink', icon: '⬡' },
     ],
     highlights: [
+      'Contributed to large-scale data migration projects in the retail domain, modernizing legacy systems.',
       'Migrated Item Merchandise data from DB2 to MongoDB by modernizing COBOL-based logic into scalable Python pipelines.',
       'Developed API-based ingestion pipelines in Databricks for CRUD on MongoDB and publishing to Kafka for real-time consumption.',
       'Replaced manual Kafka performance analysis with automated Databricks monitoring job — efficiency → 100%.',
       'Enhanced and maintained data pipelines with new functionalities, performance optimizations, and reliability improvements.',
-      'Contributed to large-scale data migration projects in the retail domain, modernizing legacy systems.',
     ],
   }
 ]
