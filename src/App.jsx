@@ -446,15 +446,15 @@ export default function App() {
           </div>
 
           {/* Name */}
-          <div style={{
+          <h1 style={{
             fontSize: 'clamp(64px, 12vw, 140px)',
             fontFamily: typography.fontSans, fontWeight: 900,
             letterSpacing: '-0.05em', lineHeight: 0.95,
             marginBottom: '16px',
             filter: 'drop-shadow(0 10px 30px rgba(0,0,0,0.8))'
           }} className="text-gradient">
-            KARTHIK
-          </div>
+            KARTHIK NP
+          </h1>
 
           {/* Divider */}
           <div style={{
