@@ -127,6 +127,9 @@ export default function App() {
       // If we are scrolling inside a panel, ignore it for navigation
       if (isPanelInteraction(e.target)) return
 
+      // Prevent native scroll behavior (rubber-banding/bouncing) to stop visual jitter
+      e.preventDefault()
+
       if (Math.abs(e.deltaY) < 30) return
       if (e.deltaY > 0) goToSection(sectionIndex + 1)
       else goToSection(sectionIndex - 1)

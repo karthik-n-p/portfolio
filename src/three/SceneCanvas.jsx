@@ -216,18 +216,10 @@ export default function SceneCanvas({ gestureState, activeSection, sectionIndex,
       accentLight.position.x += (lightSide - accentLight.position.x) * delta * 3
       rimLight.position.x += (-lightSide * 0.5 - rimLight.position.x) * delta * 3
 
-      // Cinematic FOV warp during transitions
-      if (transition > 0) {
-        const baseFov = isMobileNow ? Math.max(75, 90 - (W / window.innerHeight) * 20) : 55
-        const jumpCurve = Math.sin(transition * Math.PI)
-        camera.fov = baseFov + jumpCurve * 30
-        camera.updateProjectionMatrix()
-        camera.rotateZ(jumpCurve * 0.08)
-      } else {
-        const baseFov = isMobileNow ? Math.max(75, 90 - (W / window.innerHeight) * 20) : 55
-        camera.fov = baseFov
-        camera.updateProjectionMatrix()
-      }
+      // Smooth FOV interpolation, eliminating dramatic jumps and buggy rotateZ accumulation
+      const targetFov = isMobileNow ? Math.max(75, 90 - (W / window.innerHeight) * 20) : 55
+      camera.fov += (targetFov - camera.fov) * delta * 4
+      camera.updateProjectionMatrix()
 
       renderer.render(scene, camera)
     }
