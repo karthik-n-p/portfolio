@@ -39,7 +39,7 @@ export default function Preloader({ onComplete }) {
     <div style={{
       position: 'fixed',
       inset: 0,
-      background: '#030305',
+      background: colors.neutral[950],
       zIndex: 9999, // Ensure it covers everything
       display: 'flex',
       alignItems: 'center',

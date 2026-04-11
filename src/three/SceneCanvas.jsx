@@ -39,7 +39,7 @@ export default function SceneCanvas({ gestureState, activeSection, sectionIndex,
     scene.fog = new THREE.FogExp2(threeColors.background, 0.02)
 
     // Premium lighting
-    const ambient = new THREE.AmbientLight(0x16161E, 1.5)
+    const ambient = new THREE.AmbientLight(0x11212D, 1.5)
     scene.add(ambient)
 
     const directional = new THREE.DirectionalLight(0xffffff, 0.4)
@@ -52,7 +52,7 @@ export default function SceneCanvas({ gestureState, activeSection, sectionIndex,
     scene.add(accentLight)
 
     // Secondary glow light for rim effect
-    const rimLight = new THREE.PointLight(0x0055FF, 1, 15)
+    const rimLight = new THREE.PointLight(0x4A5C6A, 1, 15)
     rimLight.position.set(5, 2, 3)
     scene.add(rimLight)
 
