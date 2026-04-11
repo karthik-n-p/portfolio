@@ -37,7 +37,7 @@ export default function PipelinePanel({ onClose }) {
           <span className="chip" style={{ background: `${theme.primary}15`, color: theme.primary, borderColor: `${theme.primary}40` }}>{exp.role}</span>
           <span className="chip" style={{ borderColor: `${theme.secondary}35`, color: colors.neutral[200], background: `${theme.secondary}10` }}>{exp.period}</span>
           <span className="chip" style={{ borderColor: `${theme.secondary}35`, color: colors.neutral[200], background: `${theme.secondary}10` }}>{exp.location}</span>
-          <span className="chip" style={{ background: `${theme.glow}18`, color: theme.glow, borderColor: `${theme.glow}45` }}>
+          <span className="chip" style={{ background: `${theme.glow}30`, color: colors.neutral[100], borderColor: `${theme.glow}60` }}>
             ★ {exp.award}
           </span>
         </div>
@@ -91,7 +91,7 @@ export default function PipelinePanel({ onClose }) {
         {exp.highlights.map((h, i) => {
           const highlightText = typeof h === 'string' ? h.split(/(TB|\d+%|\d+x|\$|hours)/g).map((part, idx) =>
             /TB|\d+%|\d+x|\$|hours/.test(part) || (!isNaN(part) && part.trim() !== '') ?
-              <span key={idx} style={{ color: theme.secondary, fontWeight: 600 }}>{part}</span> : part
+              <span key={idx} style={{ color: colors.neutral[100], fontWeight: 700 }}>{part}</span> : part
           ) : h;
 
           return (
@@ -134,12 +134,11 @@ export default function PipelinePanel({ onClose }) {
 function stageColor(type) {
   const pipelinePrimary = sectionColors.pipeline.primary
   const pipelineSecondary = sectionColors.pipeline.secondary
-  const pipelineGlow = sectionColors.pipeline.glow
   const map = {
-    source: pipelineGlow,
+    source: pipelinePrimary,
     transform: pipelinePrimary,
     stream: pipelineSecondary,
-    sink: pipelineGlow,
+    sink: pipelinePrimary,
   }
   return map[type] || colors.neutral[300]
 }

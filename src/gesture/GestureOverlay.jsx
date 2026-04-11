@@ -14,7 +14,7 @@ export default function GestureOverlay({ enabled, onToggle, onGesture, onNavigat
     onGesture,
     onNavigate: (dir) => {
       onNavigate(dir)
-      setNavFlash(dir === 'home' ? 'HOME' : 'NEXT')
+      setNavFlash(dir === 'prev' ? 'PREVIOUS' : 'NEXT')
       setTimeout(() => setNavFlash(null), 800)
     },
     onHandPosition,
@@ -212,11 +212,8 @@ export default function GestureOverlay({ enabled, onToggle, onGesture, onNavigat
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '12px', textAlign: 'left' }}>
             {[
-              ['✊', '0 Fingers', 'Converge', 'Pull particles'],
-              ['🖐', '5 Fingers', 'Scatter', 'Push particles'],
-              ['☝', '1 Finger', 'Focus', 'Particles follow'],
               ['✌', '2 Fingers', 'Next', 'Hold 0.4s → next section'],
-              ['🤟', '3 Fingers', 'Home', 'Hold 0.4s → home'],
+              ['🤟', '3 Fingers', 'Prev', 'Hold 0.4s → prev section'],
             ].map(([icon, fingers, label, desc]) => (
               <div key={label} style={{
                 display: 'flex', alignItems: 'center', gap: '10px',

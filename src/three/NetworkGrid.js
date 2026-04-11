@@ -12,9 +12,9 @@ const GRID_ROWS = 12
 const GRID_COLS = 18
 const SPACING = 1.2
 const LAYERS = [
-  { z: -10,  opacity: 0.04, dotSize: 1.5, scale: 2.0 },
-  { z: -25,  opacity: 0.025, dotSize: 1.0, scale: 3.5 },
-  { z: -45,  opacity: 0.015, dotSize: 0.7, scale: 5.0 },
+  { z: -10,  opacity: 0.02,  dotSize: 1.2, scale: 2.0 },
+  { z: -25,  opacity: 0.012, dotSize: 0.8, scale: 3.5 },
+  { z: -45,  opacity: 0.007, dotSize: 0.5, scale: 5.0 },
 ]
 
 export class NetworkGrid {
@@ -111,17 +111,10 @@ export class NetworkGrid {
   setAudioData(data)        { this.audioData = data }
 
   update(delta, elapsedTime) {
-    const isFist = this.gestureState === 'fist'
-    const isOpen = this.gestureState === 'open'
-    const audio = this.audioData
-
     if (this.handPos) {
       this.handWorld.x += (this.handPos.x * 10 - this.handWorld.x) * 0.06
       this.handWorld.y += (this.handPos.y * 7 - this.handWorld.y) * 0.06
     }
-
-    // Audio-reactive opacity multiplier
-    const audioPulse = 1.0 + audio.bass * 1.5
 
     for (const layer of this.layers) {
       const posAttr = layer.dotGeo.attributes.position
@@ -137,44 +130,27 @@ export class NetworkGrid {
         bx += Math.sin(elapsedTime * 0.15 + i * 0.1) * 0.05
         by += Math.cos(elapsedTime * 0.12 + i * 0.15) * 0.05
 
+        // Extremely slight magnetic push/pull just to give life to the background grid
         if (this.handPos) {
-          const dx = bx - hx
-          const dy = by - hy
-          const dist = Math.sqrt(dx * dx + dy * dy) || 0.1
-
-          if (isFist && dist < 6) {
-            const pull = 0.15 / (0.5 + dist * 0.3)
-            bx -= dx * pull
-            by -= dy * pull
-          } else if (isOpen && dist < 6) {
-            const push = 0.1 / (0.5 + dist * 0.3)
-            bx += dx * push
-            by += dy * push
-          } else if (dist < 4) {
-            const attract = 0.03 / (0.5 + dist)
-            bx -= dx * attract
-            by -= dy * attract
-          }
+           const dx = bx - hx
+           const dy = by - hy
+           const dist = Math.sqrt(dx*dx + dy*dy) || 0.1
+           if (dist < 6) {
+             const push = 0.05 / (0.5 + dist*0.3)
+             bx += dx*push
+             by += dy*push
+           }
         }
-
         posAttr.setXYZ(i, bx, by, bz)
       }
       posAttr.needsUpdate = true
 
       let opMult = 1.0
-      if (isFist) opMult = 1.8
-      else if (isOpen) opMult = 0.6
-
       if (this.isMobile) opMult *= 0.3
-
-      // Apply audio pulse
-      opMult *= audioPulse
 
       layer.lineMat.opacity = layer.baseOpacity * opMult
       layer.dotMat.opacity = layer.baseOpacity * 2.5 * opMult
-
-      // Audio-reactive dot size
-      layer.dotMat.size = (layer === this.layers[0] ? 1.5 : layer === this.layers[1] ? 1.0 : 0.7) * (1 + audio.treble * 0.8)
+      layer.dotMat.size = (layer === this.layers[0] ? 1.5 : layer === this.layers[1] ? 1.0 : 0.7)
     }
   }
 

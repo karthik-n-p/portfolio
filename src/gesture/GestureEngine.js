@@ -14,12 +14,8 @@ import { useEffect, useRef, useState, useCallback } from 'react'
  */
 
 const GESTURE_LABELS = {
-  fist:  '✊ Fist — Converge',
-  open:  '🖐 Open — Scatter',
-  point: '☝ Point — Focus',
   peace: '✌ Peace — Next',
-  three: '🤟 Three — Home',
-  horns: '🤘 Horns — Quantum Torus',
+  three: '🤟 Three — Prev',
   idle:  '...',
 }
 
@@ -58,12 +54,8 @@ function classifyGesture(landmarks) {
   const { count, flags } = countRaisedFingers(landmarks)
   // flags: [thumb, index, middle, ring, pinky]
 
-  if (count <= 0) return 'fist'
-  if (count >= 5) return 'open'
-  if (count === 1 && flags[1]) return 'point'  // only index raised
   if (count === 2 && flags[1] && flags[2]) return 'peace'  // index + middle
   if (count === 3 && flags[1] && flags[2] && flags[3]) return 'three'  // index + middle + ring
-  if (flags[1] && !flags[2] && !flags[3] && flags[4]) return 'horns' // index + pinky (Rock on)
 
   return 'idle'
 }
@@ -178,7 +170,7 @@ export function useGestureEngine({ enabled, onGesture, onNavigate, onHandPositio
         clearTimeout(holdTimerRef.current)
         holdTimerRef.current = setTimeout(() => {
           if (holdGestureRef.current === gesture) {
-            const dir = gesture === 'peace' ? 'next' : 'home'
+            const dir = gesture === 'peace' ? 'next' : 'prev'
             onNavigateRef.current?.(dir)
             navigateCooldown.current = true
             setTimeout(() => { navigateCooldown.current = false }, 1000)
@@ -189,26 +181,6 @@ export function useGestureEngine({ enabled, onGesture, onNavigate, onHandPositio
       // While holding, still send normal gesture state
       onGestureRef.current('normal')
       setGestureLabel(GESTURE_LABELS[gesture])
-    } else if (gesture === 'fist') {
-      holdGestureRef.current = null
-      clearTimeout(holdTimerRef.current)
-      onGestureRef.current('fist')
-      setGestureLabel(GESTURE_LABELS.fist)
-    } else if (gesture === 'open') {
-      holdGestureRef.current = null
-      clearTimeout(holdTimerRef.current)
-      onGestureRef.current('open')
-      setGestureLabel(GESTURE_LABELS.open)
-    } else if (gesture === 'horns') {
-      holdGestureRef.current = null
-      clearTimeout(holdTimerRef.current)
-      onGestureRef.current('horns')
-      setGestureLabel(GESTURE_LABELS.horns)
-    } else if (gesture === 'point') {
-      holdGestureRef.current = null
-      clearTimeout(holdTimerRef.current)
-      onGestureRef.current('normal')
-      setGestureLabel(GESTURE_LABELS.point)
     } else {
       holdGestureRef.current = null
       clearTimeout(holdTimerRef.current)
