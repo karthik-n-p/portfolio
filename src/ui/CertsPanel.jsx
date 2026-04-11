@@ -56,7 +56,7 @@ export default function CertsPanel({ onClose }) {
               <div style={{
                 fontFamily: typography.fontSans,
                 fontSize: '10px',
-                color: cert.color,
+                color: colors.neutral[100],
                 fontWeight: 700,
                 letterSpacing: '0.05em',
                 textAlign: 'center',
@@ -83,7 +83,7 @@ export default function CertsPanel({ onClose }) {
                   padding: '4px 8px',
                   border: `1px solid ${cert.color}30`,
                   borderRadius: '6px',
-                  color: cert.color,
+                  color: colors.neutral[100],
                   background: `${cert.color}10`,
                 }}>
                   {cert.code}

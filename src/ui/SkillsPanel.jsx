@@ -29,7 +29,9 @@ export default function SkillsPanel({ onClose }) {
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-        {skills.map((group) => (
+        {skills.map((group, index) => {
+          const activeColor = [colors.neutral[100], colors.neutral[200], theme.primary][index % 3];
+          return (
           <div key={group.id}>
             <div style={{
               display: 'flex',
@@ -40,20 +42,20 @@ export default function SkillsPanel({ onClose }) {
               <div style={{
                 width: '12px', height: '12px',
                 borderRadius: '50%',
-                background: group.color,
-                boxShadow: `0 0 8px ${group.color}80`,
+                background: activeColor,
+                boxShadow: `0 0 8px ${activeColor}80`,
                 flexShrink: 0,
               }} />
               <span style={{
                 fontFamily: typography.fontSans,
                 fontSize: '14px',
-                fontWeight: 600,
-                color: group.color,
+                fontWeight: 700,
+                color: colors.neutral[100],
                 letterSpacing: '0.05em',
               }}>
                 {group.category}
               </span>
-              <div style={{ flex: 1, height: '1px', background: `linear-gradient(90deg, ${group.color}40, transparent)` }} />
+              <div style={{ flex: 1, height: '1px', background: `linear-gradient(90deg, ${activeColor}40, transparent)` }} />
             </div>
 
             <div style={{
@@ -71,8 +73,8 @@ export default function SkillsPanel({ onClose }) {
                   fontSize: '13px',
                   fontWeight: 500,
                   color: colors.neutral[100],
-                  borderColor: `${group.color}40`,
-                  background: `linear-gradient(180deg, ${group.color}14, rgba(255,255,255,0.02))`,
+                  borderColor: `${activeColor}40`,
+                  background: `linear-gradient(180deg, ${activeColor}14, rgba(255,255,255,0.02))`,
                   cursor: 'default',
                 }}>
                   {item}
@@ -80,7 +82,8 @@ export default function SkillsPanel({ onClose }) {
               ))}
             </div>
           </div>
-        ))}
+          )
+        })}
       </div>
     </div>
   )

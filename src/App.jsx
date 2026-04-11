@@ -1,7 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 import SceneCanvas from './three/SceneCanvas.jsx'
 import GestureOverlay from './gesture/GestureOverlay.jsx'
-import { AudioAnalyzer } from './three/AudioAnalyzer.js'
 import HubPanel from './ui/HubPanel.jsx'
 import PipelinePanel from './ui/PipelinePanel.jsx'
 import ProjectsPanel from './ui/ProjectsPanel.jsx'
@@ -13,548 +12,540 @@ import Preloader from './ui/Preloader.jsx'
 import ScrambleText from './ui/ScrambleText.jsx'
 import { colors, typography, sectionColors, SECTIONS } from './design-tokens.js'
 
-/**
- * App — Root component with scroll-based Data Journey navigation
- *
- * Alternating layout: on each scroll transition, the content panel
- * and 3D model swap sides (left→right, right→left) creating a
- * cinematic zigzag journey through data engineering stages.
- *
- *   0: Hero → Centered (full screen)
- *   1: Hub → Content LEFT, 3D RIGHT
- *   2: Pipeline → Content RIGHT, 3D LEFT
- *   3: Skills → Content LEFT, 3D RIGHT
- *   4: Projects → Content RIGHT, 3D LEFT
- *   ...and so on
- */
-
-const SECTION_PANELS = {
-  hub:       HubPanel,
-  pipeline:  PipelinePanel,
-  projects:  ProjectsPanel,
-  skills:    SkillsPanel,
-  certs:     CertsPanel,
-  education: EducationPanel,
-  connect:   ConnectPanel,
+// ─── Section panel mapping ───────────────────────────────────────────────────
+const PANELS = {
+  hub: HubPanel, pipeline: PipelinePanel, projects: ProjectsPanel,
+  skills: SkillsPanel, certs: CertsPanel, education: EducationPanel,
+  connect: ConnectPanel,
 }
 
 const ROLES = ['DATA ENGINEER', 'WEB DEVELOPER', 'PRODUCT BUILDER']
 
-export default function App() {
-  const [appLoaded, setAppLoaded] = useState(false)
-  const [sectionIndex, setSectionIndex] = useState(0)
-  const [displaySectionIndex, setDisplaySectionIndex] = useState(0)
-  const [gestureMode, setGestureMode] = useState(false)
-  const [gestureState, setGestureState] = useState('normal')
-  const [handPosition, setHandPosition] = useState(null)
-  const [headPosition, setHeadPosition] = useState(null)
-  const [audioEnabled, setAudioEnabled] = useState(false)
-  const [audioData, setAudioData] = useState({ bass: 0, mid: 0, treble: 0, overall: 0 })
-  const [roleIndex, setRoleIndex] = useState(0)
-  const [transitioning, setTransitioning] = useState(false)
-
-  const audioRef = useRef(null)
-  const audioRafRef = useRef(null)
-  const scrollCooldown = useRef(false)
-
-  // Role cycling
+// ─── Hooks ───────────────────────────────────────────────────────────────────
+function useMediaQuery(q) {
+  const [m, setM] = useState(() => window.matchMedia(q).matches)
   useEffect(() => {
-    const timer = setInterval(() => {
-      setRoleIndex(i => (i + 1) % ROLES.length)
-    }, 4000)
-    return () => clearInterval(timer)
-  }, [])
+    const mq = window.matchMedia(q)
+    const fn = () => setM(mq.matches)
+    mq.addEventListener('change', fn)
+    return () => mq.removeEventListener('change', fn)
+  }, [q])
+  return m
+}
 
-  // Audio loop
-  useEffect(() => {
-    if (!audioEnabled) return
-    const loop = () => {
-      if (audioRef.current?.active) {
-        setAudioData(audioRef.current.getData())
-      }
-      audioRafRef.current = requestAnimationFrame(loop)
-    }
-    loop()
-    return () => cancelAnimationFrame(audioRafRef.current)
-  }, [audioEnabled])
-
-  // Toggle audio
-  const toggleAudio = useCallback(async () => {
-    if (audioEnabled) {
-      audioRef.current?.stop()
-      audioRef.current = null
-      setAudioEnabled(false)
-      setAudioData({ bass: 0, mid: 0, treble: 0, overall: 0 })
-    } else {
-      const analyzer = new AudioAnalyzer()
-      const ok = await analyzer.start()
-      if (ok) {
-        audioRef.current = analyzer
-        setAudioEnabled(true)
-      }
-    }
-  }, [audioEnabled])
-
-  // Scroll navigation
-  const goToSection = useCallback((index) => {
-    const clamped = Math.max(0, Math.min(SECTIONS.length - 1, index))
-    if (clamped === sectionIndex || scrollCooldown.current) return
-    scrollCooldown.current = true
-    setTransitioning(true)
-    setSectionIndex(clamped) // Trigger 3D transition immediately
-    setTimeout(() => {
-      setDisplaySectionIndex(clamped) // Swap UI content after fade out
-      setTransitioning(false)
-      setTimeout(() => { scrollCooldown.current = false }, 400)
-    }, 250) // Reduced delay for more responsive feel
-  }, [sectionIndex])
-
-  // Helper to check if an event target is inside an internal content panel
-  const isPanelInteraction = useCallback((target) => {
-    let el = target
-    while (el && el !== document.body) {
-      if (el.classList?.contains('content-panel') || el.classList?.contains('panel-scroll')) {
-        return true
-      }
-      el = el.parentElement
-    }
-    return false
-  }, [])
-
-  // Mouse wheel handler
-  useEffect(() => {
-    const onWheel = (e) => {
-      // If we are scrolling inside a panel, ignore it for navigation
-      if (isPanelInteraction(e.target)) return
-
-      // Prevent native scroll behavior (rubber-banding/bouncing) to stop visual jitter
-      e.preventDefault()
-
-      if (Math.abs(e.deltaY) < 30) return
-      if (e.deltaY > 0) goToSection(sectionIndex + 1)
-      else goToSection(sectionIndex - 1)
-    }
-    window.addEventListener('wheel', onWheel, { passive: false })
-    return () => window.removeEventListener('wheel', onWheel)
-  }, [sectionIndex, goToSection, isPanelInteraction])
-
-  // Touch swipe handler
-  useEffect(() => {
-    let touchStartY = 0
-    let touchTarget = null
-    let touchStartScrollTop = 0
-
-    // Find the nearest ancestor that is BOTH a panel container AND actually overflows vertically.
-    // This handles cases where inner wrapper divs (e.g. .panel-scroll) exist but have no
-    // overflow style — we need the real scrollable element.
-    const getScrollablePanel = (el) => {
-      let node = el
-      while (node && node !== document.body) {
-        const isPanel =
-          node.classList?.contains('content-panel') ||
-          node.classList?.contains('panel-scroll')
-        if (isPanel && node.scrollHeight > node.clientHeight + 8) {
-          return node
-        }
-        node = node.parentElement
-      }
-      return null
-    }
-
-    const onTouchStart = (e) => {
-      touchStartY = e.touches[0].clientY
-      touchTarget = e.target
-      const panel = getScrollablePanel(touchTarget)
-      touchStartScrollTop = panel ? panel.scrollTop : 0
-    }
-
-    const onTouchEnd = (e) => {
-      const delta = touchStartY - e.changedTouches[0].clientY
-      if (Math.abs(delta) < 60) return
-
-      const panel = getScrollablePanel(touchTarget)
-      if (panel) {
-        // Only navigate if the panel is already scrolled to the edge in the swipe direction
-        const atBottom = panel.scrollTop + panel.clientHeight >= panel.scrollHeight - 4
-        const atTop = panel.scrollTop <= 4
-        const swipingDown = delta > 0  // user wants to go to next section
-        const swipingUp = delta < 0    // user wants to go to prev section
-
-        if (swipingDown && !atBottom) return  // panel still has content below — don't navigate
-        if (swipingUp && !atTop) return        // panel still has content above — don't navigate
-
-        // Also check that the scroll position was already at the edge when the touch started
-        if (swipingDown && touchStartScrollTop + panel.clientHeight < panel.scrollHeight - 4) return
-        if (swipingUp && touchStartScrollTop > 4) return
-      }
-
-      if (delta > 0) goToSection(sectionIndex + 1)
-      else goToSection(sectionIndex - 1)
-    }
-    window.addEventListener('touchstart', onTouchStart, { passive: true })
-    window.addEventListener('touchend', onTouchEnd, { passive: true })
-    return () => {
-      window.removeEventListener('touchstart', onTouchStart)
-      window.removeEventListener('touchend', onTouchEnd)
-    }
-  }, [sectionIndex, goToSection])
-
-  // Keyboard navigation
-  useEffect(() => {
-    const onKey = (e) => {
-      // Don't hijack keyboard input when user is typing in a form field
-      const tag = document.activeElement?.tagName?.toLowerCase()
-      const isTyping = tag === 'input' || tag === 'textarea' || tag === 'select' ||
-        document.activeElement?.isContentEditable
-      if (isTyping) return
-
-      if (e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); goToSection(sectionIndex + 1) }
-      if (e.key === 'ArrowUp') { e.preventDefault(); goToSection(sectionIndex - 1) }
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [sectionIndex, goToSection])
-
-  const handleGesture = useCallback((state) => setGestureState(state), [])
-
-  // Gesture navigation: 2 fingers → next, 3 fingers → prev
-  const handleNavigate = useCallback((dir) => {
-    if (dir === 'next') goToSection(sectionIndex + 1)
-    else if (dir === 'home') goToSection(sectionIndex - 1)
-  }, [sectionIndex, goToSection])
-
-  const handleHandPosition = useCallback((pos) => setHandPosition(pos), [])
-  const handleHeadPosition = useCallback((pos) => setHeadPosition(pos), [])
-
-  // UI variables use displaySectionIndex to avoid updating content before fade out
-  const currentSection = SECTIONS[displaySectionIndex]
-  const sectionKey = currentSection.key
-  const ActivePanel = SECTION_PANELS[sectionKey] || null
-  const isHero = displaySectionIndex === 0
-
-  // Determine if content should be on the left or right
-  const isContentLeft = displaySectionIndex % 2 === 1
-  const currentSectionColor = sectionColors[sectionKey] || sectionColors.hero
-
-  // Canvas uses sectionIndex for immediate response
-  const canvasSectionKey = SECTIONS[sectionIndex].key
-
+// ─── Gesture toggle ──────────────────────────────────────────────────────────
+function GestureBtn({ on, toggle, accent }) {
   return (
-    <div style={{ width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden', background: colors.neutral[950] }}>
-      {/* Three.js Scene */}
-      <SceneCanvas
-        gestureState={gestureState}
-        activeSection={canvasSectionKey}
-        sectionIndex={sectionIndex}
-        handPosition={handPosition}
-        headPosition={headPosition}
-        audioData={audioData}
-      />
+    <button onClick={toggle} style={{
+      display: 'flex', alignItems: 'center', gap: 8,
+      padding: '7px 12px', borderRadius: 8,
+      background: on ? `${accent}15` : 'rgba(255,255,255,0.03)',
+      border: `1px solid ${on ? `${accent}50` : 'rgba(255,255,255,0.08)'}`,
+      color: on ? accent : colors.neutral[500],
+      fontFamily: typography.fontMono, fontSize: '10px', fontWeight: 600,
+      letterSpacing: '0.1em', cursor: 'pointer', transition: 'all 0.25s',
+    }}>
+      <span style={{
+        width: 5, height: 5, borderRadius: '50%', flexShrink: 0,
+        background: on ? accent : colors.neutral[700],
+        boxShadow: on ? `0 0 6px ${accent}` : 'none',
+        transition: 'all 0.25s',
+      }} />
+      {on ? 'GESTURE ON' : 'GESTURE'}
+    </button>
+  )
+}
 
-      {/* Preloader */}
-      {!appLoaded && <Preloader onComplete={() => setAppLoaded(true)} />}
-
-      {/* Main UI — fades in after preloader */}
-      <div style={{
-        opacity: appLoaded ? 1 : 0,
-        pointerEvents: appLoaded ? 'auto' : 'none',
-        transition: 'opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1)',
-        width: '100%', height: '100%',
-        position: 'absolute', inset: 0, zIndex: 10,
+// ─── Section label (shared between mobile & desktop) ─────────────────────────
+function SectionLabel({ label, color }) {
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'center', gap: 10,
+      marginBottom: 16,
+    }}>
+      <span style={{
+        width: 5, height: 5, borderRadius: '50%',
+        background: color, boxShadow: `0 0 8px ${color}60`, flexShrink: 0,
+      }} />
+      <span style={{
+        fontFamily: typography.fontMono, fontSize: '10px', fontWeight: 700,
+        letterSpacing: '0.18em', color, textTransform: 'uppercase',
       }}>
+        {label}
+      </span>
+    </div>
+  )
+}
 
-        {/* ─── TOP BAR ─── */}
+// ═════════════════════════════════════════════════════════════════════════════
+export default function App() {
+  const [loaded, setLoaded]       = useState(false)
+  const [secIdx, setSecIdx]       = useState(0)
+  const [gesture, setGesture]     = useState(false)
+  const [show3D, setShow3D]       = useState(true)
+  const [gestureState, setGState] = useState('normal')
+  const [handPos, setHandPos]     = useState(null)
+  const [headPos, setHeadPos]     = useState(null)
+  const [roleIdx, setRoleIdx]     = useState(0)
+
+  const isLg      = useMediaQuery('(min-width: 1024px)')
+  const scrollRef = useRef(null)
+
+  const sec   = SECTIONS[secIdx] ?? SECTIONS[0]
+  const accent = sectionColors[sec.key].primary
+
+  // Role rotation
+  useEffect(() => {
+    const t = setInterval(() => setRoleIdx(i => (i + 1) % ROLES.length), 4000)
+    return () => clearInterval(t)
+  }, [])
+
+  // Desktop: wheel anywhere → scroll the right column
+  useEffect(() => {
+    if (!isLg) return
+    const fn = (e) => {
+      const col = scrollRef.current
+      if (!col || col.contains(e.target)) return
+      e.preventDefault()
+      col.scrollBy({ top: e.deltaY })
+    }
+    window.addEventListener('wheel', fn, { passive: false })
+    return () => window.removeEventListener('wheel', fn)
+  }, [isLg])
+
+  // Scroll-spy
+  useEffect(() => {
+    if (!loaded) return
+    const t = setTimeout(() => {
+      const root = isLg ? scrollRef.current : null
+      const obs = new IntersectionObserver(entries => {
+        // Find the most recently intersected element (last in the array crossing the boundary)
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            const i = Number(e.target.dataset.idx)
+            if (!isNaN(i)) setSecIdx(i)
+          }
+        })
+      }, { root, rootMargin: show3D ? '-46% 0px -50% 0px' : '-5% 0px -90% 0px', threshold: 0 })
+      document.querySelectorAll('[data-idx]').forEach(el => obs.observe(el))
+      return () => obs.disconnect()
+    }, 300)
+    return () => clearTimeout(t)
+  }, [loaded, isLg, show3D])
+
+  // Handlers
+  const onGesture  = useCallback(s => setGState(s), [])
+  const onHandPos  = useCallback(p => setHandPos(p), [])
+  const onHeadPos  = useCallback(p => setHeadPos(p), [])
+  const goTo = useCallback((key) => {
+    const el = document.getElementById(`s-${key}`)
+    if (!el) return
+    const stickyHeight = show3D ? window.innerHeight * 0.45 : 6;
+    if (isLg) {
+      const col = scrollRef.current
+      if (col) {
+        const absoluteTop = col.scrollTop + el.getBoundingClientRect().top - col.getBoundingClientRect().top - stickyHeight - 20
+        col.scrollTo({ top: absoluteTop, behavior: 'smooth' })
+      }
+    } else {
+      const absoluteTop = window.scrollY + el.getBoundingClientRect().top - stickyHeight - 20
+      window.scrollTo({ top: absoluteTop, behavior: 'smooth' })
+    }
+  }, [isLg, show3D])
+
+  const onNavigate = useCallback(d => {
+    const nextIdx = d === 'next' ? Math.min(SECTIONS.length - 1, secIdx + 1) : Math.max(0, secIdx - 1)
+    if (nextIdx !== secIdx) {
+      goTo(SECTIONS[nextIdx].key)
+    }
+  }, [secIdx, goTo])
+
+  // ── Shared 3D props ──────────────────────────────────────────────────────
+  const sceneProps = {
+    gestureState, activeSection: sec.key, sectionIndex: secIdx,
+    handPosition: handPos, headPosition: headPos, isMobile: !isLg,
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // RENDER
+  // ═══════════════════════════════════════════════════════════════════════════
+  return (
+    <>
+      {!loaded && <Preloader onComplete={() => setLoaded(true)} />}
+
+      {/* ──────────────────────────────────────────────────────────────────
+          MOBILE-FIRST LAYOUT (< 1024px)
+          
+          Architecture:
+          1. Hero section with name (solid bg, no 3D overlap)
+          2. 3D canvas — dedicated visible block, no content overlap
+          3. Section cards — solid backgrounds, zero transparency
+          4. Fixed: gesture btn (top-right), progress dots (right)
+      ────────────────────────────────────────────────────────────────── */}
+      {!isLg && (
         <div style={{
-          position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
-          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          padding: '16px 24px',
+          opacity: loaded ? 1 : 0,
+          transition: 'opacity 0.8s ease',
         }}>
-          {/* Hire Me — top left */}
-          <button
-            onClick={() => goToSection(SECTIONS.length - 1)}
-            id="hire-me-btn"
-            style={{
-              display: 'flex', alignItems: 'center', gap: '8px',
-              padding: '8px 18px', borderRadius: '8px',
-              background: `${currentSectionColor.primary}10`,
-              border: `1px solid ${currentSectionColor.primary}25`,
-              color: currentSectionColor.primary,
-              fontFamily: typography.fontSans, fontSize: '11px', fontWeight: 700,
-              letterSpacing: '0.1em', backdropFilter: 'blur(12px)',
-              cursor: 'pointer', transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.background = `${currentSectionColor.primary}25`
-              e.currentTarget.style.borderColor = `${currentSectionColor.primary}60`
-              e.currentTarget.style.transform = 'translateY(-1px)'
-              e.currentTarget.style.boxShadow = `0 8px 24px ${currentSectionColor.primary}20`
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.background = `${currentSectionColor.primary}10`
-              e.currentTarget.style.borderColor = `${currentSectionColor.primary}25`
-              e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.boxShadow = 'none'
-            }}
-          >
-            <div style={{
-              width: 5, height: 5, borderRadius: '50%',
-              background: currentSectionColor.primary,
-              boxShadow: `0 0 8px ${currentSectionColor.glow}`,
-              transition: 'all 0.6s ease',
-            }} className="cursor-blink" />
-            HIRE ME
-          </button>
 
-          {/* Right controls */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
-            {/* Gesture Mode toggle */}
-            <button
-              onClick={() => setGestureMode(prev => !prev)}
-              id="gesture-toggle"
-              style={{
-                display: 'flex', alignItems: 'center', gap: '6px',
-                padding: '8px 14px', borderRadius: '8px',
-                background: gestureMode ? `${currentSectionColor.primary}18` : 'rgba(255,255,255,0.03)',
-                border: `1px solid ${gestureMode ? `${currentSectionColor.primary}50` : 'rgba(255,255,255,0.06)'}`,
-                color: gestureMode ? currentSectionColor.primary : colors.neutral[400],
-                fontFamily: typography.fontMono, fontSize: '10px', fontWeight: 500,
-                letterSpacing: '0.08em', cursor: 'pointer',
-                transition: 'all 0.3s ease', backdropFilter: 'blur(8px)',
-              }}
-            >
-              <span style={{
-                width: 6, height: 6, borderRadius: '50%',
-                background: gestureMode ? currentSectionColor.primary : colors.neutral[600],
-                boxShadow: gestureMode ? `0 0 8px ${currentSectionColor.glow}` : 'none',
-                transition: 'all 0.3s ease',
-              }} />
-              {gestureMode ? 'GESTURE ON' : 'GESTURE OFF'}
-            </button>
-
-            {/* Audio Sync toggle */}
-            <button
-              onClick={toggleAudio}
-              id="audio-toggle"
-              style={{
-                display: 'flex', alignItems: 'center', gap: '6px',
-                padding: '8px 14px', borderRadius: '8px',
-                background: audioEnabled ? `${currentSectionColor.primary}18` : 'rgba(255,255,255,0.03)',
-                border: `1px solid ${audioEnabled ? `${currentSectionColor.primary}50` : 'rgba(255,255,255,0.06)'}`,
-                color: audioEnabled ? currentSectionColor.primary : colors.neutral[400],
-                fontFamily: typography.fontMono, fontSize: '10px', fontWeight: 500,
-                letterSpacing: '0.08em', cursor: 'pointer',
-                transition: 'all 0.3s ease', backdropFilter: 'blur(8px)',
-              }}
-            >
-              <span style={{
-                width: 6, height: 6, borderRadius: '50%',
-                background: audioEnabled ? currentSectionColor.primary : colors.neutral[600],
-                boxShadow: audioEnabled ? `0 0 8px ${currentSectionColor.glow}` : 'none',
-                transition: 'all 0.3s ease',
-              }} />
-              {audioEnabled ? 'AUDIO SYNC' : 'AUDIO OFF'}
-            </button>
+          {/* FIXED: gesture button + progress dots */}
+          <div style={{ position: 'fixed', top: 24, right: 24, zIndex: 200 }}>
+            <GestureBtn on={gesture} toggle={() => setGesture(g => !g)} accent={accent} />
           </div>
-        </div>
+          <div style={{
+            position: 'fixed', right: 8, top: '50%', transform: 'translateY(-50%)',
+            display: 'flex', flexDirection: 'column', gap: 8,
+            zIndex: 200, pointerEvents: 'none',
+          }}>
+            {SECTIONS.map((s, i) => (
+              <div key={s.key} style={{
+                width: i === secIdx ? 7 : 4,
+                height: i === secIdx ? 7 : 4,
+                borderRadius: '50%',
+                background: i === secIdx ? accent : colors.neutral[700],
+                boxShadow: i === secIdx ? `0 0 6px ${accent}` : 'none',
+                transition: 'all 0.3s',
+              }} />
+            ))}
+          </div>
 
-        {/* ─── SCROLL PROGRESS (right side dots) ─── */}
-        <div className="scroll-progress">
-          {SECTIONS.map((s, i) => {
-            const dotColor = sectionColors[s.key]
-            const isActive = i === sectionIndex
-            return (
-              <div
-                key={s.key}
-                className={`scroll-dot ${isActive ? 'active' : ''}`}
-                data-label={s.label}
-                onClick={() => goToSection(i)}
-                style={isActive ? {
-                  background: dotColor.primary,
-                  boxShadow: `0 0 12px ${dotColor.glow}80`,
-                } : {}}
-              />
-            )
-          })}
-        </div>
-
-        {/* ─── SECTION COLOR ACCENT LINE ─── */}
-        {!isHero && (
+          {/* FIXED: 3D canvas pinned at top, high z-index, solid background so content hides beneath */}
           <div style={{
             position: 'fixed',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: '2px',
-            background: `linear-gradient(90deg, transparent, ${currentSectionColor.primary}, ${currentSectionColor.secondary}, transparent)`,
-            opacity: transitioning ? 0 : 0.6,
-            transition: 'opacity 0.6s ease',
-            zIndex: 50,
-          }} />
-        )}
-
-        {/* ─── BOTTOM HUD (Persistent Data Labels) ─── */}
-        <div className={`bottom-hud ${isHero ? 'is-hero' : ''}`} style={{
-          position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 60,
-          padding: '24px 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end',
-          pointerEvents: 'none',
-        }}>
-          {/* Active Diagram Name */}
-          <div className="hud-diagram" style={{
-            fontFamily: typography.fontMono, fontSize: '10px', fontWeight: 600,
-            letterSpacing: '0.15em', color: currentSectionColor.primary,
-            display: 'flex', alignItems: 'center', gap: '10px',
-            textShadow: `0 0 16px ${currentSectionColor.glow}`,
-            transition: 'color 0.6s ease',
-            backdropFilter: 'blur(4px)',
+            top: 0, left: 0, right: 0,
+            height: show3D ? '45vh' : '6px',
+            zIndex: 150, // Higher than content zIndex: 60
+            background: 'var(--c-bg)',
+            borderBottom: '1px solid rgba(155,168,171,0.06)',
+            pointerEvents: 'none',
+            overflow: 'hidden',
+            transition: 'height 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
           }}>
-            <span style={{ color: colors.neutral[500], fontSize: '9px' }}>[SYS.DIAGRAM]</span>
-            {currentSection.diagram}
-          </div>
-
-        </div>
-
-        {/* ─── HERO SECTION ─── */}
-        <div style={{
-          position: 'fixed', top: '50%', left: '50%',
-          transform: `translate(-50%, ${isHero && !transitioning ? '-50%' : '-60%'})`,
-          display: 'flex', flexDirection: 'column', alignItems: 'center',
-          pointerEvents: 'none', userSelect: 'none', zIndex: 20,
-          opacity: isHero && !transitioning ? 1 : 0,
-          transition: 'all 0.8s cubic-bezier(0.16, 1, 0.3, 1)',
-        }}>
-          {/* Contrast Shield to guarantee text legibility */}
-          <div style={{
-            position: 'absolute', top: '50%', left: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: '120vw', height: '100vh',
-            background: `radial-gradient(circle, ${colors.neutral[950]}E6 0%, ${colors.neutral[950]}60 30%, transparent 60%)`,
-            zIndex: -1, pointerEvents: 'none'
-          }} />
-
-          {/* Greeting */}
-          <div style={{
-            fontSize: 'clamp(14px, 3.5vw, 20px)',
-            fontFamily: typography.fontMono, fontWeight: 600,
-            letterSpacing: '0.3em', color: colors.neutral[100],
-            marginBottom: '20px', textTransform: 'uppercase',
-            textShadow: `0 0 20px ${currentSectionColor.glow}80`,
-          }}>
-            <div className="cursor-blink" style={{
-              display: 'inline-block', width: 8, height: 8, borderRadius: '50%',
-              background: colors.neutral[100],
-              boxShadow: `0 0 16px ${currentSectionColor.glow}`,
-              marginRight: '16px', verticalAlign: 'middle',
-            }} />
-            HI, I AM
-          </div>
-
-          {/* Name */}
-          <h1 style={{
-            fontSize: 'clamp(42px, 8.5vw, 110px)',
-            fontFamily: typography.fontSans, fontWeight: 900,
-            letterSpacing: '-0.04em', lineHeight: 0.95,
-            marginBottom: '16px',
-            whiteSpace: 'nowrap',
-            textAlign: 'center',
-            filter: 'drop-shadow(0 10px 30px rgba(0,0,0,0.8))'
-          }} className="text-gradient">
-            KARTHIK NP
-          </h1>
-
-          {/* Divider */}
-          <div style={{
-            width: '80px', height: '3px',
-            background: `linear-gradient(90deg, transparent, ${currentSectionColor.primary}, transparent)`,
-            marginBottom: '24px', borderRadius: '1.5px',
-          }} />
-
-          {/* Role */}
-          <div style={{
-            display: 'inline-flex', alignItems: 'center',
-            fontFamily: typography.fontMono,
-            fontSize: 'clamp(13px, 3vw, 18px)',
-            fontWeight: 500, letterSpacing: '0.1em',
-            textTransform: 'uppercase', color: colors.neutral[100],
-            textShadow: '0 4px 12px rgba(0,0,0,0.8)',
-          }}>
-            <span style={{ color: colors.neutral[500], marginRight: '12px', fontWeight: 400 }}>~$</span>
-            <ScrambleText text={ROLES[roleIndex]} speed={35} />
-            <span className="cursor-blink" style={{
-              display: 'inline-block', width: '6px', height: '18px',
-              backgroundColor: currentSectionColor.primary, marginLeft: '10px',
-              verticalAlign: 'middle',
-              boxShadow: `0 0 10px ${currentSectionColor.glow}80`,
-            }} />
-          </div>
-
-
-        </div>
-
-        {/* ─── SECTION CONTENT (non-hero) — Alternating left/right ─── */}
-        {!isHero && (
-          <div className="section-content" key={sectionKey}>
+            {/* Figure label overlay */}
             <div style={{
-              width: '100%', height: '100%',
-              display: 'flex', alignItems: 'center',
-              justifyContent: isContentLeft ? 'flex-start' : 'flex-end',
-              padding: '80px 24px 24px',
-              transition: 'justify-content 0.6s ease',
+              position: 'absolute', bottom: 12, left: 16,
+              fontFamily: typography.fontMono, fontSize: '9px',
+              color: accent, letterSpacing: '0.25em', textTransform: 'uppercase',
+              opacity: 0.7,
+              zIndex: 4
             }}>
-              {/* Content panel */}
-              <div style={{
-                flex: '0 0 auto',
-                maxWidth: '520px',
-                width: '90vw',
-              }} className={transitioning
-                ? (isContentLeft ? 'section-exit-left' : 'section-exit-right')
-                : (isContentLeft ? 'section-enter-left' : 'section-enter-right')
-              }>
-                {/* Section label */}
-                <div style={{ marginBottom: '12px' }}>
-                  <div style={{
-                    display: 'flex', alignItems: 'center', gap: '10px',
-                    marginBottom: '0',
-                  }}>
-                    <div style={{
-                      width: 6, height: 6, borderRadius: '50%',
-                      background: currentSectionColor.primary,
-                      boxShadow: `0 0 8px ${currentSectionColor.glow}`,
-                      transition: 'all 0.6s ease',
-                    }} />
-                    <span style={{
-                      fontFamily: typography.fontMono, fontSize: '10px', fontWeight: 500,
-                      letterSpacing: '0.15em', color: currentSectionColor.primary,
-                      textTransform: 'uppercase',
-                      transition: 'color 0.6s ease',
-                    }}>
-                      {String(displaySectionIndex).padStart(2, '0')} — {currentSection.label}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Panel content */}
-                <div className="content-panel glass-panel" style={{
-                  borderTop: `2px solid ${currentSectionColor.primary}40`,
-                  transition: 'border-color 0.6s ease',
-                }}>
-                  {ActivePanel && <ActivePanel onClose={() => goToSection(0)} />}
-                </div>
-              </div>
+              [ {sec.figure} ]
             </div>
+            {/* 3D System */}
+            <div style={{ position: 'absolute', inset: 0, zIndex: 2 }}>
+              <SceneCanvas {...sceneProps} />
+            </div>
+            {/* Bottom fade */}
+            <div style={{
+              position: 'absolute', bottom: 0, left: 0, right: 0, height: 32,
+              background: 'linear-gradient(to top, var(--c-bg), transparent)',
+              zIndex: 3
+            }} />
           </div>
+
+          {/* SCROLLABLE CONTENT — scrolls beneath the 3D particles */}
+          <div style={{ 
+            paddingTop: show3D ? '45vh' : '6px',
+            transition: 'padding-top 0.6s cubic-bezier(0.16, 1, 0.3, 1)'
+          }}>
+            {/* Hero intro */}
+            <header style={{
+              padding: '28px 24px 24px',
+              background: 'var(--c-bg)',
+              position: 'relative',
+              zIndex: 60,
+            }}>
+              <div style={{
+                fontFamily: typography.fontMono, fontSize: '10px', fontWeight: 600,
+                letterSpacing: '0.25em', color: accent,
+                marginBottom: 10, textTransform: 'uppercase', opacity: 0.6,
+              }}>
+                &gt; data_engineer
+              </div>
+              <h1 style={{
+                fontFamily: typography.fontSans, fontWeight: 900, fontSize: '40px',
+                lineHeight: 1, letterSpacing: '-0.04em', color: colors.neutral[50],
+                marginBottom: 10,
+              }}>
+                Karthik NP
+              </h1>
+              <div style={{
+                fontFamily: typography.fontMono, fontSize: '12px',
+                display: 'flex', alignItems: 'center', gap: 6,
+                color: colors.neutral[300], marginBottom: 14,
+              }}>
+                <span style={{ color: accent }}>~$</span>
+                <ScrambleText text={ROLES[roleIdx]} speed={35} />
+              </div>
+              <p style={{
+                fontFamily: typography.fontSans, fontSize: '14px', lineHeight: 1.7,
+                color: colors.neutral[400], maxWidth: '360px',
+              }}>
+                Building high-performance data pipelines on Databricks using PySpark, Kafka & MongoDB.
+              </p>
+            </header>
+
+            {/* Section cards */}
+            <main style={{
+              padding: '16px 16px 80px',
+              background: 'var(--c-bg)',
+              position: 'relative',
+              zIndex: 60,
+            }}>
+              {SECTIONS.map((s, i) => {
+                const P = PANELS[s.key]
+                const c = sectionColors[s.key]
+                if (!P) return null
+                return (
+                  <section key={s.key} id={`s-${s.key}`} data-idx={i}
+                    style={{ marginBottom: i < SECTIONS.length - 1 ? 28 : 0 }}>
+                    <SectionLabel label={s.label} color={c.primary} />
+                    <div className="section-card">
+                      <P onClose={() => {}} />
+                    </div>
+                  </section>
+                )
+              })}
+            </main>
+          </div>
+        </div>
+      )}
+
+      {/* ──────────────────────────────────────────────────────────────────
+          DESKTOP LAYOUT (≥ 1024px)
+          
+          Architecture:
+          ┌──────────────────┬──────────────────────────────────────────┐
+          │  LEFT (sticky)   │  RIGHT (scrolls)                       │
+          │  ─ Name          │  ─ 3D Canvas (dedicated section)       │
+          │  ─ Role          │  ─ Section cards                       │
+          │  ─ Nav links     │                                        │
+          │  ─ Gesture       │                                        │
+          └──────────────────┴──────────────────────────────────────────┘
+          
+          3D is the FIRST section in the right column — fully visible,
+          no overlap, no transparency hacks.
+      ────────────────────────────────────────────────────────────────── */}
+      {isLg && (
+        <div style={{
+          position: 'fixed', inset: 0,
+          display: 'flex',
+          opacity: loaded ? 1 : 0,
+          transition: 'opacity 0.8s ease',
+          zIndex: 1,
+        }}>
+
+          {/* LEFT — sticky info panel */}
+          <aside style={{
+            width: '40%',
+            maxWidth: 480,
+            flexShrink: 0,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            padding: '72px 48px 56px 72px',
+            background: 'var(--c-bg)',
+            borderRight: '1px solid rgba(155,168,171,0.06)',
+            position: 'relative',
+            zIndex: 2,
+          }}>
+            {/* Top: intro */}
+            <div>
+              <div style={{
+                fontFamily: typography.fontMono, fontSize: '10px', fontWeight: 600,
+                letterSpacing: '0.3em', color: accent,
+                marginBottom: 16, textTransform: 'uppercase', opacity: 0.6,
+              }}>
+                &gt; data_engineer
+              </div>
+              <h1 style={{
+                fontFamily: typography.fontSans, fontWeight: 900, fontSize: '48px',
+                lineHeight: 1, letterSpacing: '-0.04em', color: colors.neutral[50],
+                marginBottom: 16,
+              }}>
+                Karthik<br />NP
+              </h1>
+              <div style={{
+                fontFamily: typography.fontMono, fontSize: '13px',
+                color: colors.neutral[300], marginBottom: 20,
+                display: 'flex', alignItems: 'center', gap: 8,
+              }}>
+                <span style={{ color: accent }}>~$</span>
+                <ScrambleText text={ROLES[roleIdx]} speed={35} />
+              </div>
+              <p style={{
+                fontFamily: typography.fontSans, fontSize: '14px', lineHeight: 1.75,
+                color: colors.neutral[500], maxWidth: '280px',
+              }}>
+                Building high-performance data pipelines on Databricks using PySpark, Kafka & MongoDB.
+              </p>
+            </div>
+
+            {/* Bottom: nav + gesture */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <nav>
+                <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {SECTIONS.map((s, i) => {
+                    const active = i === secIdx
+                    return (
+                      <li key={s.key}>
+                        <a
+                          href={`#s-${s.key}`}
+                          onClick={e => { e.preventDefault(); goTo(s.key) }}
+                          style={{
+                            textDecoration: 'none', display: 'flex',
+                            alignItems: 'center', gap: 12, cursor: 'pointer',
+                          }}
+                        >
+                          <span style={{
+                            display: 'block',
+                            width: active ? 44 : 20, height: 1,
+                            background: active ? accent : colors.neutral[700],
+                            transition: 'all 0.3s ease', flexShrink: 0,
+                          }} />
+                          <span style={{
+                            fontFamily: typography.fontMono, fontSize: '11px',
+                            letterSpacing: '0.12em', textTransform: 'uppercase',
+                            fontWeight: active ? 700 : 400,
+                            color: active ? accent : colors.neutral[600],
+                            transition: 'all 0.3s ease',
+                          }}>
+                            {s.label}
+                          </span>
+                        </a>
+                      </li>
+                    )
+                  })}
+                </ul>
+              </nav>
+              <GestureBtn on={gesture} toggle={() => setGesture(g => !g)} accent={accent} />
+            </div>
+          </aside>
+
+          {/* RIGHT — scrollable, 3D is sticky at top */}
+          <main
+            ref={scrollRef}
+            style={{
+              flex: 1,
+              overflowY: 'auto',
+              overflowX: 'hidden',
+              height: '100vh',
+              scrollbarWidth: 'thin',
+              scrollbarColor: `${colors.neutral[700]} transparent`,
+              background: 'var(--c-bg)',
+            }}
+          >
+            {/* 3D CANVAS — sticky, stays pinned at top while cards scroll beneath it */}
+            <div style={{
+              position: 'sticky',
+              top: 0,
+              width: '100%',
+              height: show3D ? '45vh' : '6px',
+              transition: 'height 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
+              overflow: 'hidden',
+              zIndex: 10, // Higher than cards (zIndex: 2)
+              background: 'var(--c-bg)', // Solid background to hide cards when scrolling under
+              borderBottom: '1px solid rgba(155,168,171,0.06)',
+            }}>
+              {/* Figure label overlay */}
+              <div style={{
+                position: 'absolute', bottom: 16, left: 24,
+                fontFamily: typography.fontMono, fontSize: '10px',
+                color: accent, letterSpacing: '0.3em', textTransform: 'uppercase',
+                opacity: 0.7,
+                zIndex: 4
+              }}>
+                [ {sec.figure} ]
+              </div>
+              {/* 3D System */}
+              <div style={{ position: 'absolute', inset: 0, zIndex: 2 }}>
+                <SceneCanvas {...sceneProps} />
+              </div>
+              {/* Bottom fade */}
+              <div style={{
+                position: 'absolute', bottom: 0, left: 0, right: 0,
+                height: 48,
+                background: 'linear-gradient(to top, var(--c-bg), transparent)',
+                pointerEvents: 'none',
+                zIndex: 3
+              }} />
+            </div>
+
+            {/* Section cards scroll over the sticky 3D */}
+            <div style={{
+              padding: '32px 48px 120px',
+              position: 'relative',
+              zIndex: 2,
+              background: 'var(--c-bg)',
+            }}>
+              {SECTIONS.map((s, i) => {
+                const P = PANELS[s.key]
+                const c = sectionColors[s.key]
+                if (!P) return null
+                return (
+                  <section key={s.key} id={`s-${s.key}`} data-idx={i}
+                    style={{ marginBottom: i < SECTIONS.length - 1 ? 56 : 0 }}>
+                    <SectionLabel label={s.label} color={c.primary} />
+                    <div className="section-card">
+                      <P onClose={() => {}} />
+                    </div>
+                  </section>
+                )
+              })}
+              <div style={{ height: '15vh' }} />
+            </div>
+          </main>
+        </div>
+      )}
+
+
+
+      {/* 3D TOGGLE BUTTON (Global floating in right corner on Desktop, FAB on Bottom Right on Mobile) */}
+      <button 
+        onClick={() => setShow3D(!show3D)}
+        style={{
+          position: 'fixed', 
+          top: isLg ? 24 : 'auto', 
+          bottom: isLg ? 'auto' : 24,
+          right: 24, zIndex: 999,
+          width: 44, height: 44, borderRadius: '50%',
+          background: 'rgba(11, 30, 43, 0.8)', backdropFilter: 'blur(8px)',
+          border: `1px solid ${colors.neutral[700]}60`, color: colors.accent,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          cursor: 'pointer', boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
+          transition: 'all 0.4s var(--ease)',
+        }}
+        onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.1)'; e.currentTarget.style.borderColor = colors.accent }}
+        onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.borderColor = `${colors.neutral[700]}60` }}
+        title={show3D ? "Minimize Pipeline" : "Expand Pipeline"}
+      >
+        {show3D ? (
+          // TARGET: Minimize to Pipeline (Horizontal Tube with Data Packets)
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M2 7h20"></path>
+            <path d="M2 17h20"></path>
+            <rect x="6" y="10" width="4" height="4" rx="1" fill="currentColor"></rect>
+            <rect x="14" y="10" width="4" height="4" rx="1" fill="currentColor"></rect>
+          </svg>
+        ) : (
+          // TARGET: Expand to 3D System (Isometric Volumetric Cube)
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"></polygon>
+            <polyline points="2 8.5 12 15.5 22 8.5"></polyline>
+            <polyline points="12 22 12 15.5"></polyline>
+          </svg>
         )}
+      </button>
 
-        {/* Gesture overlay */}
-        <GestureOverlay
-          enabled={gestureMode}
-          onToggle={() => setGestureMode(prev => !prev)}
-          onGesture={handleGesture}
-          onNavigate={handleNavigate}
-          onHandPosition={handleHandPosition}
-          onHeadPosition={handleHeadPosition}
-        />
-
-      </div>
-    </div>
+      {/* Gesture overlay */}
+      <GestureOverlay
+        enabled={gesture}
+        onToggle={() => setGesture(p => !p)}
+        onGesture={onGesture}
+        onNavigate={onNavigate}
+        onHandPosition={onHandPos}
+        onHeadPosition={onHeadPos}
+      />
+    </>
   )
 }

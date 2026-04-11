@@ -1,466 +1,387 @@
 import * as THREE from 'three'
-import { threeColors, threeSectionColors } from '../design-tokens.js'
+import { colors } from '../design-tokens.js'
 
 /**
- * DataFlowField — The Data Journey Particle System
+ * DataFlowField — Per-Section Geometric Formations
  *
- * Formations represent the lifecycle of data engineering:
- *   0: hero       → Chaotic Nebula (raw unprocessed data)
- *   1: hub        → Magnetic Torus (streaming ingestion)
- *   2: pipeline   → ETL Parallel Streams (transformation)
- *   3: skills     → Hypercube Lattice (data warehouse)
- *   4: projects   → DAG Constellation (orchestration)
- *   5: certs      → Crystalline Pillars (validation checkpoints)
- *   6: education  → DNA Helix (knowledge foundation)
- *   7: connect    → Expanding Radar Rings (output/broadcast)
- *
- * Each section has a unique premium color scheme.
- * Audio reactivity: bass → scale/orbit expansion, mid → velocity, treble → shimmer
+ * Each section has a precise geometric shape that maps to its sys.diagram concept.
+ * Particles smoothly morph (lerp) between formations when the section changes.
+ * Uses THREE.Points for optimal GPU performance.
  */
 
-const PARTICLE_COUNT_DESKTOP = 2000
-const PARTICLE_COUNT_MOBILE = 600
+const COUNT_DESKTOP = 2200
+const COUNT_MOBILE  = 900
+const isMobileDevice = () => window.innerWidth < 768
 
-function isMobile() {
-  return window.innerWidth < 768
+// ─── FORMATION FUNCTIONS ─────────────────────────────────────────────────────
+// Each returns { x, z } target for particle i at given elapsedTime.
+// Y is gently oscillated by the update loop for subtle life.
+
+const formations = {
+
+  // BRONZE: INGEST — A sweeping, majestic 3D Data River / Lake undulating with pure data streams.
+  rawIngest(i, count, t) {
+    const cols = Math.floor(Math.sqrt(count * 2.5));
+    const rows = Math.ceil(count / cols);
+    const cx = (i % cols) / cols - 0.5;
+    const cz = Math.floor(i / cols) / rows - 0.5;
+    
+    const x = cx * 18.0;
+    const z = cz * 12.0; 
+    
+    // Superposition of fluid waves for a hyper-smooth undulating surface
+    const wave1 = Math.sin(x * 0.4 + t) * 1.5;
+    const wave2 = Math.cos(z * 0.5 - t * 0.8) * 1.5;
+    const wave3 = Math.sin((x + z) * 0.3 + t * 1.2) * 1.0;
+    
+    // Add particle thickness to the water surface
+    const noise = Math.sin(i * 12.3) * 0.4;
+    
+    return { 
+      x, 
+      y: wave1 + wave2 + wave3 - 1.0 + noise, 
+      z 
+    }
+  },
+
+  // SILVER: DATA CLEANSING — An impossibly smooth Hourglass Funnel filtering chaotic data
+  dataCleansing(i, count, t) {
+    const t_l = i / count; 
+    const y = 5.0 - t_l * 10.0; 
+    
+    // Hyperbola radius math for an exact hourglass pinch
+    const radius = 0.4 + Math.pow(y * 0.28, 2) * 1.5;
+    
+    // 6 distinct glowing spiral ribbons sliding down the hourglass
+    const strands = 6;
+    const strandIdx = i % strands;
+    const angleOffset = (Math.PI * 2 / strands) * strandIdx;
+    
+    // Twist accelerates as it reaches the center choke point
+    const twist = Math.sin(t_l * Math.PI) * 4.0; 
+    const angle = angleOffset + twist - t * 2.0;
+
+    const thick = Math.sin(i * 11.3) * 0.4;
+    
+    return {
+      x: Math.cos(angle) * (radius + thick),
+      y: y,
+      z: Math.sin(angle) * (radius + thick),
+    }
+  },
+
+  // SILVER: CONFORMED MODELS — A breathtaking Star Schema (Dense Fact Core + Orbiting Dimensions)
+  conformedModels(i, count, t) {
+    const coreCount = Math.floor(count * 0.4); 
+    
+    if (i < coreCount) {
+      // Intense, super-dense central sphere (Fact Table)
+      const phi = Math.acos(1 - 2 * (i + 0.5) / coreCount);
+      const theta = Math.PI * (1 + Math.sqrt(5)) * i;
+      const R = 2.0 + Math.sin(t * 2.0 + i) * 0.1; 
+      return {
+        x: Math.sin(phi) * Math.cos(theta + t * 0.4) * R,
+        y: Math.cos(phi) * R,
+        z: Math.sin(phi) * Math.sin(theta + t * 0.4) * R,
+      }
+    } else {
+      // Exactly 5 precisely orbiting structural spheres (Dimension Tables)
+      const sats = 5;
+      const satIdx = i % sats;
+      const t_sat = Math.PI * 2 * (satIdx / sats);
+      
+      const orbitR = 6.0;
+      const orbitSpin = t * 0.6;
+      
+      const cx = Math.cos(t_sat + orbitSpin) * orbitR;
+      const cz = Math.sin(t_sat + orbitSpin) * orbitR;
+      const cy = Math.sin(t_sat * 3 + t * 0.5) * 1.5; 
+      
+      const pIdx = i - coreCount;
+      const phi = Math.acos(1 - 2 * ((pIdx / sats) % 1));
+      const theta = Math.PI * (1 + Math.sqrt(5)) * pIdx;
+      const R = 1.0;
+      
+      return {
+        x: cx + Math.sin(phi) * Math.cos(theta) * R,
+        y: cy + Math.cos(phi) * R,
+        z: cz + Math.sin(phi) * Math.sin(theta) * R,
+      }
+    }
+  },
+
+  // ORCHESTRATION: DAG PIPELINES — Particles physically flowing rapidly along graph branch edges
+  dagPipelines(i, count, t) {
+    const n = [
+      {x: 0, y: 5.0, z: 0},     
+      {x: -4.5, y: 1.5, z: 2.5},    
+      {x:  4.5, y: 1.5, z: -2.5},   
+      {x: -4.5, y: -2.0, z: -2.5},  
+      {x:  4.5, y: -2.0, z: 2.5},   
+      {x: 0, y: -5.0, z: 0},    
+    ];
+    // Directed graph data flows
+    const edges = [
+      [0, 1], [0, 2],
+      [1, 3], [1, 4], [2, 4],
+      [3, 5], [4, 5]
+    ];
+    
+    // Track data packets actively travelling the pathways
+    const edgeIdx = i % edges.length;
+    const edge = edges[edgeIdx];
+    const p1 = n[edge[0]];
+    const p2 = n[edge[1]];
+    
+    // Infinite loop progression from Start Node to End Node on the wire
+    const progress = ((t * 0.5 + (i / count) * 15) % 1); 
+    
+    const x = p1.x + (p2.x - p1.x) * progress;
+    const y = p1.y + (p2.y - p1.y) * progress;
+    const z = p1.z + (p2.z - p1.z) * progress;
+    
+    // Cylindrical wire volume
+    const thick = 0.4 + Math.sin(progress * Math.PI) * 0.15; 
+    const a = i * 2.3;
+    
+    return {
+      x: x + Math.cos(a) * thick,
+      y: y + Math.sin(a) * thick,
+      z: z + Math.cos(a * 1.3) * thick,
+    };
+  },
+
+  // GOLD: BUSINESS AGGREGATION — An exquisite Golden Spiral (Nautilus galaxy) of ascending truths.
+  businessAggregation(i, count, t) {
+    const t_l = i / count; 
+    const R = Math.pow(1.6180339, t_l * 4.5) * 0.6; // Fibonacci growth
+    
+    const angle = t_l * Math.PI * 2 * 6 - t * 0.7; // 6 winding revolutions
+    
+    // Sweeps up into a conical blooming flower
+    const y = -4.0 + t_l * 8.0; 
+    
+    // Split into 3 magnificent sweeping arms
+    const arms = 3;
+    const armAngle = (i % arms) * (Math.PI * 2 / arms);
+    const finalAngle = angle + armAngle;
+    
+    const noiseOuter = Math.sin(i * 14.1) * 0.6 * t_l; 
+    
+    return {
+      x: Math.cos(finalAngle) * (R + noiseOuter),
+      y: y,
+      z: Math.sin(finalAngle) * (R + noiseOuter),
+    }
+  },
+
+  // GOVERNANCE & CATALOG — An ancient Astrolabe / Gyroscope of interlocking regulatory rules.
+  governanceCatalog(i, count, t) {
+    const rings = 4;
+    const rIdx = i % rings;
+    const pointsPerRing = count / rings;
+    const pIdx = Math.floor(i / rings);
+    
+    // Baseline circle mathematics
+    const angle = (pIdx / pointsPerRing) * Math.PI * 2;
+    const R = 4.2;
+    
+    // Torus / structural ring thickness
+    const thickR = Math.sin(i * 7.1) * 0.35;
+    const thickZ = Math.cos(i * 8.3) * 0.35;
+    const x = Math.cos(angle) * (R + thickR);
+    const y = Math.sin(angle) * (R + thickR);
+    const z = thickZ;
+    
+    // Universal spinning axis rotation per ring
+    let rx = x, ry = y, rz = z;
+    const tSpin = t * 0.6;
+    
+    if (rIdx === 0) {
+      // Ring 0: Rotate solely around Y
+      rx = x * Math.cos(tSpin) - z * Math.sin(tSpin);
+      ry = y;
+      rz = x * Math.sin(tSpin) + z * Math.cos(tSpin);
+    } else if (rIdx === 1) {
+      // Ring 1: Rotate solely around X
+      rx = x;
+      ry = y * Math.cos(tSpin * 1.3) - z * Math.sin(tSpin * 1.3);
+      rz = y * Math.sin(tSpin * 1.3) + z * Math.cos(tSpin * 1.3);
+    } else if (rIdx === 2) {
+      // Ring 2: Static but physically tilted 45 degrees
+      const tilt = Math.PI / 4;
+      rx = x * Math.cos(tilt) - z * Math.sin(tilt);
+      ry = y;
+      rz = x * Math.sin(tilt) + z * Math.cos(tilt);
+    } else {
+      // Ring 3 / Internal spherical core containing the master catalog
+      const phi = Math.acos(1 - 2 * (pIdx + 0.5) / pointsPerRing);
+      const theta = Math.PI * (1 + Math.sqrt(5)) * pIdx;
+      const coreR = 1.6;
+      rx = Math.sin(phi) * Math.cos(theta - tSpin * 2) * coreR;
+      ry = Math.cos(phi) * coreR;
+      rz = Math.sin(phi) * Math.sin(theta - tSpin * 2) * coreR;
+    }
+    
+    return { x: rx, y: ry, z: rz };
+  },
+
+  // SERVING: BI ANALYTICS — An awe-inspiring curved 3D Command-Center Dashboard wall.
+  biAnalytics(i, count, t) {
+    const cols = 15;
+    const colIdx = i % cols;
+    
+    // Create an immersive cinematic sweeping curve enveloping the screen
+    const angle = (colIdx / (cols - 1)) * Math.PI * 0.8 - Math.PI * 0.4; 
+    const R = 6.5;
+    
+    // Calculate live dynamic equalizer heights responding to invisible math algorithms
+    const targetHeightRatio = Math.sin(colIdx * 43.1 + t * 1.8) * 0.35 + 0.65; 
+    
+    // Distribute remaining dots to construct the pillar structure up to the target height
+    const pointsInCol = count / cols;
+    const pIdx = Math.floor(i / cols); 
+    
+    const yHeightLevel = (pIdx / pointsInCol) * targetHeightRatio; 
+    const y = -3.0 + yHeightLevel * 6.5;
+    
+    // Expand mathematical line pillars into glowing dense structural tubes
+    const dx = Math.sin(i * 4.3) * 0.3;
+    const dz = Math.cos(i * 5.7) * 0.3;
+    
+    return {
+      x: Math.sin(angle) * R + dx,
+      y: y,
+      z: Math.cos(angle) * R - 2.0 + dz,
+    }
+  },
 }
 
-// ─── FORMATIONS ──────────────────────────────────────────
-const FORMATIONS = {
-  // 0: Data Accretion Disk — majestic, organized raw data vortex
-  hero: (i, total) => {
-    const t = i / total
-    const angle = t * Math.PI * 2 * 60 // Dense spirals
-    
-    // Hollow inner core (starting at r=3.5), expanding out to r=11.0
-    const r = 3.5 + Math.pow(Math.random(), 1.5) * 7.5
-    
-    // Smooth thickness: thickest at the core, tapering to the edges
-    const normalizedD = (r - 3.5) / 7.5
-    const thickness = 5.0 * Math.cos(normalizedD * (Math.PI / 2))
-    const ySpread = (Math.random() - 0.5) * thickness
-    
-    return {
-      x: r * Math.cos(angle),
-      y: ySpread,
-      z: r * Math.sin(angle) - 1.5,
-    }
-  },
+const SECTION_ORDER = ['hub', 'pipeline', 'skills', 'projects', 'certs', 'education', 'connect']
 
-  // 1: Magnetic Torus — data streaming ingestion
-  hub: (i, total) => {
-    const t = i / total
-    const angle = t * Math.PI * 2 * 8
-    const tubeAngle = t * Math.PI * 2 * 89
-    const R = 3.0
-    const r = 0.9 + Math.sin(i * 0.3) * 0.2
-    return {
-      x: (R + r * Math.cos(tubeAngle)) * Math.cos(angle),
-      y: (R + r * Math.cos(tubeAngle)) * Math.sin(angle) * 0.4,
-      z: r * Math.sin(tubeAngle) - 1,
-    }
-  },
-
-  // 2: ETL Streams — 3 strict parallel laser channels
-  pipeline: (i, total) => {
-    const track = i % 3
-    const t = (i / total)
-    const mobile = isMobile()
-    const spread = mobile ? 8 : 14
-    return {
-      x: t * spread - spread / 2,
-      y: (track - 1) * 1.6,
-      z: Math.sin(i * 0.08) * 0.3 - 1.5,
-    }
-  },
-
-  // 3: Hypercube Lattice — multi-dimensional data warehouse
-  skills: (i, total) => {
-    const dim = 5
-    const totalPoints = dim * dim * dim
-    const idx = i % totalPoints
-    const ix = idx % dim
-    const iy = Math.floor(idx / dim) % dim
-    const iz = Math.floor(idx / (dim * dim)) % dim
-    const spacing = 1.2
-    const offset = (dim - 1) * spacing / 2
-    const w = (i / total) * Math.PI * 2
-    const wFactor = Math.sin(w) * 0.3
-    return {
-      x: ix * spacing - offset + wFactor,
-      y: iy * spacing - offset,
-      z: iz * spacing - offset - 1 + Math.cos(w) * 0.3,
-    }
-  },
-
-  // 4: DAG Constellation — distinct clusters connected by streams
-  projects: (i, total) => {
-    const mobile = isMobile()
-    const cluster = i % 4
-    const centers = mobile
-      ? [{ x: -1, y: 1.2 }, { x: 1, y: 1.2 }, { x: -1, y: -1.2 }, { x: 1, y: -1.2 }]
-      : [{ x: -3, y: 1.5 }, { x: -1, y: -1.5 }, { x: 1.5, y: 1 }, { x: 3.5, y: -0.5 }]
-    const cx = centers[cluster].x
-    const cy = centers[cluster].y
-    const chunkTotal = total / 4
-    const idx = Math.floor(i / 4)
-    const phi = Math.acos(1 - 2 * (idx + 0.5) / chunkTotal)
-    const theta = Math.PI * (1 + Math.sqrt(5)) * (idx + 0.5)
-    const r = mobile ? 0.5 : 0.7
-    return {
-      x: cx + r * Math.cos(theta) * Math.sin(phi),
-      y: cy + r * Math.cos(phi),
-      z: r * Math.sin(theta) * Math.sin(phi) - 1,
-    }
-  },
-
-  // 5: Crystalline Pillars — certification validation
-  certs: (i, total) => {
-    const pillar = i % 3
-    const chunkTotal = total / 3
-    const idx = Math.floor(i / 3)
-    const t = idx / chunkTotal
-    const pillarX = (pillar - 1) * 2.2
-    const height = 5
-    return {
-      x: pillarX + Math.sin(t * Math.PI * 4) * 0.3,
-      y: t * height - height / 2,
-      z: Math.cos(t * Math.PI * 4) * 0.3 - 1,
-    }
-  },
-
-  // 6: DNA Helix — knowledge foundation
-  education: (i, total) => {
-    const strand = i % 2
-    const chunkTotal = total / 2
-    const idx = Math.floor(i / 2)
-    const t = idx / chunkTotal
-    const height = 8
-    const loops = 3
-    const r = 1.6
-    const angle = t * Math.PI * 2 * loops + (strand * Math.PI)
-    return {
-      x: Math.cos(angle) * r,
-      y: t * height - (height / 2),
-      z: Math.sin(angle) * r - 1,
-    }
-  },
-
-  // 7: BI Serving Layers — Stacked curated presentation planes
-  connect: (i, total) => {
-    const mobile = isMobile()
-    const layers = 3
-    const layer = i % layers
-    const layerTotal = Math.floor(total / layers)
-    const idx = Math.floor(i / layers)
-    
-    // Make a rectangular grid for each BI layer
-    const gridSize = Math.floor(Math.sqrt(layerTotal))
-    const ix = idx % gridSize
-    const iz = Math.floor(idx / gridSize)
-    
-    // Centered coordinates
-    const spacing = mobile ? 0.25 : 0.35
-    const offset = (gridSize - 1) * spacing / 2.0
-    
-    // Vertical spacing between layers
-    const ySpacing = mobile ? 2.0 : 1.8
-    let y = (layer - 1) * ySpacing
-    
-    // Add subtle structural wave to make it feel alive and flowing
-    const wave = Math.sin(ix * 0.5) * Math.cos(iz * 0.5) * 0.25
-    
-    return {
-      x: ix * spacing - offset,
-      y: y + wave,
-      z: iz * spacing - offset - 1,
-    }
-  },
+const FORMATION_MAP = {
+  'hub': 'rawIngest',
+  'pipeline': 'dataCleansing',
+  'skills': 'conformedModels',
+  'projects': 'dagPipelines',
+  'certs': 'businessAggregation',
+  'education': 'governanceCatalog',
+  'connect': 'biAnalytics'
 }
 
-const FORMATION_KEYS = ['hero', 'hub', 'pipeline', 'skills', 'projects', 'certs', 'education', 'connect']
+// ─── CLASS ───────────────────────────────────────────────────────────────────
 
 export class DataFlowField {
   constructor(scene) {
-    this.scene = scene
-    this.count = isMobile() ? PARTICLE_COUNT_MOBILE : PARTICLE_COUNT_DESKTOP
-    this.activeSection = 'hero'
-    this.gestureState = 'normal'
-    this.handPos = null
-    this.handWorld = new THREE.Vector3()
-    this.hoverPos = null
-    this.clock = new THREE.Clock()
-    this.audioData = { bass: 0, mid: 0, treble: 0, overall: 0 }
+    this.scene         = scene
+    this.count         = isMobileDevice() ? COUNT_MOBILE : COUNT_DESKTOP
+    this.gestureState  = 'normal'
+    this.handPos       = null
+    this.handWorld     = { x: 0, y: 0 }
+    this.activeSection = 'hub'
     this._init()
   }
 
   _init() {
-    const geo = new THREE.SphereGeometry(0.04, 6, 6)
-    const mat = new THREE.MeshBasicMaterial({
-      color: 0xffffff,
-      transparent: true,
-      opacity: 0.9,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false,
+    const positions  = new Float32Array(this.count * 3)
+    const colorArray = new Float32Array(this.count * 3)
+
+    // Slate-to-white colour gradient extracted strictly from design-tokens
+    const palette = [
+      new THREE.Color('#ffffff'),          // Pure white core highlights
+      new THREE.Color(colors.neutral[100]), // #CCD0CF Lightest text
+      new THREE.Color(colors.neutral[300]), // #9BA8AB Secondary text (primary particle color)
+      new THREE.Color(colors.neutral[400]), // #72828B
+      new THREE.Color(colors.neutral[500]), // #4A5C6A Muted text/icons
+    ]
+
+    this.particles = []
+
+    for (let i = 0; i < this.count; i++) {
+      // Initialise at raw data (entry formation)
+      const pos = formations.rawIngest(i, this.count, 0)
+      this.particles.push({
+        x: pos.x, y: pos.y, z: pos.z,
+        ox: pos.x, oy: pos.y, oz: pos.z,
+        vx: 0, vy: 0, vz: 0,
+        phase: Math.random() * Math.PI * 2,
+        speed: 0.8 + Math.random() * 0.6,
+      })
+
+      positions[i * 3]     = pos.x
+      positions[i * 3 + 1] = pos.y
+      positions[i * 3 + 2] = pos.z
+
+      const c = palette[Math.floor(Math.random() * palette.length)]
+      colorArray[i * 3]     = c.r
+      colorArray[i * 3 + 1] = c.g
+      colorArray[i * 3 + 2] = c.b
+    }
+
+    this.geo = new THREE.BufferGeometry()
+    this.geo.setAttribute('position', new THREE.BufferAttribute(positions, 3))
+    this.geo.setAttribute('color',    new THREE.BufferAttribute(colorArray, 3))
+
+    this.mat = new THREE.PointsMaterial({
+      size:            isMobileDevice() ? 0.18 : 0.12,
+      sizeAttenuation: true,
+      vertexColors:    true,
+      transparent:     true,
+      opacity:         0.95,
+      blending:        THREE.NormalBlending,
+      depthWrite:      false,
     })
 
-    this.mesh = new THREE.InstancedMesh(geo, mat, this.count)
-    this.mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage)
-
-    // Per-instance color — initialize with hero section colors
-    const sectionPalette = threeSectionColors.hero
-    const primaryColor = new THREE.Color(sectionPalette.primary)
-    const secondaryColor = new THREE.Color(sectionPalette.secondary)
-    const dimColor = new THREE.Color(sectionPalette.dim)
-
-    const colorArr = new Float32Array(this.count * 3)
-    for (let i = 0; i < this.count; i++) {
-      const t = i / this.count
-      // Create a gradient from primary → secondary → dim
-      let c
-      if (t < 0.4) {
-        c = primaryColor.clone().lerp(secondaryColor, t / 0.4)
-      } else if (t < 0.7) {
-        c = secondaryColor.clone().lerp(dimColor, (t - 0.4) / 0.3)
-      } else {
-        c = dimColor.clone().lerp(primaryColor, (t - 0.7) / 0.3 * 0.5)
-      }
-      colorArr[i * 3]     = c.r
-      colorArr[i * 3 + 1] = c.g
-      colorArr[i * 3 + 2] = c.b
-    }
-    this.mesh.instanceColor = new THREE.InstancedBufferAttribute(colorArr, 3)
-    this.scene.add(this.mesh)
-
-    // Per-particle state
-    this.particles = []
-    for (let i = 0; i < this.count; i++) {
-      const target = FORMATIONS.hero(i, this.count)
-      this.particles.push({
-        x: (Math.random() - 0.5) * 12,
-        y: (Math.random() - 0.5) * 12,
-        z: (Math.random() - 0.5) * 6,
-        tx: target.x,
-        ty: target.y,
-        tz: target.z,
-        ox: 0, oy: 0, oz: 0,
-        size: 0.5 + Math.random() * 0.8,
-        phase: Math.random() * Math.PI * 2,
-        speed: 0.5 + Math.random() * 0.5,
-      })
-    }
-    this._dummy = new THREE.Object3D()
+    this.points = new THREE.Points(this.geo, this.mat)
+    this.scene.add(this.points)
   }
 
-  setActiveSection(sectionKey) {
-    if (sectionKey === this.activeSection) return
-    this.activeSection = sectionKey || 'hero'
-
-    const formation = FORMATIONS[this.activeSection] || FORMATIONS.hero
-    const colorAttr = this.mesh.instanceColor
-
-    // Premium per-section color palette
-    const palette = threeSectionColors[this.activeSection] || threeSectionColors.hero
-    const primaryColor = new THREE.Color(palette.primary)
-    const secondaryColor = new THREE.Color(palette.secondary)
-    const dimColor = new THREE.Color(palette.dim)
-
-    for (let i = 0; i < this.count; i++) {
-      const target = formation(i, this.count)
-      this.particles[i].tx = target.x
-      this.particles[i].ty = target.y
-      this.particles[i].tz = target.z
-
-      // Create rich gradient across particles
-      const t = i / this.count
-      const rand = Math.random() * 0.3
-      let c
-      if (t < 0.35) {
-        c = primaryColor.clone().lerp(secondaryColor, (t / 0.35) + rand * 0.2)
-      } else if (t < 0.65) {
-        c = secondaryColor.clone().lerp(primaryColor, ((t - 0.35) / 0.3) * 0.6 + rand * 0.15)
-      } else {
-        c = primaryColor.clone().lerp(dimColor, ((t - 0.65) / 0.35) * 0.5 + rand * 0.1)
-      }
-      // Add slight brightness variation for sparkle
-      const brightness = 0.85 + Math.random() * 0.3
-      c.r *= brightness
-      c.g *= brightness
-      c.b *= brightness
-
-      colorAttr.array[i * 3]     = c.r
-      colorAttr.array[i * 3 + 1] = c.g
-      colorAttr.array[i * 3 + 2] = c.b
-    }
-    colorAttr.needsUpdate = true
+  setActiveSection(section) {
+    if (section === this.activeSection) return
+    this.activeSection = section
   }
 
-  setGestureState(state) { this.gestureState = state }
-  setHandPosition(pos)  { this.handPos = pos }
-  setHoverPosition(pos) { this.hoverPos = pos }
-  setAudioData(data) { this.audioData = data }
+  setGestureState(s) { this.gestureState = s }
 
-  update(delta) {
-    const t = this.clock.getElapsedTime()
-    const dummy = this._dummy
-    const isFist = this.gestureState === 'fist'
-    const isOpen = this.gestureState === 'open'
-    const audio = this.audioData
-
-    // Formation-specific ambient rotation
-    const isHero = this.activeSection === 'hero'
-    const isHub = this.activeSection === 'hub'
-    if (isHero || isHub) {
-      this.baseRotY = (this.baseRotY || 0) + delta * (isHub ? 0.15 : 0.08) // Faster spin for hero vortex
-      
-      // Hero tilts forward to show off the accretion disk structure
-      const targetPitch = isHero ? (Math.PI / 5) : 0
-      this.baseRotX = (this.baseRotX || 0) + (targetPitch - (this.baseRotX || 0)) * delta * 2.0
-      
-      this.mesh.rotation.y += (this.baseRotY - this.mesh.rotation.y) * delta * 3
-      this.mesh.rotation.x += (this.baseRotX - this.mesh.rotation.x) * delta * 3
-    } else {
-      this.mesh.rotation.y += (0 - this.mesh.rotation.y) * delta * 4
-      this.mesh.rotation.x += (0 - this.mesh.rotation.x) * delta * 4
+  setHandPosition(p) {
+    this.handPos = p
+    if (p) {
+      this.handWorld.x += (p.x * 8 - this.handWorld.x) * 0.08
+      this.handWorld.y += (p.y * 6 - this.handWorld.y) * 0.08
     }
-
-    // Smooth hand world position
-    if (this.handPos) {
-      this.handWorld.x += (this.handPos.x * 6 - this.handWorld.x) * 0.1
-      this.handWorld.y += (this.handPos.y * 4 - this.handWorld.y) * 0.1
-    }
-
-    this.currentMaxOff = this.currentMaxOff || 3
-    const targetMaxOff = isFist ? 30 : 3
-    this.currentMaxOff += (targetMaxOff - this.currentMaxOff) * (delta * 5)
-
-    // Audio-reactive scale factor
-    const audioScale = 1.0 + audio.bass * 0.6
-    const audioSpeed = 1.0 + audio.mid * 2.0
-    const audioShimmer = audio.treble * 0.5
-
-    const lerpSpeed = (0.01 + delta * 1.5) * audioSpeed
-    const hx = this.handWorld.x
-    const hy = this.handWorld.y
-
-    for (let i = 0; i < this.count; i++) {
-      const p = this.particles[i]
-
-      // Lerp toward target (with audio-driven speed boost)
-      p.x += (p.tx * audioScale - p.x) * lerpSpeed * p.speed
-      p.y += (p.ty * audioScale - p.y) * lerpSpeed * p.speed
-      p.z += (p.tz * audioScale - p.z) * lerpSpeed * p.speed
-
-      // Organic drift (subtle)
-      const drift = 0.06
-      p.x += Math.sin(t * 0.3 + p.phase) * drift * delta
-      p.y += Math.cos(t * 0.25 + p.phase * 1.3) * drift * delta
-      p.z += Math.sin(t * 0.2 + p.phase * 2.1) * drift * 0.3 * delta
-
-      // Gesture offsets
-      if (isFist && this.handPos) {
-        const phi = Math.acos(1 - 2 * (i + 0.5) / this.count)
-        const theta = Math.PI * (1 + Math.sqrt(5)) * (i + 0.5)
-        const rT = t * 2.5
-        const cY = Math.cos(rT), sY = Math.sin(rT)
-        const cX = Math.cos(rT * 0.7), sX = Math.sin(rT * 0.7)
-        const r = 0.9 + Math.sin(t * 8 + p.phase) * 0.06
-        let bx = Math.cos(theta) * Math.sin(phi) * r
-        let by = Math.cos(phi) * r
-        let bz = Math.sin(theta) * Math.sin(phi) * r
-        let y1 = by * cX - bz * sX
-        let z1 = by * sX + bz * cX
-        let x2 = bx * cY + z1 * sY
-        let z2 = -bx * sY + z1 * cY
-        const targetX = hx + x2
-        const targetY = hy + y1
-        const targetZ = z2
-        p.ox += (targetX - (p.x + p.ox)) * 0.16
-        p.oy += (targetY - (p.y + p.oy)) * 0.16
-        p.oz += (targetZ - (p.z + p.oz)) * 0.16
-      } else if (isOpen && this.handPos) {
-        const dx = p.x + p.ox - hx
-        const dy = p.y + p.oy - hy
-        const dist = Math.sqrt(dx * dx + dy * dy) || 0.1
-        const force = 0.08 / (0.5 + dist * 0.5)
-        p.ox += (dx / dist) * force
-        p.oy += (dy / dist) * force
-        p.ox *= 0.97; p.oy *= 0.97; p.oz *= 0.97
-      } else if (this.handPos) {
-        const dx = hx - (p.x + p.ox)
-        const dy = hy - (p.y + p.oy)
-        const dist = Math.sqrt(dx * dx + dy * dy) || 0.1
-        if (dist < 3) {
-          const attract = 0.002 / (0.3 + dist)
-          p.ox += dx * attract
-          p.oy += dy * attract
-        }
-        p.ox *= 0.96; p.oy *= 0.96; p.oz *= 0.96
-      } else if (this.hoverPos) {
-        const dx = (p.x + p.ox) - this.hoverPos.x
-        const dy = (p.y + p.oy) - this.hoverPos.y
-        const dz = (p.z + p.oz) - this.hoverPos.z
-        const dist = Math.sqrt(dx * dx + dy * dy + dz * dz) || 0.1
-        if (dist < 2.0) {
-          const force = 0.5 * (2.0 - dist)
-          p.ox += (dx / dist) * force * delta * 4
-          p.oy += (dy / dist) * force * delta * 4
-          p.oz += (dz / dist) * force * delta * 4
-        }
-        p.ox *= 0.92; p.oy *= 0.92; p.oz *= 0.92
-      } else {
-        p.ox *= 0.94; p.oy *= 0.94; p.oz *= 0.94
-      }
-
-      // Clamp offsets
-      const maxOff = this.currentMaxOff
-      p.ox = Math.max(-maxOff, Math.min(maxOff, p.ox))
-      p.oy = Math.max(-maxOff, Math.min(maxOff, p.oy))
-      p.oz = Math.max(-maxOff / 2, Math.min(maxOff / 2, p.oz))
-
-      const px = p.x + p.ox
-      const py = p.y + p.oy
-      const pz = p.z + p.oz
-
-      // Audio-reactive shimmer on particle size
-      const shimmer = 1 + audioShimmer * Math.sin(t * 12 + p.phase * 3)
-      const scale = p.size * (1 + Math.sin(t * 1.5 + p.phase) * 0.1) * shimmer
-      dummy.position.set(px, py, pz)
-      dummy.scale.setScalar(scale)
-      dummy.updateMatrix()
-      this.mesh.setMatrixAt(i, dummy.matrix)
-    }
-    this.mesh.instanceMatrix.needsUpdate = true
   }
 
-  triggerPulse(point) {
-    if (point) {
-      for (let i = 0; i < this.count; i++) {
-        const p = this.particles[i]
-        const dx = (p.x + p.ox) - point.x
-        const dy = (p.y + p.oy) - point.y
-        const dz = (p.z + p.oz) - point.z
-        const dist = Math.sqrt(dx * dx + dy * dy + dz * dz)
-        if (dist < 6) {
-          const force = 4.0 / (dist + 0.1)
-          p.ox += (dx / dist) * force
-          p.oy += (dy / dist) * force
-          p.oz += (dz / dist) * force
-        }
-      }
-    } else {
-      for (let i = 0; i < this.count; i++) {
-        const p = this.particles[i]
-        p.ox += (Math.random() - 0.5) * 6
-        p.oy += (Math.random() - 0.5) * 6
-        p.oz += (Math.random() - 0.5) * 6
-      }
+  update(delta, elapsed) {
+    const activeShape = FORMATION_MAP[this.activeSection] || 'rawIngest'
+    const fn     = formations[activeShape] || formations.rawIngest
+    const posArr = this.geo.attributes.position.array
+
+    // Lerp speed: slower = more cinematic morphing (0.018 = ~55 frames to settle fully)
+    const lerpK = 1 - Math.pow(0.018, delta)
+
+    for (let i = 0; i < this.count; i++) {
+      const p   = this.particles[i]
+      const tgt = fn(i, this.count, elapsed)
+
+      // Gentle oscillation layered on top of formation target
+      const osc = Math.sin(elapsed * 0.35 + p.phase) * 0.08
+
+      // Smoothly interpolate toward formation target (base gravity)
+      p.x += (tgt.x + osc - p.x) * lerpK * p.speed
+      p.y += (tgt.y + osc * 0.5 + Math.sin(elapsed * 0.2 + p.phase * 0.7) * 0.06 - p.y) * lerpK * p.speed
+      p.z += (tgt.z + osc - p.z) * lerpK * p.speed
+
+      posArr[i * 3]     = p.x
+      posArr[i * 3 + 1] = p.y
+      posArr[i * 3 + 2] = p.z
     }
+
+    this.geo.attributes.position.needsUpdate = true
   }
 
   dispose() {
-    this.mesh.geometry.dispose()
-    this.mesh.material.dispose()
-    this.scene.remove(this.mesh)
+    this.geo.dispose()
+    this.mat.dispose()
+    this.scene.remove(this.points)
   }
 }

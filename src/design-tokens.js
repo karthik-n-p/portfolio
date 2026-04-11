@@ -33,15 +33,15 @@ export const colors = {
 }
 
 // ─── PREMIUM SECTION COLOR PALETTE ──────────────────────
-// Applying the premium primary/secondary palette consistently across all sections
+// Sophisticated grayscale progression reflecting journey stages
 export const sectionColors = {
-  hero:      { primary: '#CCD0CF', secondary: '#9BA8AB', glow: '#4A5C6A' },
+  hero:      { primary: '#E6EBED', secondary: '#CCD0CF', glow: '#4A5C6A' },
   hub:       { primary: '#CCD0CF', secondary: '#9BA8AB', glow: '#4A5C6A' },
-  pipeline:  { primary: '#CCD0CF', secondary: '#9BA8AB', glow: '#4A5C6A' },
-  skills:    { primary: '#CCD0CF', secondary: '#9BA8AB', glow: '#4A5C6A' },
-  projects:  { primary: '#CCD0CF', secondary: '#9BA8AB', glow: '#4A5C6A' },
-  certs:     { primary: '#CCD0CF', secondary: '#9BA8AB', glow: '#4A5C6A' },
-  education: { primary: '#CCD0CF', secondary: '#9BA8AB', glow: '#4A5C6A' },
+  pipeline:  { primary: '#B4BFBF', secondary: '#9BA8AB', glow: '#374958' },
+  projects:  { primary: '#9BA8AB', secondary: '#72828B', glow: '#253745' },
+  skills:    { primary: '#B4BFBF', secondary: '#9BA8AB', glow: '#374958' },
+  certs:     { primary: '#9BA8AB', secondary: '#72828B', glow: '#253745' },
+  education: { primary: '#B4BFBF', secondary: '#9BA8AB', glow: '#374958' },
   connect:   { primary: '#CCD0CF', secondary: '#9BA8AB', glow: '#4A5C6A' },
 }
 
@@ -83,14 +83,13 @@ export const motion = {
 // ─── SECTION DATA (scroll-based journey) ────────────────
 // Each section gets a narrative label and a brief line
 export const SECTIONS = [
-  { key: 'hero',      label: 'RAW DATA',          tagline: 'Unstructured. Unrefined. Unlimited potential.', diagram: 'BRONZE: INGEST' },
-  { key: 'hub',       label: 'PROFILE',           tagline: 'Core identity and specialized focus areas.', diagram: 'BRONZE → SILVER' },
-  { key: 'pipeline',  label: 'EXPERIENCE',        tagline: 'Professional history and corporate impact.', diagram: 'SILVER: CONFORMED' },
-  { key: 'skills',    label: 'SKILLS',            tagline: 'Technical toolkit and domain expertise.', diagram: 'DAG ORCHESTRATION' },
-  { key: 'projects',  label: 'PROJECTS',          tagline: 'Architecting dynamic data products at scale.', diagram: 'GOLD: AGGREGATED' },
-  { key: 'certs',     label: 'CERTIFICATION',     tagline: 'Industry-verified engineering credentials.', diagram: 'DATA GOVERNANCE' },
-  { key: 'education', label: 'EDUCATION',         tagline: 'The academic bedrock of this practice.', diagram: 'DATA CATALOG' },
-  { key: 'connect',   label: 'CONNECT',           tagline: 'Ready to deliver. Let\'s build together.', diagram: 'SERVING: BI APPS' },
+  { key: 'hub',       label: 'ABOUT',             tagline: 'Core identity and specialized focus areas.', figure: 'BRONZE: RAW INGESTION' },
+  { key: 'pipeline',  label: 'EXPERIENCE',        tagline: 'Professional history and corporate impact.', figure: 'SILVER: DATA CLEANSING' },
+  { key: 'skills',    label: 'SKILLS',            tagline: 'Technical toolkit and domain expertise.', figure: 'SILVER: CONFORMED MODELS' },
+  { key: 'projects',  label: 'PROJECTS',          tagline: 'Architecting dynamic data products at scale.', figure: 'ORCHESTRATION: DAG PIPELINES' },
+  { key: 'certs',     label: 'CERTIFICATION',     tagline: 'Industry-verified engineering credentials.', figure: 'GOLD: BUSINESS AGGREGATION' },
+  { key: 'education', label: 'EDUCATION',         tagline: 'The academic bedrock of this practice.', figure: 'GOVERNANCE & CATALOG' },
+  { key: 'connect',   label: 'CONNECT',           tagline: 'Ready to deliver. Let\'s build together.', figure: 'SERVING: BI ANALYTICS' },
 ]
 
 // ─── THREE.JS COLORS (hex integers) ────────────────────
@@ -104,12 +103,12 @@ export const threeColors = {
 
 // ─── THREE.JS SECTION COLORS (hex integers for Three.js) ─
 export const threeSectionColors = {
-  hero:      { primary: 0xCCD0CF, secondary: 0x9BA8AB, dim: 0x4A5C6A },
+  hero:      { primary: 0xE6EBED, secondary: 0xCCD0CF, dim: 0x4A5C6A },
   hub:       { primary: 0xCCD0CF, secondary: 0x9BA8AB, dim: 0x4A5C6A },
-  pipeline:  { primary: 0xCCD0CF, secondary: 0x9BA8AB, dim: 0x4A5C6A },
-  skills:    { primary: 0xCCD0CF, secondary: 0x9BA8AB, dim: 0x4A5C6A },
+  pipeline:  { primary: 0xB4BFBF, secondary: 0x72828B, dim: 0x374958 },
+  skills:    { primary: 0x9BA8AB, secondary: 0x4A5C6A, dim: 0x253745 },
   projects:  { primary: 0xCCD0CF, secondary: 0x9BA8AB, dim: 0x4A5C6A },
-  certs:     { primary: 0xCCD0CF, secondary: 0x9BA8AB, dim: 0x4A5C6A },
-  education: { primary: 0xCCD0CF, secondary: 0x9BA8AB, dim: 0x4A5C6A },
-  connect:   { primary: 0xCCD0CF, secondary: 0x9BA8AB, dim: 0x4A5C6A },
+  certs:     { primary: 0xB4BFBF, secondary: 0x72828B, dim: 0x374958 },
+  education: { primary: 0x9BA8AB, secondary: 0x4A5C6A, dim: 0x253745 },
+  connect:   { primary: 0xE6EBED, secondary: 0xCCD0CF, dim: 0x4A5C6A },
 }

@@ -1,348 +1,161 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* ────────────────────────────────────────────────────
+   DESIGN SYSTEM — Mobile-First, Minimal, Premium
+   ──────────────────────────────────────────────────── */
 
-/* ─── DESIGN TOKENS (CSS Custom Properties) ─────────── */
 :root {
-  --c-bg:          #06141B;
-  --c-surface:     #11212D;
-  --c-elevated:    #253745;
-  --c-card:        #11212D;
-  --c-border:      #4A5C6A;
-  --c-border-sub:  #253745;
-  --c-accent:      #9BA8AB;
-  --c-text:        #CCD0CF;
-  --c-text-sec:    #9BA8AB;
-  --c-text-dim:    #72828B;
-  --c-text-muted:  #4A5C6A;
-
-  --font-sans:     'Inter', sans-serif;
-  --font-mono:     'JetBrains Mono', monospace;
-
-  --ease:          cubic-bezier(0.16, 1, 0.3, 1);
-  --transition:    0.25s var(--ease);
+  --c-bg:       #06141B;
+  --c-surface:  #0B1E2B;
+  --c-card:     #0D2233;
+  --c-border:   rgba(155, 168, 171, 0.12);
+  --c-accent:   #9BA8AB;
+  --c-text:     #CCD0CF;
+  --c-text-sec: #7A8A92;
+  --c-text-dim: #4A5C6A;
+  --font-sans:  'Inter', system-ui, sans-serif;
+  --font-mono:  'JetBrains Mono', monospace;
+  --ease:       cubic-bezier(0.16, 1, 0.3, 1);
+  --radius:     12px;
+  --radius-sm:  8px;
 }
 
-/* ─── RESET ─────────────────────────────────────────── */
-* { box-sizing: border-box; margin: 0; padding: 0; }
+/* ── RESET ──────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-html, body, #root {
-  width: 100%; height: 100%;
-  overflow: hidden;
-  background: var(--c-bg);
-  color: var(--c-text);
-  font-family: var(--font-sans);
+html {
+  scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ─── SCROLLBAR ─────────────────────────────────────── */
-::-webkit-scrollbar { width: 4px; }
+body, #root {
+  width: 100%;
+  min-height: 100vh;
+  background: var(--c-bg);
+  color: var(--c-text);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+
+/* ── SCROLLBAR ──────────────────────────────────── */
+::-webkit-scrollbar { width: 3px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--c-border); border-radius: 2px; }
-* { scrollbar-width: thin; scrollbar-color: var(--c-border) transparent; }
+::-webkit-scrollbar-thumb { background: var(--c-text-dim); border-radius: 3px; }
+* { scrollbar-width: thin; scrollbar-color: var(--c-text-dim) transparent; }
 
-/* ─── PREMIUM CURSOR ───────────────────────────────────── */
-@media (pointer: fine) {
-  body {
-    cursor: url("data:image/svg+xml,%3Csvg width='32' height='32' viewBox='0 0 32 32' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 5L23 15.5L14.5 17.5L10 26L7 5Z' fill='%23CCD0CF' stroke='%239BA8AB' stroke-width='1.5' stroke-linejoin='round'/%3E%3C/svg%3E") 7 5, auto;
+/* ── SECTION CARD ──────────────────────────────── */
+.section-card {
+  position: relative;
+  border-radius: var(--radius);
+  padding: 24px 20px;
+  transition: transform 0.4s var(--ease);
+  z-index: 1; /* Establish stacking context */
+}
+
+/* Isolate the backdrop filter into its own compositor layer so child typography (SVG, spans) never rasterizes blurred */
+.section-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: rgba(13, 34, 51, 0.45);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-left: 1px solid rgba(255, 255, 255, 0.04);
+  border-right: 1px solid rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+  border-radius: inherit;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  transition: border-color 0.4s var(--ease), box-shadow 0.4s var(--ease), background 0.4s var(--ease);
+}
+
+@media (min-width: 1024px) {
+  .section-card {
+    padding: 32px 28px;
   }
-  a, button, [role="button"], .card, .nav-btn {
-    cursor: url("data:image/svg+xml,%3Csvg width='32' height='32' viewBox='0 0 32 32' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M7 5L23 15.5L14.5 17.5L10 26L7 5Z' fill='%239BA8AB' stroke='%23CCD0CF' stroke-width='1.5' stroke-linejoin='round'/%3E%3C/svg%3E") 7 5, pointer !important;
+  .section-card:hover {
+    transform: translateY(-4px);
+  }
+  .section-card:hover::before {
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(13, 34, 51, 0.55);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
   }
 }
 
-/* ─── TYPOGRAPHY UTILITIES ──────────────────────────── */
-.text-gradient {
-  background: linear-gradient(135deg, #ffffff 0%, #B0B8C4 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* ─── CUSTOM ANIMATIONS ─────────────────────────────── */
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
-}
-.cursor-blink {
-  display: inline-block;
-  animation: blink 1s ease-in-out infinite;
-}
-
-
-/* ─── SECTION CONTENT ANIMATIONS — LEFT SIDE ─────────── */
-@keyframes sectionEnterLeft {
-  from { opacity: 0; transform: translateX(-40px); filter: blur(6px); }
-  to   { opacity: 1; transform: translateX(0); filter: blur(0); }
-}
-.section-enter-left {
-  animation: sectionEnterLeft 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-@keyframes sectionExitLeft {
-  from { opacity: 1; transform: translateX(0); filter: blur(0); }
-  to   { opacity: 0; transform: translateX(-24px); filter: blur(4px); }
-}
-.section-exit-left {
-  animation: sectionExitLeft 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-/* ─── SECTION CONTENT ANIMATIONS — RIGHT SIDE ────────── */
-@keyframes sectionEnterRight {
-  from { opacity: 0; transform: translateX(40px); filter: blur(6px); }
-  to   { opacity: 1; transform: translateX(0); filter: blur(0); }
-}
-.section-enter-right {
-  animation: sectionEnterRight 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-@keyframes sectionExitRight {
-  from { opacity: 1; transform: translateX(0); filter: blur(0); }
-  to   { opacity: 0; transform: translateX(24px); filter: blur(4px); }
-}
-.section-exit-right {
-  animation: sectionExitRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-/* Legacy fallback — keeping old names for compatibility */
-@keyframes sectionFadeIn {
-  from { opacity: 0; transform: translateY(24px); filter: blur(6px); }
-  to   { opacity: 1; transform: translateY(0); filter: blur(0); }
-}
-.section-enter {
-  animation: sectionFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-@keyframes sectionFadeOut {
-  from { opacity: 1; transform: translateY(0); filter: blur(0); }
-  to   { opacity: 0; transform: translateY(-16px); filter: blur(4px); }
-}
-.section-exit {
-  animation: sectionFadeOut 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-/* ─── CARD ──────────────────────────────────────────── */
+/* ── INNER CARD ─────────────────────────────────── */
 .card {
-  padding: 20px;
-  border: 1px solid rgba(255,255,255,0.05);
-  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-sm);
   background: rgba(255,255,255,0.02);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: background 0.3s ease, border-color 0.3s ease;
 }
 .card:hover {
   background: rgba(255,255,255,0.04);
-  border-color: rgba(255,255,255,0.08);
-  transform: translateY(-2px);
+  border-color: rgba(155, 168, 171, 0.2);
 }
 
-/* ─── CHIP ──────────────────────────────────────────── */
+/* ── CHIP ───────────────────────────────────────── */
 .chip {
   display: inline-flex;
   align-items: center;
-  padding: 6px 10px;
-  border: 1px solid rgba(255,255,255,0.08);
+  padding: 5px 10px;
+  border: 1px solid var(--c-border);
   border-radius: 6px;
   font-family: var(--font-sans);
   font-size: 11px;
   font-weight: 500;
   color: var(--c-text-sec);
-  background: rgba(255,255,255,0.03);
-  transition: all var(--transition);
+  background: rgba(255,255,255,0.02);
 }
 
-/* ─── GLASS PANEL ───────────────────────────────────── */
-.glass-panel {
-  background: rgba(8, 8, 14, 0.65);
-  backdrop-filter: blur(32px);
-  -webkit-backdrop-filter: blur(32px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: 0 32px 64px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08);
-}
-
-/* ─── SCROLL PROGRESS INDICATOR ─────────────────────── */
-.scroll-progress {
-  position: fixed;
-  right: 24px;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 50;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 24px;
-}
-.scroll-progress::before {
-  content: '';
-  position: absolute;
-  top: 4px;
-  bottom: 4px;
-  width: 2px;
-  background: linear-gradient(to bottom, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.02) 100%);
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 0;
-}
-.scroll-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--c-border-sub);
-  box-shadow: 0 0 0 2px var(--c-bg);
-  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-  cursor: pointer;
-  position: relative;
-  z-index: 1;
-}
-.scroll-dot.active {
-  width: 12px;
-  height: 12px;
-  box-shadow: 0 0 0 2px var(--c-bg);
-}
-.scroll-dot::after {
-  content: attr(data-label);
-  position: absolute;
-  right: 24px;
-  top: 50%;
-  transform: translateY(-50%);
-  white-space: nowrap;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.1em;
-  color: rgba(255,255,255,0);
-  transition: all 0.3s ease;
-  pointer-events: none;
-}
-.scroll-dot:hover::after,
-.scroll-dot.active::after {
-  color: var(--c-text-sec);
-}
-
-/* ─── SECTION CONTENT LAYOUT ────────────────────────── */
-.section-content {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  pointer-events: none;
-}
-.section-content > * {
-  pointer-events: auto;
-}
-
-/* ─── PANEL LAYOUT ──────────────────────────────────── */
-.scene-canvas-container {
-  z-index: 1;
-}
-
-.content-panel {
-  position: relative;
-  padding: 32px;
-  border-radius: 16px;
-  max-width: 520px;
-  width: 90vw;
-  max-height: 75vh;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255,255,255,0.1) transparent;
-}
-
-@media (max-width: 767px) {
-  .section-content > div {
-    align-items: flex-end !important;
-    padding-bottom: 24px !important;
-  }
-  .content-panel {
-    max-width: 100%;
-    width: 92vw;
-    max-height: 40vh; /* Shorter to make room for heading underneath 3D model */
-    padding: 24px;
-    border-radius: 12px;
-    background: rgba(8, 8, 14, 0.75); /* Darker on mobile for readability */
-  }
-  .scene-canvas-container:not(.is-hero) {
-    height: 48vh !important;
-    top: 2vh !important;
-    bottom: auto !important;
-    z-index: 1 !important;
-  }
-  .bottom-hud:not(.is-hero) .hud-diagram {
-    position: fixed !important;
-    top: 44vh !important;
-    left: 16px !important;
-    z-index: 70 !important;
-  }
-  .bottom-hud.is-hero .hud-diagram {
-    position: fixed !important;
-    bottom: 56px !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    width: 100vw !important;
-    justify-content: center !important;
-    padding: 0 !important;
-    z-index: 70 !important;
-  }
-  .scroll-progress {
-    right: 12px;
-    gap: 16px;
-  }
-  .scroll-dot::after {
-    display: none;
-  }
-  /* Mobile: always slide up from bottom */
-  .section-enter-left,
-  .section-enter-right {
-    animation: staggerFadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  }
-  .section-exit-left,
-  .section-exit-right {
-    animation: sectionFadeOut 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  }
-}
-
-/* ─── STAGGERED FADE IN UTILITIES ───────────────────── */
-@keyframes staggerFadeUp {
-  0% { opacity: 0; transform: translateY(15px); }
-  100% { opacity: 1; transform: translateY(0); }
-}
-
+/* ── ANIMATIONS ─────────────────────────────────── */
 .stagger-item {
   opacity: 0;
-  animation: staggerFadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: fadeUp 0.5s var(--ease) forwards;
 }
-.stagger-1 { animation-delay: 0.1s; }
-.stagger-2 { animation-delay: 0.2s; }
-.stagger-3 { animation-delay: 0.3s; }
-.stagger-4 { animation-delay: 0.4s; }
-.stagger-5 { animation-delay: 0.5s; }
-
-/* ─── RIPPLE FX ─────────────────────────────────────── */
-@keyframes rippleOut {
-  0%   { transform: scale(1); opacity: 0.6; }
-  100% { transform: scale(3); opacity: 0; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ─── SECTION FLASH ─────────────────────────────────── */
-@keyframes sectionFlash {
-  0%   { opacity: 1; transform: scale(1); }
-  100% { opacity: 0; transform: scale(1.5); }
+/* ── CURSOR BLINK ───────────────────────────────── */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
 }
-.section-flash {
-  animation: sectionFlash 0.5s var(--ease) forwards;
+.cursor-blink {
+  animation: blink 1.5s infinite var(--ease);
 }
 
-/* ─── PANEL ANIMATION ───────────────────────────────── */
-@keyframes panelIn {
-  from { opacity: 0; transform: translateY(16px) scale(0.98); filter: blur(8px); }
-  to   { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+/* ── TYPOGRAPHY OVERRIDES ───────────────────────── */
+/* Enforce crisp consistent bright colors on headings inside panels */
+.section-card h2, .section-card .text-h2 {
+  color: var(--c-text) !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.01em;
 }
-.panel-animate {
-  animation: panelIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+.section-card h3, .section-card .text-h3 {
+  color: var(--c-accent) !important;
+  font-weight: 600 !important;
+}
+.section-card p, .section-card .text-body {
+  color: var(--c-text-sec) !important;
+}
+
+/* ── 3D CANVAS LAYER ────────────────────────────── */
+.canvas-container {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ── TEXT OVER 3D ───────────────────────────────── */
+.text-over-3d {
+  text-shadow:
+    0 1px 3px rgba(6, 20, 27, 0.9),
+    0 4px 12px rgba(6, 20, 27, 0.6);
 }

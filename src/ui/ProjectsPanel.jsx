@@ -157,10 +157,10 @@ function DagVisualization({ project, theme }) {
             <text
               y="24"
               textAnchor="middle"
-              fill={colors.neutral[300]}
+              fill={colors.neutral[100]}
               fontSize="10"
               fontFamily="Inter, sans-serif"
-              fontWeight="500"
+              fontWeight="700"
             >
               {pos.label.length > 14 ? pos.label.slice(0, 12) + '…' : pos.label}
             </text>
