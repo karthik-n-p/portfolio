@@ -12,7 +12,7 @@ export const profile = {
     phone: '',
     email: 'karthik.np.work@gmail.com',
     linkedin: 'karthik-np',
-    github: 'github.com/karthiknp',
+    github: 'github.com/karthik-n-p',
   }
 }
 
