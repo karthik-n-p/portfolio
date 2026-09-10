@@ -1,114 +1,66 @@
 /**
- * Design Tokens — Single source of truth
- * Colors, typography, spacing, motion for UI + Three.js
+ * design-tokens.js — Unified Design System Source of Truth
  *
- * Fonts: Inter (sans) + JetBrains Mono (mono) — nothing else.
- * Palette: Deep Obsidian neutrals + Electric Azure accent + premium section colors.
+ * Synthesizing best elements from:
+ * - Enric Design (architectural framing, terracotta accent, brand mark)
+ * - Sanjay Menon (warm luxury linen foundation, hairline borders, refined spacing)
+ * - Anmol Maggon (grotesque + italic serif editorial typographic contrast)
+ * - Vaibhav Verma (technical DAG flow nodes, live telemetry badges, precision mono)
+ * - Askumi (modular bento card rhythm, live clock, status pill)
+ * - UX Dularia (subtle grid, clean dividers, breadcrumb indexing)
+ * - Jayy (glassmorphic capsule navigation, micro-interactions)
  */
 
-// ─── COLOR PALETTE ───────────────────────────────────────
 export const colors = {
-  accent:    '#9BA8AB',  // Premium slate accent
+  // Foundational Canvas & Surfaces
+  canvas:       '#FBF9F5', // Organic warm linen background
+  surface:      '#FFFFFF', // Elevated crisp white card
+  surfaceMuted: '#F3EFE9', // Warm stone inner well
+  surfaceDark:  '#141312', // Obsidian black contrast card
+  
+  // Architectural Borders
+  border:       '#E5DFD5', // Hairline divider
+  borderSubtle: '#EFEAE1', // Soft inner separator
+  borderDark:   '#262422', // Dark card border
 
-  // Semantic status colors
-  emerald:   '#34D399',  
-  amber:     '#FBBF24',  
-  rose:      '#FB7185',  
+  // Text Hierarchy
+  text:         '#141312', // Primary near-black
+  textSecondary:'#5C574F', // Warm graphite body
+  textMuted:    '#8C857B', // Warm sand labels / kickers
+  textInverse:  '#FFFFFF', // White text on dark
 
-  // Premium Slate/Blue scale based on provided image
-  neutral: {
-    950: '#06141B', // Darkest background
-    900: '#0B1A23',
-    850: '#11212D', // Deep surface
-    800: '#182C39',
-    700: '#253745', // Elevated surface/borders
-    600: '#374958',
-    500: '#4A5C6A', // Muted text/icons
-    400: '#72828B',
-    300: '#9BA8AB', // Secondary text
-    200: '#B4BFBF',
-    100: '#CCD0CF', // Lightest text
-    50:  '#E6EBED',
-  },
+  // Signature Accent
+  accent:       '#E03E2D', // Terracotta vermilion
+  accentHover:  '#C93425',
+  accentSubtle: 'rgba(224, 62, 45, 0.10)',
+  accentGlow:   'rgba(224, 62, 45, 0.22)',
+
+  // Functional Semantic Accents
+  emerald:      '#1E3A2F',
+  emeraldLight: '#EBF5F0',
+  emeraldText:  '#166534',
+  amber:        '#B45309',
+  amberLight:   '#FEF3C7',
 }
 
-// ─── PREMIUM SECTION COLOR PALETTE ──────────────────────
-// Sophisticated grayscale progression reflecting journey stages
-export const sectionColors = {
-  hero:      { primary: '#E6EBED', secondary: '#CCD0CF', glow: '#4A5C6A' },
-  hub:       { primary: '#CCD0CF', secondary: '#9BA8AB', glow: '#4A5C6A' },
-  pipeline:  { primary: '#B4BFBF', secondary: '#9BA8AB', glow: '#374958' },
-  projects:  { primary: '#9BA8AB', secondary: '#72828B', glow: '#253745' },
-  skills:    { primary: '#B4BFBF', secondary: '#9BA8AB', glow: '#374958' },
-  certs:     { primary: '#9BA8AB', secondary: '#72828B', glow: '#253745' },
-  education: { primary: '#B4BFBF', secondary: '#9BA8AB', glow: '#374958' },
-  connect:   { primary: '#CCD0CF', secondary: '#9BA8AB', glow: '#4A5C6A' },
-}
-
-// ─── TYPOGRAPHY ──────────────────────────────────────────
 export const typography = {
-  fontSans:  "'Inter', sans-serif",
-  fontMono:  "'JetBrains Mono', monospace",
-
-  display:  { size: '64px', weight: 800, tracking: '-0.04em', leading: 1.0 },
-  hero:     { size: '40px', weight: 700, tracking: '-0.03em', leading: 1.1 },
-  h1:       { size: '32px', weight: 700, tracking: '-0.02em', leading: 1.15 },
-  h2:       { size: '24px', weight: 700, tracking: '-0.02em', leading: 1.2 },
-  h3:       { size: '18px', weight: 600, tracking: '-0.01em', leading: 1.3 },
-  body:     { size: '14px', weight: 400, tracking: '0',       leading: 1.7 },
-  caption:  { size: '11px', weight: 600, tracking: '0.08em',  leading: 1.4 },
-  micro:    { size: '10px', weight: 500, tracking: '0.1em',   leading: 1.3 },
+  fontDisplay:  '"Bricolage Grotesque", system-ui, sans-serif',
+  fontHeadline: '"Plus Jakarta Sans", system-ui, sans-serif',
+  fontBody:     '"Inter", system-ui, sans-serif',
+  fontEditorial:'"Playfair Display", Georgia, serif',
+  fontMono:     '"JetBrains Mono", monospace',
 }
 
-// ─── SPACING (8px grid) ─────────────────────────────────
-export const spacing = {
-  xs:   '4px',
-  sm:   '8px',
-  md:   '12px',
-  base: '16px',
-  lg:   '24px',
-  xl:   '32px',
-  '2xl':'48px',
-  '3xl':'64px',
+export const radius = {
+  card:    '24px',
+  inner:   '16px',
+  sm:      '12px',
+  pill:    '9999px',
 }
 
-// ─── MOTION ─────────────────────────────────────────────
-export const motion = {
-  fast:    '0.15s cubic-bezier(0.16, 1, 0.3, 1)',
-  base:    '0.25s cubic-bezier(0.16, 1, 0.3, 1)',
-  smooth:  '0.4s cubic-bezier(0.16, 1, 0.3, 1)',
-  morph:   '1.2s cubic-bezier(0.22, 1, 0.36, 1)',
-}
-
-// ─── SECTION DATA (scroll-based journey) ────────────────
-// Each section gets a narrative label and a brief line
-export const SECTIONS = [
-  { key: 'hub',       label: 'ABOUT',             tagline: 'Core identity and specialized focus areas.', figure: 'BRONZE: RAW INGESTION' },
-  { key: 'pipeline',  label: 'EXPERIENCE',        tagline: 'Professional history and corporate impact.', figure: 'SILVER: DATA CLEANSING' },
-  { key: 'skills',    label: 'SKILLS',            tagline: 'Technical toolkit and domain expertise.', figure: 'SILVER: CONFORMED MODELS' },
-  { key: 'projects',  label: 'PROJECTS',          tagline: 'Architecting dynamic data products at scale.', figure: 'ORCHESTRATION: DAG PIPELINES' },
-  { key: 'certs',     label: 'CERTIFICATION',     tagline: 'Industry-verified engineering credentials.', figure: 'GOLD: BUSINESS AGGREGATION' },
-  { key: 'education', label: 'EDUCATION',         tagline: 'The academic bedrock of this practice.', figure: 'GOVERNANCE & CATALOG' },
-  { key: 'connect',   label: 'CONNECT',           tagline: 'Ready to deliver. Let\'s build together.', figure: 'SERVING: BI ANALYTICS' },
-]
-
-// ─── THREE.JS COLORS (hex integers) ────────────────────
-export const threeColors = {
-  background:    0x06141B,
-  accent:        0x9BA8AB,
-  gridLine:      0x11212D,
-  gridDot:       0x182C39,
-  gridAccent:    0x4A5C6A,
-}
-
-// ─── THREE.JS SECTION COLORS (hex integers for Three.js) ─
-export const threeSectionColors = {
-  hero:      { primary: 0xE6EBED, secondary: 0xCCD0CF, dim: 0x4A5C6A },
-  hub:       { primary: 0xCCD0CF, secondary: 0x9BA8AB, dim: 0x4A5C6A },
-  pipeline:  { primary: 0xB4BFBF, secondary: 0x72828B, dim: 0x374958 },
-  skills:    { primary: 0x9BA8AB, secondary: 0x4A5C6A, dim: 0x253745 },
-  projects:  { primary: 0xCCD0CF, secondary: 0x9BA8AB, dim: 0x4A5C6A },
-  certs:     { primary: 0xB4BFBF, secondary: 0x72828B, dim: 0x374958 },
-  education: { primary: 0x9BA8AB, secondary: 0x4A5C6A, dim: 0x253745 },
-  connect:   { primary: 0xE6EBED, secondary: 0xCCD0CF, dim: 0x4A5C6A },
+export const shadows = {
+  soft:   '0 4px 20px rgba(20, 19, 18, 0.04)',
+  elevated: '0 12px 36px rgba(20, 19, 18, 0.07)',
+  capsule: '0 8px 30px rgba(20, 19, 18, 0.08)',
+  accent: '0 8px 24px rgba(224, 62, 45, 0.25)',
 }

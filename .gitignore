@@ -1,5 +1,23 @@
-karthik.txt
-dist/
+# Dependencies
 node_modules/
 package-lock.json
-gitignore
+
+# Production
+dist/
+
+# Environment and sensitive credentials
+.env
+.env.*
+!.env.example
+
+# Temporary and scratch files
+karthik.txt
+scratch_portrait.py
+*.pyc
+__pycache__/
+
+# OS & Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

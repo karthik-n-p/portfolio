@@ -7,26 +7,40 @@ export default {
   theme: {
     extend: {
       colors: {
-        base:     '#0A0A0F',
-        surface:  '#111118',
-        elevated: '#18181F',
-        card:     '#1E1E26',
-        border:   '#2A2A35',
-        accent:   '#6366F1',
-        emerald:  '#34D399',
-        violet:   '#8B5CF6',
-        amber:    '#FBBF24',
-        rose:     '#FB7185',
-        text: {
-          primary:   '#EDEDED',
-          secondary: '#A1A1AA',
-          dim:       '#52525B',
-          muted:     '#71717A',
+        enric: {
+          red:    '#E8342A',
+          black:  '#171717',
+          gray:   '#5C5C5C',
+          muted:  '#A3A3A3',
+          border: '#E0E0E0',
+          card:   '#F7F7F7',
+          canvas: '#FFFFFF',
+          dark:   '#141414',
         },
       },
       fontFamily: {
-        mono: ['JetBrains Mono', 'monospace'],
-        sans: ['Inter', 'sans-serif'],
+        notch:       ['"Bricolage Grotesque"', 'system-ui', 'sans-serif'],
+        headline:    ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+        sans:        ['"Inter"', 'system-ui', 'sans-serif'],
+        editorial:   ['"Playfair Display"', 'Georgia', 'serif'],
+        cinzel:      ['"Cinzel"', 'serif'],
+        handwriting: ['"Gloria Hallelujah"', 'cursive'],
+        mono:        ['"JetBrains Mono"', 'monospace'],
+      },
+      animation: {
+        'marquee-left':  'marqueeLeft 35s linear infinite',
+        'marquee-right': 'marqueeRight 35s linear infinite',
+        'spin-slow':     'spin 12s linear infinite',
+      },
+      keyframes: {
+        marqueeLeft: {
+          '0%':   { transform: 'translateX(0%)' },
+          '100%': { transform: 'translateX(-50%)' },
+        },
+        marqueeRight: {
+          '0%':   { transform: 'translateX(-50%)' },
+          '100%': { transform: 'translateX(0%)' },
+        },
       },
     },
   },

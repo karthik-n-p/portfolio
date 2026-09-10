@@ -1,161 +1,302 @@
-/* ────────────────────────────────────────────────────
-   DESIGN SYSTEM — Mobile-First, Minimal, Premium
-   ──────────────────────────────────────────────────── */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   UNIFIED LUXURY DESIGN SYSTEM — Award-Winning Data Engineer Portfolio
+   Synthesizing Enric Design, Sanjay Menon, Anmol Maggon, Vaibhav Verma, 
+   Askumi, UX Dularia, and Jayy.
+   ───────────────────────────────────────────────────────────────────────────── */
 
 :root {
-  --c-bg:       #06141B;
-  --c-surface:  #0B1E2B;
-  --c-card:     #0D2233;
-  --c-border:   rgba(155, 168, 171, 0.12);
-  --c-accent:   #9BA8AB;
-  --c-text:     #CCD0CF;
-  --c-text-sec: #7A8A92;
-  --c-text-dim: #4A5C6A;
-  --font-sans:  'Inter', system-ui, sans-serif;
-  --font-mono:  'JetBrains Mono', monospace;
-  --ease:       cubic-bezier(0.16, 1, 0.3, 1);
-  --radius:     12px;
-  --radius-sm:  8px;
+  --c-canvas:       #FBF9F5;
+  --c-surface:      #FFFFFF;
+  --c-surface-stone:#F3EFE9;
+  --c-surface-dark: #141312;
+  --c-border:       #E5DFD5;
+  --c-border-subtle:#EFEAE1;
+  --c-text:         #141312;
+  --c-text-muted:   #5C574F;
+  --c-text-sand:    #8C857B;
+  --c-accent:       #E03E2D;
+  --c-accent-glow:  rgba(224, 62, 45, 0.18);
+  --font-notch:     'Bricolage Grotesque', system-ui, sans-serif;
+  --font-head:      'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-body:      'Inter', system-ui, sans-serif;
+  --font-editorial: 'Playfair Display', Georgia, serif;
+  --font-mono:      'JetBrains Mono', monospace;
+  --ease:           cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* ── RESET ──────────────────────────────────────── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
 html {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: var(--c-canvas);
+  color: var(--c-text);
 }
 
 body, #root {
   width: 100%;
   min-height: 100vh;
-  background: var(--c-bg);
+  min-height: 100dvh;
+  background-color: var(--c-canvas);
   color: var(--c-text);
-  font-family: var(--font-sans);
+  font-family: var(--font-body);
   overflow-x: hidden;
-  line-height: 1.6;
 }
 
-/* ── SCROLLBAR ──────────────────────────────────── */
-::-webkit-scrollbar { width: 3px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--c-text-dim); border-radius: 3px; }
-* { scrollbar-width: thin; scrollbar-color: var(--c-text-dim) transparent; }
-
-/* ── SECTION CARD ──────────────────────────────── */
-.section-card {
-  position: relative;
-  border-radius: var(--radius);
-  padding: 24px 20px;
-  transition: transform 0.4s var(--ease);
-  z-index: 1; /* Establish stacking context */
+/* ── SCROLLBAR ────────────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #D9D2C7;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #B8B0A2;
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #D9D2C7 transparent;
 }
 
-/* Isolate the backdrop filter into its own compositor layer so child typography (SVG, spans) never rasterizes blurred */
-.section-card::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: rgba(13, 34, 51, 0.45);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  border-left: 1px solid rgba(255, 255, 255, 0.04);
-  border-right: 1px solid rgba(0, 0, 0, 0.2);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.3);
-  border-radius: inherit;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-  transition: border-color 0.4s var(--ease), box-shadow 0.4s var(--ease), background 0.4s var(--ease);
+/* ── MARQUEE GRADIENT FADE MASK ───────────────────────────────────────── */
+.mask-marquee {
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 8%,
+    black 92%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 8%,
+    black 92%,
+    transparent 100%
+  );
 }
 
-@media (min-width: 1024px) {
-  .section-card {
-    padding: 32px 28px;
-  }
-  .section-card:hover {
-    transform: translateY(-4px);
-  }
-  .section-card:hover::before {
-    border-top: 1px solid rgba(255, 255, 255, 0.15);
-    background: rgba(13, 34, 51, 0.55);
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
-  }
-}
-
-/* ── INNER CARD ─────────────────────────────────── */
-.card {
-  padding: 16px;
-  border: 1px solid var(--c-border);
-  border-radius: var(--radius-sm);
-  background: rgba(255,255,255,0.02);
-  transition: background 0.3s ease, border-color 0.3s ease;
-}
-.card:hover {
-  background: rgba(255,255,255,0.04);
-  border-color: rgba(155, 168, 171, 0.2);
-}
-
-/* ── CHIP ───────────────────────────────────────── */
-.chip {
+/* ── UNIFIED BUTTON SYSTEM ────────────────────────────────────────────── */
+.btn-primary {
   display: inline-flex;
   align-items: center;
-  padding: 5px 10px;
-  border: 1px solid var(--c-border);
-  border-radius: 6px;
-  font-family: var(--font-sans);
-  font-size: 11px;
+  gap: 0.55rem;
+  padding: 0.75rem 1.4rem;
+  border-radius: 9999px;
+  background-color: #141312;
+  color: #FFFFFF;
+  border: 1px solid #141312;
+  font-family: var(--font-head);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.25s var(--ease);
+  box-shadow: 0 2px 8px rgba(20, 19, 18, 0.08);
+}
+.btn-primary:hover {
+  background-color: #262422;
+  transform: translateY(-1.5px);
+  box-shadow: 0 6px 18px rgba(20, 19, 18, 0.14);
+}
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.75rem 1.35rem;
+  border-radius: 9999px;
+  background-color: #FFFFFF;
+  color: #141312;
+  border: 1px solid #E5DFD5;
+  font-family: var(--font-head);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.25s var(--ease);
+  box-shadow: 0 2px 6px rgba(20, 19, 18, 0.03);
+}
+.btn-secondary:hover {
+  background-color: #F3EFE9;
+  border-color: #D6CEC0;
+  transform: translateY(-1.5px);
+  box-shadow: 0 6px 16px rgba(20, 19, 18, 0.06);
+}
+.btn-secondary:active {
+  transform: translateY(0);
+}
+
+.btn-accent {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.75rem 1.4rem;
+  border-radius: 9999px;
+  background-color: #E03E2D;
+  color: #FFFFFF;
+  border: 1px solid #E03E2D;
+  font-family: var(--font-head);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.25s var(--ease);
+  box-shadow: 0 4px 14px rgba(224, 62, 45, 0.25);
+}
+.btn-accent:hover {
+  background-color: #C93425;
+  transform: translateY(-1.5px);
+  box-shadow: 0 8px 22px rgba(224, 62, 45, 0.35);
+}
+
+/* ── UNIFIED CARD SYSTEM ──────────────────────────────────────────────── */
+.card-standard {
+  background-color: #FFFFFF;
+  border: 1px solid #E5DFD5;
+  border-radius: 24px;
+  box-shadow: 0 4px 20px rgba(20, 19, 18, 0.03);
+  transition: all 0.3s var(--ease);
+}
+.card-standard:hover {
+  border-color: #D1C8BA;
+  box-shadow: 0 12px 36px rgba(20, 19, 18, 0.06);
+  transform: translateY(-2px);
+}
+
+.card-stone {
+  background-color: #F3EFE9;
+  border: 1px solid #E5DFD5;
+  border-radius: 24px;
+  transition: all 0.25s var(--ease);
+}
+.card-stone:hover {
+  border-color: #D1C8BA;
+  background-color: #EDE8E0;
+}
+
+.card-dark {
+  background-color: #141312;
+  border: 1px solid #262422;
+  border-radius: 24px;
+  color: #FFFFFF;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* ── STATUS & TECH BADGES ─────────────────────────────────────────────── */
+.badge-tech {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.65rem;
+  border-radius: 9999px;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
   font-weight: 500;
-  color: var(--c-text-sec);
-  background: rgba(255,255,255,0.02);
+  background-color: #F3EFE9;
+  border: 1px solid #E5DFD5;
+  color: #141312;
+  letter-spacing: 0.02em;
 }
 
-/* ── ANIMATIONS ─────────────────────────────────── */
-.stagger-item {
-  opacity: 0;
-  animation: fadeUp 0.5s var(--ease) forwards;
-}
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-/* ── CURSOR BLINK ───────────────────────────────── */
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.3; }
-}
-.cursor-blink {
-  animation: blink 1.5s infinite var(--ease);
+.badge-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 9999px;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  background-color: #EBF5F0;
+  border: 1px solid #B8E0CC;
+  color: #166534;
 }
 
-/* ── TYPOGRAPHY OVERRIDES ───────────────────────── */
-/* Enforce crisp consistent bright colors on headings inside panels */
-.section-card h2, .section-card .text-h2 {
-  color: var(--c-text) !important;
-  font-weight: 700 !important;
-  letter-spacing: -0.01em;
-}
-.section-card h3, .section-card .text-h3 {
-  color: var(--c-accent) !important;
-  font-weight: 600 !important;
-}
-.section-card p, .section-card .text-body {
-  color: var(--c-text-sec) !important;
+/* ── SECTION RHYTHM TYPOGRAPHY ────────────────────────────────────────── */
+.section-kicker {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: #8C857B;
 }
 
-/* ── 3D CANVAS LAYER ────────────────────────────── */
-.canvas-container {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
+.section-title {
+  font-family: var(--font-notch);
+  font-size: 1.65rem;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: #141312;
+}
+@media (min-width: 640px) {
+  .section-title {
+    font-size: 2.25rem;
+  }
+}
+@media (min-width: 1024px) {
+  .section-title {
+    font-size: 2.625rem;
+  }
 }
 
-/* ── TEXT OVER 3D ───────────────────────────────── */
-.text-over-3d {
-  text-shadow:
-    0 1px 3px rgba(6, 20, 27, 0.9),
-    0 4px 12px rgba(6, 20, 27, 0.6);
+.section-subtitle {
+  font-family: var(--font-head);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: #5C574F;
+}
+
+/* Legacy alias mappings so existing components render without friction */
+.enric-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.25rem;
+  border-radius: 9999px;
+  font-family: var(--font-head);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s var(--ease);
+}
+.enric-pill-dark {
+  background-color: #141312;
+  color: #FFFFFF;
+  border: 1px solid #141312;
+}
+.enric-pill-dark:hover {
+  background-color: #262422;
+  transform: translateY(-1px);
+}
+.enric-pill-light {
+  background-color: #FFFFFF;
+  color: #141312;
+  border: 1px solid #E5DFD5;
+}
+.enric-pill-light:hover {
+  background-color: #F3EFE9;
+  transform: translateY(-1px);
 }
