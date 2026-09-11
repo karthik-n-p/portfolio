@@ -1,165 +1,152 @@
 /**
- * visitorTracker.js - High-Reliability Live Visitor Counter
- * 
- * Features:
- * 1. Primary: CountAPI (mileshilliard.com) - Instant, CORS-ready, adblock-resilient.
- * 2. Session-aware: Increments once per user browsing session (via sessionStorage)
- *    so multiple page switches / refreshes read the live count without spamming.
- * 3. Multi-tier Fallback: Secondary fallback to GoatCounter TOTAL.json.
- * 4. Local Persistence: localStorage caching for instant zero-flicker render.
+ * visitorTracker.js - Reliable Visitor Counter
+ *
+ * Architecture:
+ * - Single source of truth: CountAPI (countapi.mileshilliard.com)
+ * - Session-aware: only calls /hit/ once per browser session; all
+ *   subsequent page navigations use /get/ so the count stays stable.
+ * - Ratchet protection: the displayed number NEVER goes backwards.
+ *   Once we've seen N=74, a later stale/lower response is ignored.
+ * - localStorage cache: shown instantly on page load (zero flicker),
+ *   and updated whenever we get a fresh value from the API.
  */
 
-const STORAGE_KEY_VISITOR_COUNT = 'karthik_portfolio_visitor_count'
-const SESSION_KEY_COUNTED = 'karthik_session_counted'
+const STORAGE_KEY = 'karthik_portfolio_visitor_count'
+const SESSION_KEY = 'karthik_session_counted'
 const COUNTER_KEY = 'karthiknp_portfolio_visitors'
-const BASE_FLOOR = 44
+const BASE_FLOOR  = 44          // minimum ever shown
+
+// ─── internal helpers ────────────────────────────────────────────────────────
+
+function getCached() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (!raw) return BASE_FLOOR
+    const n = parseInt(raw, 10)
+    return isNaN(n) ? BASE_FLOOR : Math.max(n, BASE_FLOOR)
+  } catch (_) {
+    return BASE_FLOOR
+  }
+}
+
+function setCached(n) {
+  try {
+    // Ratchet: only write if the new value is >= what we already have
+    const current = getCached()
+    if (n >= current) {
+      localStorage.setItem(STORAGE_KEY, String(n))
+    }
+  } catch (_) {}
+}
+
+function markSessionCounted() {
+  try { sessionStorage.setItem(SESSION_KEY, '1') } catch (_) {}
+}
+
+function isSessionCounted() {
+  try { return !!sessionStorage.getItem(SESSION_KEY) } catch (_) { return false }
+}
+
+// ─── public API ──────────────────────────────────────────────────────────────
 
 /**
- * Fetch live visitor count with real-time increment on new session
+ * Fetch (and possibly increment) the live visitor count.
+ * Returns a number that never decreases across calls.
  */
 export async function fetchVisitorCount() {
-  if (typeof window === 'undefined') return BASE_FLOOR
+  if (typeof window === 'undefined') return getCached()
 
-  // Determine whether this is a new session (needs increment) or existing (just read)
-  let isNewSession = false
-  try {
-    isNewSession = !sessionStorage.getItem(SESSION_KEY_COUNTED)
-  } catch (e) {
-    isNewSession = true
-  }
+  const action = isSessionCounted() ? 'get' : 'hit'
+  const url = `https://countapi.mileshilliard.com/api/v1/${action}/${COUNTER_KEY}`
 
-  // CountAPI endpoints: /hit/ to increment, /get/ to read
-  const action = isNewSession ? 'hit' : 'get'
-  const countApiUrl = `https://countapi.mileshilliard.com/api/v1/${action}/${COUNTER_KEY}`
-
-  // Strategy 1: Try CountAPI
   try {
     const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), 4000)
+    const tid = setTimeout(() => controller.abort(), 5000)
 
-    const res = await fetch(countApiUrl, {
-      signal: controller.signal,
-      cache: 'no-cache',
-    })
-    clearTimeout(timeoutId)
+    const res = await fetch(url, { signal: controller.signal, cache: 'no-cache' })
+    clearTimeout(tid)
 
     if (res.ok) {
       const data = await res.json()
       if (data && typeof data.value === 'number') {
-        const count = Math.max(data.value, BASE_FLOOR)
-        try {
-          sessionStorage.setItem(SESSION_KEY_COUNTED, 'true')
-          localStorage.setItem(STORAGE_KEY_VISITOR_COUNT, String(count))
-        } catch (e) {}
-        return count
+        const live = Math.max(data.value, BASE_FLOOR)
+
+        // Mark session so future navigations use /get/ instead of /hit/
+        markSessionCounted()
+
+        // Ratchet-save to localStorage
+        setCached(live)
+
+        return getCached()   // always returns the highest value seen
       }
     }
-  } catch (err) {
-    // CountAPI timed out or offline, proceed to fallback
+  } catch (_) {
+    // CountAPI unreachable (timeout, adblock, offline) — return cached best value
   }
 
-  // Strategy 2: Fallback to GoatCounter TOTAL.json
-  try {
-    const gcUrl = `https://karthiknp.goatcounter.com/counter/TOTAL.json?_=${Date.now()}`
-    const res = await fetch(gcUrl, { cache: 'no-cache' })
-    if (res.ok) {
-      const data = await res.json()
-      const raw = data.count || data.count_unique
-      if (raw) {
-        const parsed = parseInt(String(raw).replace(/,/g, ''), 10)
-        if (!isNaN(parsed) && parsed > 0) {
-          const count = Math.max(parsed, BASE_FLOOR)
-          try {
-            localStorage.setItem(STORAGE_KEY_VISITOR_COUNT, String(count))
-          } catch (e) {}
-          return count
-        }
-      }
-    }
-  } catch (err) {
-    // ignore
-  }
-
-  // Strategy 3: Fallback to locally cached value
-  try {
-    const cached = localStorage.getItem(STORAGE_KEY_VISITOR_COUNT)
-    if (cached) {
-      const parsed = parseInt(cached, 10)
-      if (!isNaN(parsed) && parsed >= BASE_FLOOR) return parsed
-    }
-  } catch (e) {}
-
-  return BASE_FLOOR
+  // Fallback: return best cached value (never less than what was seen before)
+  return getCached()
 }
 
-// Export alias for backwards compatibility
+// backwards-compat alias
 export const fetchGoatCounterCount = fetchVisitorCount
 
 /**
- * Get initial cached count for instant zero-flicker render
+ * Instant cached count for zero-flicker first render.
+ * Call this synchronously before the async fetchVisitorCount resolves.
  */
 export function getInitialVisitorCount() {
   if (typeof window === 'undefined') return BASE_FLOOR
-
-  try {
-    const cached = localStorage.getItem(STORAGE_KEY_VISITOR_COUNT)
-    if (cached !== null) {
-      const parsed = parseInt(cached, 10)
-      if (!isNaN(parsed) && parsed >= BASE_FLOOR) return parsed
-    }
-  } catch (e) {}
-
-  return BASE_FLOOR
+  return getCached()
 }
 
 /**
- * Trigger GoatCounter pageview registration if script is loaded
+ * Trigger GoatCounter pageview (analytics only, not the counter source).
  */
 export function triggerGoatCounterHit(path = '/') {
-  if (typeof window !== 'undefined' && window.goatcounter && typeof window.goatcounter.count === 'function') {
+  if (
+    typeof window !== 'undefined' &&
+    window.goatcounter &&
+    typeof window.goatcounter.count === 'function'
+  ) {
     try {
-      window.goatcounter.count({
-        path: path,
-        title: document.title,
-        event: false,
-      })
-    } catch (e) {}
+      window.goatcounter.count({ path, title: document.title, event: false })
+    } catch (_) {}
   }
 }
 
-/**
- * Hearts counter persistence
- */
-const STORAGE_KEY_HEARTS = 'karthik_portfolio_hearts'
-const STORAGE_KEY_LIKED = 'karthik_portfolio_liked'
-const BASE_HEARTS = 42
+// ─── Hearts ──────────────────────────────────────────────────────────────────
+
+const HEARTS_KEY      = 'karthik_portfolio_hearts'
+const HEARTS_LIKED_KEY = 'karthik_portfolio_liked'
+const BASE_HEARTS     = 42
 
 export function getHeartsData() {
   if (typeof window === 'undefined') return { count: BASE_HEARTS, liked: false }
 
   try {
-    const storedHearts = localStorage.getItem(STORAGE_KEY_HEARTS)
-    const storedLiked = localStorage.getItem(STORAGE_KEY_LIKED) === 'true'
-    const count = storedHearts ? parseInt(storedHearts, 10) : BASE_HEARTS
-    return { count: isNaN(count) ? BASE_HEARTS : count, liked: storedLiked }
-  } catch (e) {
+    const raw    = localStorage.getItem(HEARTS_KEY)
+    const liked  = localStorage.getItem(HEARTS_LIKED_KEY) === 'true'
+    const count  = raw ? parseInt(raw, 10) : BASE_HEARTS
+    return { count: isNaN(count) ? BASE_HEARTS : count, liked }
+  } catch (_) {
     return { count: BASE_HEARTS, liked: false }
   }
 }
 
 export function incrementHeart() {
-  if (typeof window === 'undefined') return BASE_HEARTS + 1
+  if (typeof window === 'undefined') return { count: BASE_HEARTS + 1, liked: true }
 
   try {
-    const current = getHeartsData()
-    if (!current.liked) {
-      const newCount = current.count + 1
-      localStorage.setItem(STORAGE_KEY_HEARTS, newCount.toString())
-      localStorage.setItem(STORAGE_KEY_LIKED, 'true')
-      return { count: newCount, liked: true }
+    const { count, liked } = getHeartsData()
+    if (!liked) {
+      const next = count + 1
+      localStorage.setItem(HEARTS_KEY, String(next))
+      localStorage.setItem(HEARTS_LIKED_KEY, 'true')
+      return { count: next, liked: true }
     }
-    return current
-  } catch (e) {
+    return { count, liked }
+  } catch (_) {
     return { count: BASE_HEARTS + 1, liked: true }
   }
 }
