@@ -60,7 +60,7 @@ export default function ResumePage({ setActivePage }) {
             </div>
             <div className="flex flex-col gap-1 font-headline text-[13px] text-[#5C574F] sm:text-right">
               <a href={`mailto:${profile.contact.email}`} className="hover:text-[#E03E2D] transition-colors">{profile.contact.email}</a>
-              <a href={`tel:${profile.contact.phone}`} className="hover:text-[#E03E2D] transition-colors">{profile.contact.phone}</a>
+              <a href={profile.contact.github} target="_blank" rel="noopener noreferrer" className="hover:text-[#E03E2D] transition-colors">{profile.contact.githubDisplay}</a>
               <a href={profile.contact.linkedin} target="_blank" rel="noopener noreferrer" className="hover:text-[#E03E2D] transition-colors">{profile.contact.linkedinDisplay}</a>
             </div>
           </div>

@@ -22,8 +22,8 @@ export const profile = {
     'I’m an Azure Data Engineer at UST Global who transforms sprawling, chaotic enterprise data into clean, lightning-fast lakehouses. My daily craft revolves around PySpark, Delta Lake, and Kafka — building resilient systems that run on time, scale effortlessly, and never wake up the team at 2 AM.',
   contact: {
     email: 'karthik.np.work@gmail.com',
-    phone: '',
-    whatsapp: '',
+    github: 'https://github.com/karthik-n-p',
+    githubDisplay: 'github.com/karthik-n-p',
     linkedin: 'https://linkedin.com/in/karthik-np',
     linkedinDisplay: 'linkedin.com/in/karthik-np',
   },

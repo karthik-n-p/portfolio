@@ -202,12 +202,6 @@ export default function ContactPage() {
                 </div>
               </div>
 
-              <div className="flex flex-col">
-                <span className="text-[11px] text-[#8C857B] font-mono uppercase font-medium">Phone / WhatsApp</span>
-                <a href={profile.contact.whatsapp} target="_blank" rel="noopener noreferrer" className="font-semibold text-[#141312] hover:text-[#E03E2D] transition-colors text-[15px]">
-                  {profile.contact.phone}
-                </a>
-              </div>
 
               <div className="flex flex-col">
                 <span className="text-[11px] text-[#8C857B] font-mono uppercase font-medium">LinkedIn</span>

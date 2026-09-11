@@ -127,7 +127,7 @@ export default function FooterSection({ setActivePage }) {
                 <div className="flex flex-col gap-2.5 font-headline text-[14.5px] text-[#141312]">
                   <a href={profile.contact.linkedin} target="_blank" rel="noopener noreferrer" className="hover:text-[#E03E2D] transition-colors">LinkedIn</a>
                   <a href={`mailto:${profile.contact.email}`} className="hover:text-[#E03E2D] transition-colors">Email</a>
-                  <a href={profile.contact.whatsapp} target="_blank" rel="noopener noreferrer" className="hover:text-[#E03E2D] transition-colors">WhatsApp</a>
+                  <a href={profile.contact.github} target="_blank" rel="noopener noreferrer" className="hover:text-[#E03E2D] transition-colors">GitHub</a>
                 </div>
               </div>
 

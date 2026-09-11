@@ -204,9 +204,9 @@ export default function ContactSection() {
               </div>
 
               <div className="flex flex-col">
-                <span className="text-[10px] sm:text-[10.5px] text-[#8C857B] font-mono uppercase font-medium">Phone / WhatsApp</span>
-                <a href={profile.contact.whatsapp} target="_blank" rel="noopener noreferrer" className="font-semibold text-[#141312] hover:text-[#E03E2D] transition-colors">
-                  {profile.contact.phone}
+                <span className="text-[10px] sm:text-[10.5px] text-[#8C857B] font-mono uppercase font-medium">GitHub</span>
+                <a href={profile.contact.github} target="_blank" rel="noopener noreferrer" className="font-semibold text-[#141312] hover:text-[#E03E2D] transition-colors">
+                  {profile.contact.githubDisplay}
                 </a>
               </div>
 
