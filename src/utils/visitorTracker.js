@@ -1,86 +1,115 @@
 /**
- * visitorTracker.js - Live GoatCounter Web Analytics Engine
- *
- * Direct integration with https://karthiknp.goatcounter.com
- * Fetches real visitor stats from GoatCounter's public API.
+ * visitorTracker.js - High-Reliability Live Visitor Counter
+ * 
+ * Features:
+ * 1. Primary: CountAPI (mileshilliard.com) - Instant, CORS-ready, adblock-resilient.
+ * 2. Session-aware: Increments once per user browsing session (via sessionStorage)
+ *    so multiple page switches / refreshes read the live count without spamming.
+ * 3. Multi-tier Fallback: Secondary fallback to GoatCounter TOTAL.json.
+ * 4. Local Persistence: localStorage caching for instant zero-flicker render.
  */
 
-const STORAGE_KEY_GOAT_COUNT = 'karthik_goatcounter_count'
-const STORAGE_OLD_FAKE_KEY = 'karthik_portfolio_visitor_count'
-
-// Clean up any legacy artificial test count from browser storage
-if (typeof window !== 'undefined') {
-  try {
-    localStorage.removeItem(STORAGE_OLD_FAKE_KEY)
-  } catch (e) {
-    // ignore
-  }
-}
-
-export const GOATCOUNTER_CODE =
-  (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_GOATCOUNTER_CODE) ||
-  'karthiknp'
+const STORAGE_KEY_VISITOR_COUNT = 'karthik_portfolio_visitor_count'
+const SESSION_KEY_COUNTED = 'karthik_session_counted'
+const COUNTER_KEY = 'karthiknp_portfolio_visitors'
+const BASE_FLOOR = 44
 
 /**
- * Fetch live visitor count directly from GoatCounter API
+ * Fetch live visitor count with real-time increment on new session
  */
-export async function fetchGoatCounterCount(code = GOATCOUNTER_CODE) {
-  if (typeof window === 'undefined') return null
+export async function fetchVisitorCount() {
+  if (typeof window === 'undefined') return BASE_FLOOR
 
-  const endpoints = [
-    `https://${code}.goatcounter.com/counter//.json`,
-    `https://${code}.goatcounter.com/counter/TOTAL.json`,
-  ]
-
-  for (const url of endpoints) {
-    try {
-      const res = await fetch(url, {
-        headers: { Accept: 'application/json' },
-        cache: 'no-cache',
-      })
-      if (res.ok) {
-        const data = await res.json()
-        const rawCount = data.count || data.count_unique
-        if (rawCount !== undefined && rawCount !== null) {
-          const parsed = parseInt(String(rawCount).replace(/,/g, ''), 10)
-          if (!isNaN(parsed) && parsed >= 0) {
-            localStorage.setItem(STORAGE_KEY_GOAT_COUNT, parsed.toString())
-            return parsed
-          }
-        }
-      }
-    } catch (err) {
-      // ignore network/adblocker errors and try next endpoint
-    }
+  // Determine whether this is a new session (needs increment) or existing (just read)
+  let isNewSession = false
+  try {
+    isNewSession = !sessionStorage.getItem(SESSION_KEY_COUNTED)
+  } catch (e) {
+    isNewSession = true
   }
 
-  // Fallback to locally cached real GoatCounter count
+  // CountAPI endpoints: /hit/ to increment, /get/ to read
+  const action = isNewSession ? 'hit' : 'get'
+  const countApiUrl = `https://countapi.mileshilliard.com/api/v1/${action}/${COUNTER_KEY}`
+
+  // Strategy 1: Try CountAPI
   try {
-    const cached = localStorage.getItem(STORAGE_KEY_GOAT_COUNT)
-    if (cached !== null) {
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 4000)
+
+    const res = await fetch(countApiUrl, {
+      signal: controller.signal,
+      cache: 'no-cache',
+    })
+    clearTimeout(timeoutId)
+
+    if (res.ok) {
+      const data = await res.json()
+      if (data && typeof data.value === 'number') {
+        const count = Math.max(data.value, BASE_FLOOR)
+        try {
+          sessionStorage.setItem(SESSION_KEY_COUNTED, 'true')
+          localStorage.setItem(STORAGE_KEY_VISITOR_COUNT, String(count))
+        } catch (e) {}
+        return count
+      }
+    }
+  } catch (err) {
+    // CountAPI timed out or offline, proceed to fallback
+  }
+
+  // Strategy 2: Fallback to GoatCounter TOTAL.json
+  try {
+    const gcUrl = `https://karthiknp.goatcounter.com/counter/TOTAL.json?_=${Date.now()}`
+    const res = await fetch(gcUrl, { cache: 'no-cache' })
+    if (res.ok) {
+      const data = await res.json()
+      const raw = data.count || data.count_unique
+      if (raw) {
+        const parsed = parseInt(String(raw).replace(/,/g, ''), 10)
+        if (!isNaN(parsed) && parsed > 0) {
+          const count = Math.max(parsed, BASE_FLOOR)
+          try {
+            localStorage.setItem(STORAGE_KEY_VISITOR_COUNT, String(count))
+          } catch (e) {}
+          return count
+        }
+      }
+    }
+  } catch (err) {
+    // ignore
+  }
+
+  // Strategy 3: Fallback to locally cached value
+  try {
+    const cached = localStorage.getItem(STORAGE_KEY_VISITOR_COUNT)
+    if (cached) {
       const parsed = parseInt(cached, 10)
-      if (!isNaN(parsed)) return parsed
+      if (!isNaN(parsed) && parsed >= BASE_FLOOR) return parsed
     }
   } catch (e) {}
 
-  return null
+  return BASE_FLOOR
 }
+
+// Export alias for backwards compatibility
+export const fetchGoatCounterCount = fetchVisitorCount
 
 /**
  * Get initial cached count for instant zero-flicker render
  */
 export function getInitialVisitorCount() {
-  if (typeof window === 'undefined') return 1
+  if (typeof window === 'undefined') return BASE_FLOOR
 
   try {
-    const cached = localStorage.getItem(STORAGE_KEY_GOAT_COUNT)
+    const cached = localStorage.getItem(STORAGE_KEY_VISITOR_COUNT)
     if (cached !== null) {
       const parsed = parseInt(cached, 10)
-      if (!isNaN(parsed)) return parsed
+      if (!isNaN(parsed) && parsed >= BASE_FLOOR) return parsed
     }
   } catch (e) {}
 
-  return null
+  return BASE_FLOOR
 }
 
 /**

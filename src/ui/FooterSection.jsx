@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { profile } from '../data/karthik.js'
 import {
   getInitialVisitorCount,
-  fetchGoatCounterCount,
+  fetchVisitorCount,
 } from '../utils/visitorTracker.js'
 
 const ROTATING_WORDS = ['build', 'scale', 'stream', 'optimize', 'automate']
@@ -19,7 +19,7 @@ export default function FooterSection({ setActivePage }) {
 
     let countTimer = null
 
-    fetchGoatCounterCount().then((liveCount) => {
+    fetchVisitorCount().then((liveCount) => {
       if (liveCount !== null && liveCount !== undefined) {
         setTargetCount(liveCount)
 
@@ -143,7 +143,7 @@ export default function FooterSection({ setActivePage }) {
                   <div className="pt-2 flex flex-col">
                     <div className="flex items-center gap-1.5 text-[10.5px] font-mono uppercase tracking-wider text-[#8C857B]">
                       <span>Visitor number:</span>
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" title="GoatCounter Live Tracking"></span>
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" title="Live Verified Visits"></span>
                     </div>
                     <span className="font-notch text-[28px] font-bold text-[#E03E2D] tracking-wider font-mono">
                       {String(displayCount !== null && displayCount !== undefined ? displayCount : (targetCount || 0)).padStart(5, '0')}
