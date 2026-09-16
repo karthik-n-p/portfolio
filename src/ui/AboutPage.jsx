@@ -138,7 +138,7 @@ export default function AboutPage({ setActivePage }) {
           two sides of one <span className="font-editorial italic font-normal text-[#141312]">engineer</span><span className="text-[#E03E2D]">.</span>
         </h1>
         <p className="font-headline text-[15px] sm:text-[16.5px] text-[#5C574F] max-w-[620px] leading-relaxed">
-          The Azure Data Engineer architecting resilient lakehouses by day, and the curious explorer chasing sunrises and heavy deadlifts by night.
+          The Azure Data Engineer building resilient data products by day, and the curious explorer chasing sunrises and calisthenics discipline by night.
         </p>
 
         {/* ── DUAL MODE TOGGLE PILL ── */}

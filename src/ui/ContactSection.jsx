@@ -21,11 +21,11 @@ export default function ContactSection() {
   }
 
   const conversationStarters = [
-    { label: '👋 Just want to say hi', service: 'Other', msg: "Hey Karthik! Stumbled across your portfolio and just wanted to say it's really cool. Would love to connect!" },
-    { label: '💼 Got a role for you', service: 'Full-time / Consulting Opportunity', msg: "Hi Karthik, we have an opportunity that I think would be a great fit for your background in Azure data engineering. Would love to chat!" },
-    { label: '🛠️ Need help with a data problem', service: 'Data Engineering & Lakehouse Pipelines', msg: "Hi Karthik, I'm working on a data pipeline / lakehouse architecture challenge and think you could help. Can we connect?" },
-    { label: '☕ Let\'s grab virtual coffee', service: 'Other', msg: "Hey Karthik, loved your portfolio and vibe! Would be great to just chat — no agenda, just a good conversation over (virtual) coffee." },
-    { label: '🤝 Potential collaboration', service: 'Full-time / Consulting Opportunity', msg: "Hi Karthik, I think there might be a great collaboration opportunity between us. Would love to explore it together." },
+    { label: 'Say Hello', service: 'Other', msg: "Hey Karthik! Came across your portfolio and wanted to connect." },
+    { label: 'Discuss a Role', service: 'Full-time / Consulting Opportunity', msg: "Hi Karthik, we have an opportunity that aligns well with your background in Azure data engineering. Would love to chat!" },
+    { label: 'Data Architecture', service: 'Data Engineering & Lakehouse Pipelines', msg: "Hi Karthik, I'm working on a data pipeline / lakehouse architecture challenge and would like to discuss." },
+    { label: 'Virtual Coffee', service: 'Other', msg: "Hey Karthik, loved your work and projects. Would be great to connect for a casual conversation." },
+    { label: 'Collaboration', service: 'Full-time / Consulting Opportunity', msg: "Hi Karthik, I'd like to explore a potential collaboration opportunity with you." },
   ]
 
   const handleSelectStarter = (starter) => {
@@ -178,9 +178,15 @@ export default function ContactSection() {
                 title="Copy email address"
               >
                 {copiedEmail ? (
-                  <span className="text-emerald-700 font-semibold animate-fadeIn">✓ Copied!</span>
+                  <span className="text-emerald-700 font-semibold animate-fadeIn">✓ Copied</span>
                 ) : (
-                  <span>📋 Copy Email</span>
+                  <span className="inline-flex items-center gap-1">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                    Copy Email
+                  </span>
                 )}
               </button>
             </div>
@@ -198,7 +204,10 @@ export default function ContactSection() {
                     className="p-1 rounded-md text-xs text-[#8C857B] hover:text-[#141312] opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
                     aria-label="Copy email"
                   >
-                    📋
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
                   </button>
                 </div>
               </div>

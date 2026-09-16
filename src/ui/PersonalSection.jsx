@@ -104,7 +104,7 @@ export default function PersonalSection() {
                 </div>
 
                 <p className="font-headline text-[14.5px] sm:text-[15.5px] text-[#5C574F] leading-relaxed max-w-[540px]">
-                  When the IDE closes: exploring ancient temple architecture across India, capturing shifting horizon skies, reading founder memoirs, and staying disciplined with heavy barbell compounds.
+                  When the IDE closes: exploring ancient temple architecture across India, capturing shifting horizon skies, reading founder memoirs, and staying disciplined with calisthenics and cricket.
                 </p>
 
                 {/* Minimalist Interest Badges */}

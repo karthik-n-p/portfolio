@@ -21,10 +21,10 @@ export default function ContactPage() {
   }
 
   const conversationStarters = [
-    { label: '🚀 Discuss Lakehouse Architecture', service: 'Data Engineering & Lakehouse Pipelines', msg: 'Hi Karthik, I came across your portfolio and wanted to discuss a lakehouse / pipeline architecture...' },
-    { label: '⚡ Kafka Real-time Streaming', service: 'Real-Time Kafka Streaming', msg: 'Hi Karthik, wanted to chat about setting up high-throughput Kafka streaming with automated alerting...' },
-    { label: '🤝 High-Impact Full-Time Role', service: 'Full-time / Consulting Opportunity', msg: 'Hi Karthik, we have an exciting Azure Data Engineer role that matches your background...' },
-    { label: '☕ Say Hi & Grab Filter Coffee', service: 'Other', msg: 'Hey Karthik, loved your portfolio and hot takes! Would love to connect and chat tech...' },
+    { label: 'Lakehouse Architecture', service: 'Data Engineering & Lakehouse Pipelines', msg: 'Hi Karthik, I came across your portfolio and wanted to discuss a lakehouse / pipeline architecture...' },
+    { label: 'Kafka Streaming', service: 'Real-Time Kafka Streaming', msg: 'Hi Karthik, wanted to chat about setting up high-throughput Kafka streaming with automated alerting...' },
+    { label: 'Discuss a Role', service: 'Full-time / Consulting Opportunity', msg: 'Hi Karthik, we have an exciting Azure Data Engineer role that matches your background...' },
+    { label: 'Say Hello', service: 'Other', msg: 'Hey Karthik, loved your portfolio and work! Would love to connect and chat tech...' },
   ]
 
   const handleSelectStarter = (starter) => {
@@ -177,9 +177,15 @@ export default function ContactPage() {
                 title="Copy email address"
               >
                 {copiedEmail ? (
-                  <span className="text-emerald-700 font-semibold animate-fadeIn">✓ Copied!</span>
+                  <span className="text-emerald-700 font-semibold animate-fadeIn">✓ Copied</span>
                 ) : (
-                  <span>📋 Copy Email</span>
+                  <span className="inline-flex items-center gap-1">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                    Copy Email
+                  </span>
                 )}
               </button>
             </div>
@@ -197,7 +203,10 @@ export default function ContactPage() {
                     className="p-1 rounded-md text-xs text-[#8C857B] hover:text-[#141312] opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
                     aria-label="Copy email"
                   >
-                    📋
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
                   </button>
                 </div>
               </div>

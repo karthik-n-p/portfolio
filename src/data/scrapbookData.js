@@ -22,13 +22,13 @@ export const scrapbookContent = {
     },
     {
       id: 'fitness',
-      label: 'Strength Training',
-      note: 'Heavy compounds, mobility & daily discipline',
+      label: 'Calisthenics',
+      note: 'Bodyweight mastery, mobility & daily discipline',
     },
     {
-      id: 'coffee',
-      label: 'Specialty Coffee',
-      note: 'Traditional South Indian filter & pour-overs',
+      id: 'cricket',
+      label: 'Cricket',
+      note: 'Weekend matches, strategy & pure love for the game',
     },
   ],
 
@@ -48,13 +48,6 @@ export const scrapbookContent = {
     subtitle: 'Daily routines that anchor focus and mental stamina',
     reflection: 'Physical discipline creates mental stamina at the keyboard.',
     items: [
-      {
-        name: 'Deadlift & Compounds',
-        value: '140',
-        unit: 'kg working set',
-        barPercent: 85,
-        note: 'Progressive overload & spine integrity',
-      },
       {
         name: 'Core & Plank Hold',
         value: '5:30',
