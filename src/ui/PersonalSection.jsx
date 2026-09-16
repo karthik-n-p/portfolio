@@ -104,7 +104,7 @@ export default function PersonalSection() {
                 </div>
 
                 <p className="font-headline text-[14.5px] sm:text-[15.5px] text-[#5C574F] leading-relaxed max-w-[540px]">
-                  When the IDE closes: exploring ancient temple architecture across India, capturing shifting horizon skies, reading founder memoirs, and staying disciplined with calisthenics and cricket.
+                  Outside of work, my goal is pretty simple: just keeping things uncomplicated and enjoying life. Whether it's playing some cricket, traveling, or reading a good book, it's all about staying happy and grounded.
                 </p>
 
                 {/* Minimalist Interest Badges */}
@@ -120,28 +120,63 @@ export default function PersonalSection() {
                     </div>
                   ))}
                 </div>
+
+
               </div>
 
               {/* RIGHT: ALL 3 PHOTOS IN APT POSITIONS (Mobile + Tablet + Desktop) */}
-              <div className="lg:col-span-6 xl:col-span-5 flex flex-col items-center justify-center pt-4 lg:pt-0">
+              <div className="lg:col-span-6 xl:col-span-5 flex flex-col items-center justify-center mt-12 sm:mt-8 lg:mt-0 relative">
                 
                 {/* 3-Photo Trio Stage */}
-                <div className="relative w-full max-w-[420px] h-[230px] sm:h-[280px] lg:h-[310px] flex items-end justify-center select-none">
+                <div className="relative w-full max-w-[420px] h-[210px] sm:h-[280px] lg:h-[310px] flex items-end justify-center select-none">
                   
                   {/* Backdrop glow */}
                   <div className="absolute inset-x-8 bottom-4 h-32 bg-[#EFEAE1]/70 rounded-full blur-2xl -z-10 pointer-events-none" />
+
+                  {/* Top Right Stamp (No animation, mobile visible) */}
+                  <div className="absolute -top-6 right-2 sm:right-4 lg:-right-4 w-16 h-16 sm:w-20 sm:h-20 rounded-full border-[0.5px] border-[#D5CDBD] flex items-center justify-center opacity-70 pointer-events-none z-0">
+                    <svg className="absolute w-full h-full" viewBox="0 0 100 100">
+                      <path id="curve" d="M 50,50 m -35,0 a 35,35 0 1,1 70,0 a 35,35 0 1,1 -70,0" fill="transparent" />
+                      <text className="text-[10px] font-mono tracking-[0.2em] fill-[#8C857B] font-bold">
+                        <textPath href="#curve">PEOPLE · PLACES · IDEAS ·</textPath>
+                      </text>
+                    </svg>
+                    <span className="font-bold font-notch text-[#141312] text-lg sm:text-xl">KN.</span>
+                  </div>
+
+                  {/* Left Handwritten Text & Arrow */}
+                  <div className="absolute top-[15%] sm:top-1/4 -left-2 sm:-left-6 lg:-left-12 flex flex-col items-end gap-0.5 sm:gap-1 opacity-90 pointer-events-none z-30" style={{ transform: 'rotate(-8deg)' }}>
+                    <span style={{ fontFamily: "'Gloria Hallelujah', cursive" }} className="text-[#5C574F] text-[10px] sm:text-sm lg:text-base whitespace-nowrap">
+                      Always yapping
+                    </span>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="stroke-[#8C857B] -mr-2 sm:-mr-4 hidden sm:block">
+                      <path d="M4 4C9 12 16 12 20 18" strokeWidth="1.5" strokeLinecap="round"/>
+                      <path d="M15 18L20 18L20 13" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
+
+                  {/* Right Handwritten Text & Arrow */}
+                  <div className="absolute top-[25%] sm:top-1/3 -right-2 sm:-right-6 lg:-right-12 flex flex-col items-start gap-0.5 sm:gap-1 opacity-90 pointer-events-none z-30" style={{ transform: 'rotate(6deg)' }}>
+                    <span style={{ fontFamily: "'Gloria Hallelujah', cursive" }} className="text-[#5C574F] text-[10px] sm:text-sm lg:text-base whitespace-nowrap">
+                      Better Days
+                    </span>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="stroke-[#8C857B] ml-1 sm:ml-2 hidden sm:block" style={{ transform: 'scaleX(-1) rotate(20deg)' }}>
+                      <path d="M4 4C9 12 16 12 20 18" strokeWidth="1.5" strokeLinecap="round"/>
+                      <path d="M15 18L20 18L20 13" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
 
                   {/* Photo 1 — Left angled frame */}
                   <div
                     className="relative z-10 w-[33%] sm:w-[130px] lg:w-[145px] shrink-0 hover:z-30 hover:scale-105 transition-all duration-300 cursor-pointer group"
                     style={{ transform: 'rotate(-5deg) translateY(14px)' }}
-                    title="Karthik NP — Exploring"
+                    title="Mid-conversation enthusiasm"
                   >
                     <div className="rounded-2xl overflow-hidden bg-[#F3EFE9] border border-[#D5CDBD] p-1 shadow-[0_12px_28px_rgba(20,19,18,0.12)] group-hover:border-[#141312] transition-colors">
                       <img
                         src="/karthik-cheeky-1.png"
                         alt="Karthik NP"
-                        className="w-full h-[180px] sm:h-[220px] lg:h-[240px] object-contain object-bottom"
+                        className="w-full h-[150px] sm:h-[220px] lg:h-[240px] object-contain object-bottom"
                         draggable="false"
                       />
                     </div>
@@ -151,13 +186,18 @@ export default function PersonalSection() {
                   <div
                     className="relative z-20 w-[38%] sm:w-[145px] lg:w-[165px] shrink-0 hover:z-30 hover:scale-105 transition-all duration-300 cursor-pointer -mx-3 sm:-mx-4 group"
                     style={{ transform: 'rotate(0deg) translateY(-8px)' }}
-                    title="Karthik NP — Candid"
+                    title="Adjusting shades to look cool"
                   >
+                    {/* Tape with Text */}
+                    <div className="absolute -top-2 sm:-top-3 left-1/2 -translate-x-1/2 z-40 bg-[#E8E1D5] w-[3.5rem] sm:w-[4.5rem] h-5 sm:h-6 flex items-center justify-center shadow-sm opacity-90 pointer-events-none" style={{ transform: 'rotate(-4deg)', clipPath: 'polygon(3% 0, 97% 2%, 100% 100%, 0 98%)' }}>
+                      <span style={{ fontFamily: "'Gloria Hallelujah', cursive" }} className="text-[#141312] text-[8px] sm:text-[10px] font-bold">Same Me</span>
+                    </div>
+
                     <div className="rounded-2xl overflow-hidden bg-[#EFEAE1] border-2 border-[#D5CDBD] p-1 shadow-[0_16px_36px_rgba(20,19,18,0.18)] group-hover:border-[#E03E2D] transition-colors">
                       <img
                         src="/karthik-cheeky-2.png"
                         alt="Karthik NP"
-                        className="w-full h-[195px] sm:h-[240px] lg:h-[265px] object-contain object-bottom"
+                        className="w-full h-[165px] sm:h-[240px] lg:h-[265px] object-contain object-bottom"
                         draggable="false"
                       />
                     </div>
@@ -167,25 +207,30 @@ export default function PersonalSection() {
                   <div
                     className="relative z-10 w-[33%] sm:w-[130px] lg:w-[145px] shrink-0 hover:z-30 hover:scale-105 transition-all duration-300 cursor-pointer group"
                     style={{ transform: 'rotate(5deg) translateY(8px)' }}
-                    title="Karthik NP — Off the Clock"
+                    title="Pointing at the real MVP"
                   >
                     <div className="rounded-2xl overflow-hidden bg-[#F3EFE9] border border-[#D5CDBD] p-1 shadow-[0_12px_28px_rgba(20,19,18,0.12)] group-hover:border-[#141312] transition-colors">
                       <img
                         src="/karthik-cheeky-3.png"
                         alt="Karthik NP"
-                        className="w-full h-[180px] sm:h-[220px] lg:h-[240px] object-contain object-bottom"
+                        className="w-full h-[150px] sm:h-[220px] lg:h-[240px] object-contain object-bottom"
                         draggable="false"
                       />
                     </div>
                   </div>
+
                 </div>
 
-                {/* Subtitle / Caption for the 3 frames */}
-                <div className="flex items-center gap-2 mt-4 text-[#8C857B] font-mono text-[10.5px]">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#8C857B]"></span>
-                  <span>3 Perspectives · Off the Clock</span>
+                {/* Ripped Paper Note — outside fixed-height stage so it's never clipped */}
+                <div className="mt-6 sm:mt-8 self-end mr-4 sm:mr-8 lg:mr-12 bg-[#FBF9F5] px-3 py-2 sm:px-5 sm:py-3 border border-[#E5DFD5] shadow-lg pointer-events-none" style={{ transform: 'rotate(-4deg)', clipPath: 'polygon(0 3%, 100% 0%, 98% 100%, 2% 97%)' }}>
+                  <div className="flex flex-col items-center">
+                    <span style={{ fontFamily: "'Gloria Hallelujah', cursive" }} className="text-[#141312] text-[13px] sm:text-lg lg:text-xl leading-tight text-center">
+                      Off the Clock<br/>On My Terms.
+                    </span>
+                    <div className="w-full h-0.5 mt-1 sm:mt-2 bg-[#E03E2D]/80 rounded-full" style={{ transform: 'rotate(-1deg)' }}></div>
+                    <div className="w-11/12 h-[1px] mt-0.5 bg-[#E03E2D]/60 rounded-full" style={{ transform: 'rotate(1deg)' }}></div>
+                  </div>
                 </div>
-
               </div>
 
             </div>

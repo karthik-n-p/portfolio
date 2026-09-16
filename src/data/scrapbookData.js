@@ -45,8 +45,8 @@ export const scrapbookContent = {
 
   fitnessFragment: {
     title: 'Physical Training',
-    subtitle: 'Daily routines that anchor focus and mental stamina',
-    reflection: 'Physical discipline creates mental stamina at the keyboard.',
+    subtitle: 'Moving everyday to stay sharp and energized.',
+    reflection: 'Nothing beats a good workout or a game of cricket to clear the head after staring at code all day.',
     items: [
       {
         name: 'Core & Plank Hold',
