@@ -196,74 +196,124 @@ export default function HomePage({ scrollToSection, mode = 'professional', setMo
 
 
             {/* ── MAIN HERO BODY ── */}
-            <div className="relative z-20 flex-1 flex items-center px-5 sm:px-10 lg:px-14 xl:px-16 max-w-[1560px] mx-auto w-full py-10 sm:py-14 lg:py-0">
+            <div className="relative z-20 flex-1 flex items-start lg:items-center px-5 sm:px-10 lg:px-14 xl:px-16 max-w-[1560px] mx-auto w-full pt-8 pb-0 sm:pt-10 sm:pb-4 lg:py-0">
               
-              {/* Left Narrative Block */}
+              {/* Narrative Block */}
               <div className="w-full lg:max-w-[560px] xl:max-w-[620px] flex flex-col justify-center z-20">
 
-                {/* Mobile Hero Header Row: Title on Left, Prominent Photo on Right (below lg) */}
-                <div className="flex lg:hidden items-center justify-between gap-3 sm:gap-6 w-full mb-3 select-none">
-                  {/* Left: Kicker + Title */}
-                  <div className="flex-1 flex flex-col justify-center">
-                    <div className="flex items-center gap-1.5 mb-2">
-                      <span className="w-2 h-2 rounded-full bg-[#E03E2D] animate-pulse"></span>
-                      <span className="font-mono text-[9px] sm:text-[10px] uppercase tracking-[0.16em] text-[#8C857B] font-bold">
-                        Karthik NP · UST Global
-                      </span>
-                    </div>
-                    <h1 className="font-notch font-extrabold text-[27px] sm:text-[40px] leading-[0.95] text-[#141312] tracking-tight">
-                      Architecting<br />
-                      Data<br />
-                      Lakehouses<span className="text-[#E03E2D]">.</span>
-                    </h1>
-                    <span className="font-mono text-[9px] sm:text-[10px] text-[#5C574F] uppercase tracking-wider font-semibold mt-2">
-                      Azure Data Engineer
+                {/* ── MOBILE HERO: Stacked layout (hidden on lg+) ── */}
+                <div className="flex lg:hidden flex-col w-full select-none">
+
+                  {/* Kicker */}
+                  <div className="flex items-center gap-1.5 mb-3">
+                    <span className="w-2 h-2 rounded-full bg-[#E03E2D] animate-pulse"></span>
+                    <span className="font-mono text-[9px] sm:text-[10px] uppercase tracking-[0.16em] text-[#8C857B] font-bold">
+                      Karthik NP · UST Global
                     </span>
                   </div>
 
-                  {/* Right: Prominent Arch Photo */}
-                  <div className="shrink-0 flex items-center justify-end">
+                  {/* Title — full width, large */}
+                  <h1 className="font-notch font-extrabold text-[36px] sm:text-[50px] leading-[0.94] text-[#141312] tracking-tight">
+                    Building products,<br />
+                    engineering data<span className="text-[#E03E2D]">.</span>
+                  </h1>
+
+                  <span className="font-mono text-[9.5px] sm:text-[10.5px] text-[#8C857B] uppercase tracking-wider font-semibold mt-2.5">
+                    Product Builder · Azure Data Engineer
+                  </span>
+
+                  {/* Subtitle */}
+                  <div className="font-editorial italic font-normal text-[20px] sm:text-[26px] leading-[1.15] text-[#2B2825] mt-3">
+                    Turning complex systems into things that just work.
+                  </div>
+
+                  {/* Bio */}
+                  <p className="font-headline text-[13.5px] sm:text-[15px] leading-[23px] sm:leading-[27px] text-[#5C574F] mt-3 font-normal">
+                    Azure Data Engineer at <strong className="font-bold text-[#141312]">UST Global</strong> and product builder. Designing reliable lakehouses, real-time streaming engines, and clean digital tools that solve real problems.
+                  </p>
+
+                  {/* Full-width Hero Photo — pop-out effect */}
+                  {/* Outer wrapper: overflow-visible so head can break out above the card */}
+                  <div
+                    className="relative w-full mt-2"
+                    style={{ height: 'min(72vw, 340px)' }}
+                  >
+                    {/* Background card — starts 52px down so head has room to pop above */}
                     <div
-                      className="relative w-[138px] sm:w-[175px] h-[180px] sm:h-[220px] rounded-t-[75px] sm:rounded-t-[95px] overflow-hidden shadow-[0_16px_36px_rgba(20,19,18,0.22)] border border-[#D5CDBD]"
-                      style={{ background: 'linear-gradient(180deg, #DED7CD 0%, #C9C1B4 60%, #B3A99B 100%)' }}
+                      className="absolute inset-x-0 bottom-0 rounded-[28px] sm:rounded-[36px] overflow-hidden shadow-[0_20px_50px_rgba(20,19,18,0.18)] border border-[#D5CDBD]"
+                      style={{
+                        top: '52px',
+                        background: 'linear-gradient(180deg, #DED7CD 0%, #C9C1B4 55%, #B3A99B 100%)',
+                      }}
                     >
-                      <div className="absolute inset-0 bg-gradient-to-tr from-black/15 via-transparent to-white/20 pointer-events-none" />
-                      <img
-                        src="/karthik-hero-new.png"
-                        alt="Karthik NP"
-                        className="absolute bottom-0 left-1/2 -translate-x-1/2 h-[126%] w-auto object-contain object-bottom drop-shadow-[0_10px_20px_rgba(20,19,18,0.25)]"
-                        loading="eager"
-                      />
+                      {/* Subtle gloss overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-tr from-black/10 via-transparent to-white/15 pointer-events-none" />
                     </div>
+
+                    {/* Photo — fills full wrapper height, head overflows above card */}
+                    <img
+                      src="/karthik-hero-new.png"
+                      alt="Karthik NP"
+                      className="absolute bottom-0 left-1/2 -translate-x-1/2 h-full w-auto object-contain object-bottom z-10 drop-shadow-[0_-4px_24px_rgba(20,19,18,0.22)]"
+                      loading="eager"
+                    />
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex flex-wrap items-center gap-2.5 mt-6 mb-8">
+                    <button
+                      type="button"
+                      onClick={() => handleScroll('experience')}
+                      className="btn-primary text-[13px] px-5 py-3 shadow-md hover:shadow-lg transition-all group cursor-pointer"
+                    >
+                      <span>View Experience</span>
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="group-hover:translate-y-0.5 transition-transform">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <polyline points="19 12 12 19 5 12"></polyline>
+                      </svg>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleScroll('projects')}
+                      className="btn-secondary text-[13px] px-4 py-3 cursor-pointer"
+                    >
+                      <span>Projects</span>
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                      </svg>
+                    </button>
                   </div>
                 </div>
 
-                {/* Desktop Display Headline (visible only on lg+) */}
+                {/* ── DESKTOP HERO: original layout (lg+) ── */}
                 <h1 className="hidden lg:flex flex-col tracking-tight select-none">
-                  <span className="font-notch font-extrabold lg:text-[64px] xl:text-[76px] leading-[0.92] text-[#141312] tracking-tight">
-                    Architecting Data
+                  <span className="font-notch font-extrabold lg:text-[62px] xl:text-[74px] leading-[0.94] text-[#141312] tracking-tight">
+                    Building products,
                   </span>
-                  <span className="font-notch font-extrabold lg:text-[64px] xl:text-[76px] leading-[0.92] text-[#141312] tracking-tight">
-                    Lakehouses<span className="text-[#E03E2D]">.</span>
+                  <span className="font-notch font-extrabold lg:text-[62px] xl:text-[74px] leading-[0.94] text-[#141312] tracking-tight">
+                    engineering data<span className="text-[#E03E2D]">.</span>
                   </span>
                 </h1>
 
-                {/* Subtitle / Quote — both mobile & desktop */}
-                <div className="font-editorial italic font-normal text-[20px] sm:text-[32px] lg:text-[48px] xl:text-[56px] leading-[1.08] text-[#2B2825] mt-1 lg:mt-1.5">
-                  Engineered for Real-World Scale.
+                {/* Subtitle / Quote — desktop only */}
+                <div className="hidden lg:block font-editorial italic font-normal lg:text-[40px] xl:text-[48px] leading-[1.12] text-[#2B2825] mt-2">
+                  Turning complex systems into things that just work.
                 </div>
 
-                {/* Bio */}
-                <p className="font-headline text-[13.5px] sm:text-[15px] leading-[23px] sm:leading-[27px] text-[#5C574F] max-w-[510px] mt-4 sm:mt-5 font-normal">
-                  Azure Data Engineer at <strong className="font-bold text-[#141312]">UST Global</strong> building Medallion lakehouses with <strong className="font-semibold text-[#141312]">Databricks</strong>, <strong className="font-semibold text-[#141312]">PySpark</strong>, and <strong className="font-semibold text-[#141312]">Kafka</strong>. Focused on data reliability, streaming architectures, and operational automation.
+                {/* Bio — desktop only */}
+                <p className="hidden lg:block font-headline text-[15px] leading-[27px] text-[#5C574F] max-w-[520px] mt-5 font-normal">
+                  Azure Data Engineer at <strong className="font-bold text-[#141312]">UST Global</strong> & product builder. Crafting battle-tested lakehouses with <strong className="font-semibold text-[#141312]">Databricks</strong>, <strong className="font-semibold text-[#141312]">PySpark</strong>, and <strong className="font-semibold text-[#141312]">Kafka</strong> — and building digital products with relentless attention to reliability and simplicity.
                 </p>
 
-                {/* Action Buttons */}
-                <div className="flex flex-wrap items-center gap-2.5 sm:gap-3.5 mt-6 sm:mt-7">
+                {/* Action Buttons — desktop only */}
+                <div className="hidden lg:flex flex-wrap items-center gap-3.5 mt-7">
                   <button
                     type="button"
                     onClick={() => handleScroll('experience')}
-                    className="btn-primary text-[13px] sm:text-[14px] px-5 py-3 sm:px-6 sm:py-3.5 shadow-md hover:shadow-lg transition-all group cursor-pointer"
+                    className="btn-primary text-[14px] px-6 py-3.5 shadow-md hover:shadow-lg transition-all group cursor-pointer"
                   >
                     <span>View Experience</span>
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="group-hover:translate-y-0.5 transition-transform">
@@ -271,11 +321,10 @@ export default function HomePage({ scrollToSection, mode = 'professional', setMo
                       <polyline points="19 12 12 19 5 12"></polyline>
                     </svg>
                   </button>
-
                   <button
                     type="button"
                     onClick={() => handleScroll('projects')}
-                    className="btn-secondary text-[13px] sm:text-[14px] px-4 py-3 sm:px-5 sm:py-3.5 cursor-pointer"
+                    className="btn-secondary text-[14px] px-5 py-3.5 cursor-pointer"
                   >
                     <span>Projects</span>
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
@@ -286,7 +335,6 @@ export default function HomePage({ scrollToSection, mode = 'professional', setMo
                     </svg>
                   </button>
                 </div>
-
 
           </div>
         </div>

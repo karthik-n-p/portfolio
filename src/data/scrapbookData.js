@@ -1,88 +1,74 @@
 /**
- * scrapbookData.js - Personal Section Scrapbook Content
- * Human tone, meme-aware, no portfolio buzzwords
+ * scrapbookData.js - Personal Section Content
+ * Clean, authentic, minimal tone matching portfolio aesthetics.
  */
 
 export const scrapbookContent = {
-
   interests: [
     {
       id: 'travel',
-      doodle: '🗺️',
-      label: 'TRAVEL',
-      scribble: 'somewhere new every few months',
-      tilt: '-3deg',
-      color: 'bg-amber-50 border-amber-200 text-amber-900',
+      label: 'Travel',
+      note: 'Heritage trails & quiet coasts across India',
     },
     {
       id: 'photography',
-      doodle: '📷',
-      label: 'SHOTS',
-      scribble: 'took 47. kept 2.',
-      tilt: '2.5deg',
-      color: 'bg-sky-50 border-sky-200 text-sky-900',
+      label: 'Photography',
+      note: 'Ancient stone architecture & dynamic skies',
     },
     {
-      id: 'books',
-      doodle: '📖',
-      label: 'READS',
-      scribble: 'dog-eared & coffee-stained',
-      tilt: '-1.5deg',
-      color: 'bg-emerald-50 border-emerald-200 text-emerald-900',
-    },
-    {
-      id: 'coffee',
-      doodle: '☕',
-      label: 'COFFEE',
-      scribble: 'filter coffee or gtfo',
-      tilt: '3.5deg',
-      color: 'bg-orange-50 border-orange-200 text-orange-900',
+      id: 'reading',
+      label: 'Reading',
+      note: 'Biographies, systems thinking & business memoirs',
     },
     {
       id: 'fitness',
-      doodle: '🏋️',
-      label: 'GYM',
-      scribble: 'trying not to skip leg day',
-      tilt: '-2deg',
-      color: 'bg-rose-50 border-rose-200 text-rose-900',
+      label: 'Strength Training',
+      note: 'Heavy compounds, mobility & daily discipline',
+    },
+    {
+      id: 'coffee',
+      label: 'Specialty Coffee',
+      note: 'Traditional South Indian filter & pour-overs',
     },
   ],
 
   readingBook: {
     title: 'Shoe Dog',
-    subtitle: 'Phil Knight. A raw, brutally honest memoir from the creator of Nike. Pages are marked with scribbles about obsession and risk.',
-    tagline: 'currently on the nightstand',
-    bookmarkNote: 'somewhere in the middle — can\'t put it down',
-    progress: 'page-turning. no idea what page.',
+    author: 'Phil Knight',
+    subtitle: 'A raw, candid memoir from the creator of Nike on obsession, relentless persistence, and building against all odds.',
+    tagline: 'Currently Reading',
+    reflection: 'A reminder that building anything of enduring value is messy, uncertain, and demands stamina through the chaotic chapters.',
+    progress: 'Page 285 of 400',
+    progressPercent: 72,
+    status: 'In Progress',
   },
 
   fitnessFragment: {
-    title: 'CURRENT BESTS',
-    scribble: 'not a gym bro, just showing up',
+    title: 'Physical Training',
+    subtitle: 'Daily routines that anchor focus and mental stamina',
+    reflection: 'Physical discipline creates mental stamina at the keyboard.',
     items: [
       {
-        name: 'PUSHUPS',
-        value: '40',
-        unit: 'reps',
-        bar: '████████░░',
-        note: 'max set without dying',
+        name: 'Deadlift & Compounds',
+        value: '140',
+        unit: 'kg working set',
+        barPercent: 85,
+        note: 'Progressive overload & spine integrity',
       },
       {
-        name: 'PLANK',
-        value: '5:32',
-        unit: 'min',
-        bar: '███████░░░',
-        note: 'watched the clock the whole time',
+        name: 'Core & Plank Hold',
+        value: '5:30',
+        unit: 'min hold',
+        barPercent: 90,
+        note: 'Isometric control & breath stability',
+      },
+      {
+        name: 'Weekly Consistency',
+        value: '4–5',
+        unit: 'sessions/wk',
+        barPercent: 100,
+        note: 'Consistency over intensity',
       },
     ],
   },
-
-  internetStickers: [
-    { id: 's1', text: '404: motivation not found', tilt: '-2.5deg' },
-    { id: 's2', text: 'works on my machine ¯\\_(ツ)_/¯', tilt: '3deg' },
-    { id: 's3', text: 'one more tab', tilt: '-1.5deg' },
-    { id: 's4', text: 'Ctrl + S', tilt: '2deg' },
-    { id: 's5', text: 'ship it ✓', tilt: '-3deg' },
-    { id: 's6', text: 'git commit -m "wip"', tilt: '1.5deg' },
-  ],
 }

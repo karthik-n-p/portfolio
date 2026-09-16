@@ -17,9 +17,9 @@ export const profile = {
   experienceYears: '2+',
   location: 'Trivandrum, Kerala',
   status: 'Open to High-Impact Roles',
-  tagline: 'Turning messy data chaos into calm, rock-solid lakehouses.',
+  tagline: 'Building reliable data systems and thoughtful digital products.',
   shortBio:
-    'I’m an Azure Data Engineer at UST Global who transforms sprawling, chaotic enterprise data into clean, lightning-fast lakehouses. My daily craft revolves around PySpark, Delta Lake, and Kafka — building resilient systems that run on time, scale effortlessly, and never wake up the team at 2 AM.',
+    'I’m an Azure Data Engineer at UST Global and product builder. I transform sprawling data into clean, resilient lakehouses and build modern tools that make complex workflows simple. My craft spans Databricks, PySpark, Kafka, and full-stack development — systems that run predictably and solve real human problems.',
   contact: {
     email: 'karthik.np.work@gmail.com',
     github: 'https://github.com/karthik-n-p',
