@@ -37,20 +37,18 @@ export const scrapbookContent = {
     author: 'Phil Knight',
     subtitle: 'A raw, candid memoir from the creator of Nike on obsession, relentless persistence, and building against all odds.',
     tagline: 'Currently Reading',
-    reflection: 'A reminder that building anything of enduring value is messy, uncertain, and demands stamina through the chaotic chapters.',
-    progress: 'Page 285 of 400',
-    progressPercent: 72,
+    progress: 'Page 257 of 386',
+    progressPercent: 66,
     status: 'In Progress',
   },
 
   fitnessFragment: {
     title: 'Physical Training',
     subtitle: 'Moving everyday to stay sharp and energized.',
-    reflection: 'Nothing beats a good workout or a game of cricket to clear the head after staring at code all day.',
     items: [
       {
         name: 'Core & Plank Hold',
-        value: '5:30',
+        value: '3:04',
         unit: 'min hold',
         barPercent: 90,
         note: 'Isometric control & breath stability',

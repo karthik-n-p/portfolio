@@ -15,6 +15,7 @@ export default function Navbar({ mode = 'professional', setMode, scrollToSection
     { id: 'personal', label: 'SCRAPBOOK' },
     { id: 'bucket-list', label: 'BUCKET LIST' },
     { id: 'photos', label: 'PHOTOS' },
+    { id: 'habits', label: 'DISCIPLINES' },
     { id: 'contact', label: 'CONTACT' },
   ]
 
@@ -23,7 +24,7 @@ export default function Navbar({ mode = 'professional', setMode, scrollToSection
   useEffect(() => {
     const sectionIds = mode === 'professional'
       ? ['hero', 'experience', 'certifications', 'projects', 'resume', 'contact']
-      : ['personal', 'bucket-list', 'photos', 'contact']
+      : ['personal', 'bucket-list', 'photos', 'habits', 'contact']
     
     const handleScroll = () => {
       const scrollPos = window.scrollY + 280

@@ -145,7 +145,8 @@ export default function HomePage({ scrollToSection, mode = 'professional', setMo
                     { id: 'personal', num: '01', label: 'Off the Clock' },
                     { id: 'bucket-list', num: '02', label: 'Travel Map' },
                     { id: 'photos', num: '03', label: 'Camera Roll' },
-                    { id: 'contact', num: '04', label: 'Get in Touch' },
+                    { id: 'habits', num: '04', label: 'Disciplines & Books' },
+                    { id: 'contact', num: '05', label: 'Get in Touch' },
                   ]
               ).map((item) => (
                 <button

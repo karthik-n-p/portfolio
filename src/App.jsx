@@ -18,7 +18,7 @@ export default function App() {
     const id = (rawId || '').replace(/^#\/?/, '').toLowerCase()
     
     // Auto switch mode based on destination
-    if (['personal', 'musings', 'habits', 'travel'].includes(id)) {
+    if (['personal', 'musings', 'habits', 'disciplines', 'reading', 'workout', 'travel'].includes(id)) {
       setMode('personal')
     } else if (['hero', 'home', 'experience', 'about', 'certifications', 'certs', 'resume', 'projects', 'works'].includes(id)) {
       setMode('professional')
@@ -38,6 +38,9 @@ export default function App() {
       personal: 'personal',
       musings: 'musings',
       habits: 'habits',
+      disciplines: 'habits',
+      reading: 'habits',
+      workout: 'habits',
       travel: 'travel',
       contact: 'contact',
     }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { indiaTravelPlaces } from '../data/indiaBucketListData.js'
 import { scrapbookContent } from '../data/scrapbookData.js'
 import {
@@ -9,17 +9,36 @@ import {
   indiaStates,
   indiaViewBoxes,
 } from '../data/indiaMapData.js'
+import { usePortfolioLockin } from '../hooks/usePortfolioLockin.js'
+import {
+  formatSeconds,
+  formatNumber,
+  formatTimeAgo,
+  formatDate,
+} from '../utils/supabaseLockin.js'
 
 const PHOTOS_PER_PAGE = 8
 
 export default function PersonalSection() {
+  const { data: lockinData, isLive, loading: lockinLoading, refresh: refreshLockin } = usePortfolioLockin()
+  const reading = lockinData?.reading || {}
+  const currentBook = reading?.current_book || {}
+  const workout = lockinData?.workout || {}
+
   const [activeFilter, setActiveFilter] = useState('ALL')
   const [selectedPlaceId, setSelectedPlaceId] = useState('thanjavur')
   const [activePhoto, setActivePhoto] = useState(null)
   const [photoFilter, setPhotoFilter] = useState('all')
   const [hoveredPlace, setHoveredPlace] = useState(null)
   const [imgErrors, setImgErrors] = useState({})
+  const [bookCoverError, setBookCoverError] = useState(false)
+  const [showWorkoutDetails, setShowWorkoutDetails] = useState(false)
+  const [showPreviousReads, setShowPreviousReads] = useState(false)
   const [visiblePhotos, setVisiblePhotos] = useState(PHOTOS_PER_PAGE)
+
+  useEffect(() => {
+    setBookCoverError(false)
+  }, [currentBook?.cover_url])
 
   const selectedPlace = indiaTravelPlaces.find(p => p.id === selectedPlaceId) || indiaTravelPlaces[0]
 
@@ -599,95 +618,241 @@ export default function PersonalSection() {
 
 
         {/* ═══════════════════════════════════════════════════════
-            BLOCK 4 — DISCIPLINES: READING & PHYSICAL TRAINING
+            BLOCK 4 — DISCIPLINES: READING & PHYSICAL TRAINING (SUPABASE LIVE TELEMETRY)
         ═══════════════════════════════════════════════════════ */}
-        <div className="w-full flex flex-col gap-8">
+        <div id="habits" className="w-full flex flex-col gap-8 scroll-mt-24">
           
-          <div className="flex flex-col">
-            <span className="section-kicker">
-              [ 04 // DISCIPLINES ]
-            </span>
-            <h3 className="font-notch text-[28px] sm:text-[38px] font-bold text-[#141312] mt-1.5">
-              Beyond the Terminal.
-            </h3>
-            <p className="font-headline text-[14px] text-[#5C574F] mt-1">
-              The books, routines, and physical habits that keep thinking clear and grounded.
-            </p>
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+            <div className="flex flex-col">
+              <span className="section-kicker">
+                [ 04 // DISCIPLINES ]
+              </span>
+              <h3 className="font-notch text-[28px] sm:text-[38px] font-bold text-[#141312] mt-1.5">
+                Beyond the Terminal<span className="text-[#E03E2D]">.</span>
+              </h3>
+              <p className="font-headline text-[14px] text-[#5C574F] mt-1">
+                The books, routines, and physical habits that keep thinking clear and grounded.
+              </p>
+            </div>
+
+            {/* Supabase Live Telemetry Status Pill */}
+            <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-white border border-[#E5DFD5] shadow-2xs self-start sm:self-auto">
+              <span className="relative flex h-2 w-2">
+                <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
+                  isLive ? 'bg-emerald-400' : 'bg-amber-400'
+                }`} />
+                <span className={`relative inline-flex rounded-full h-2 w-2 ${
+                  isLive ? 'bg-emerald-600' : 'bg-amber-600'
+                }`} />
+              </span>
+              <span className="font-mono text-[10px] font-bold tracking-wider uppercase text-[#141312]">
+                {isLive ? 'SUPABASE LIVE' : 'TELEMETRY SYNCED'}
+              </span>
+              <span className="font-mono text-[9.5px] text-[#8C857B]">
+                • {formatTimeAgo(lockinData?.updated_at)}
+              </span>
+              <button
+                type="button"
+                onClick={refreshLockin}
+                title="Refresh live telemetry"
+                disabled={lockinLoading}
+                className="ml-1 text-[#8C857B] hover:text-[#141312] transition-colors cursor-pointer text-xs disabled:opacity-50"
+              >
+                ↻
+              </button>
+            </div>
           </div>
 
           <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
             
-            {/* Book Card */}
-            <div className="lg:col-span-6 xl:col-span-7 bg-white rounded-[32px] border border-[#E5DFD5] p-7 sm:p-10 shadow-2xs flex flex-col justify-between gap-6">
+            {/* ── CARD 1: LIVE READING STATUS ── */}
+            <div className="lg:col-span-6 xl:col-span-7 bg-white rounded-[32px] border border-[#E5DFD5] p-7 sm:p-10 shadow-2xs flex flex-col justify-between gap-6 group hover:border-[#D5CDBD] transition-all">
               
               <div className="flex flex-col sm:flex-row items-center sm:items-start gap-7">
                 
-                {/* 3D Book Silhouette */}
+                {/* 3D Book Silhouette (Dynamic Cover & Typography) */}
                 <div
                   className="relative w-[140px] sm:w-[155px] h-[210px] sm:h-[225px] rounded-r-xl rounded-l-sm bg-[#141312] text-white p-4 flex flex-col justify-between shrink-0 shadow-[12px_14px_30px_rgba(20,19,18,0.35)] overflow-hidden"
                   style={{ transform: 'rotate(-2deg)' }}
                 >
                   {/* Spine shadow */}
-                  <div className="absolute top-0 bottom-0 left-0 w-3 bg-gradient-to-r from-black/80 to-transparent" />
+                  <div className="absolute top-0 bottom-0 left-0 w-3 bg-gradient-to-r from-black/80 to-transparent z-20 pointer-events-none" />
                   {/* Crimson accent curve */}
-                  <div className="absolute bottom-0 left-0 right-0 h-[36%] bg-[#CC0000]" style={{ clipPath: 'polygon(0 30%, 100% 0%, 100% 100%, 0% 100%)' }} />
+                  <div className="absolute bottom-0 left-0 right-0 h-[36%] bg-[#CC0000] z-10" style={{ clipPath: 'polygon(0 30%, 100% 0%, 100% 100%, 0% 100%)' }} />
                   {/* Bookmark ribbon */}
-                  <div className="absolute -bottom-5 right-5 w-3 h-8 bg-[#FFD700] shadow-md" style={{ clipPath: 'polygon(0 0, 100% 0, 100% 80%, 50% 100%, 0 80%)' }} />
+                  <div className="absolute -bottom-5 right-5 w-3 h-8 bg-[#FFD700] shadow-md z-20" style={{ clipPath: 'polygon(0 0, 100% 0, 100% 80%, 50% 100%, 0 80%)' }} />
                   
-                  <div className="pl-1.5 flex flex-col gap-1.5 relative z-10">
-                    <span className="font-mono text-[7.5px] uppercase tracking-widest text-[#CC0000] font-black">MEMOIR</span>
-                    <h5 className="font-notch text-[18px] font-black text-[#D4A017] leading-[1.0] mt-0.5 tracking-tight">
-                      SHOE<br />DOG
-                    </h5>
-                    <p className="font-headline text-[7.5px] text-white/70 leading-tight">
-                      By <span className="font-bold text-white">Phil Knight</span>
-                    </p>
-                  </div>
+                  {currentBook?.cover_url && !bookCoverError ? (
+                    <img
+                      src={currentBook.cover_url}
+                      alt={currentBook.title || 'Book cover'}
+                      onError={() => setBookCoverError(true)}
+                      className="absolute inset-0 w-full h-full object-cover z-0"
+                    />
+                  ) : (
+                    <>
+                      <div className="pl-1.5 flex flex-col gap-1.5 relative z-10">
+                        <span className="font-mono text-[7.5px] uppercase tracking-widest text-[#CC0000] font-black">
+                          {currentBook?.status === 'CURRENT' ? 'CURRENT READ' : 'HABIT'}
+                        </span>
+                        <h5 className="font-notch text-[16px] sm:text-[18px] font-black text-[#D4A017] leading-[1.05] mt-0.5 tracking-tight uppercase line-clamp-3">
+                          {currentBook?.title || 'Shoe Dog'}
+                        </h5>
+                        <p className="font-headline text-[7.5px] text-white/70 leading-tight">
+                          By <span className="font-bold text-white">{currentBook?.author || 'Phil Knight'}</span>
+                        </p>
+                      </div>
 
-                  <div className="pl-1.5 pb-0.5 font-mono text-[7.5px] text-white/80 relative z-10 font-bold">
-                    CREATOR OF NIKE
-                  </div>
+                      <div className="pl-1.5 pb-0.5 font-mono text-[7px] text-white/80 relative z-10 font-bold uppercase tracking-wider">
+                        {currentBook?.total_pages ? `${currentBook.total_pages} PAGES` : 'PAPERBACK'}
+                      </div>
+                    </>
+                  )}
                 </div>
 
-                {/* Book Details & Reflection */}
-                <div className="flex flex-col gap-3">
-                  <span className="font-mono text-[10px] uppercase font-bold tracking-wider text-[#E03E2D]">
-                    {scrapbookContent.readingBook.tagline}
-                  </span>
+                {/* Book Details & Live Status */}
+                <div className="flex flex-col gap-3 flex-1 min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="px-2.5 py-0.5 rounded-full font-mono text-[10px] uppercase font-bold tracking-wider bg-rose-50 text-[#E03E2D] border border-rose-200">
+                      🔥 {reading?.streak || 0}-Day Streak
+                    </span>
+                    <span className="font-mono text-[10px] text-[#8C857B] uppercase tracking-wider font-semibold">
+                      {currentBook?.tagline || 'Currently Reading'}
+                    </span>
+                  </div>
 
                   <h4 className="font-notch text-[22px] sm:text-[26px] font-bold text-[#141312] leading-tight">
-                    {scrapbookContent.readingBook.title}
+                    {currentBook?.title || 'Shoe Dog'}
                   </h4>
 
                   <p className="font-headline text-[13.5px] text-[#5C574F] leading-relaxed">
-                    {scrapbookContent.readingBook.subtitle}
+                    By <strong className="text-[#141312] font-semibold">{currentBook?.author || 'Phil Knight'}</strong>
+                    {reading?.today_pages_read ? ` · Read ${reading.today_pages_read} pages today (daily goal: ${reading.today_page_goal || 15}).` : ''}
                   </p>
 
-                  <div className="p-3.5 rounded-2xl bg-[#F8F5EE] border border-[#E5DFD5] font-editorial italic text-[13px] text-[#2B2825] leading-relaxed">
-                    "{scrapbookContent.readingBook.reflection}"
+                  {/* Micro Live Reading Stats */}
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    <span className="px-2.5 py-1 rounded-xl bg-[#FBF9F5] border border-[#E5DFD5] font-mono text-[10.5px] text-[#5C574F]">
+                      📖 Total: <strong className="text-[#141312]">{formatNumber(reading?.total_pages_read)}</strong> pgs
+                    </span>
+                    <span className="px-2.5 py-1 rounded-xl bg-[#FBF9F5] border border-[#E5DFD5] font-mono text-[10.5px] text-[#5C574F]">
+                      🏆 Finished: <strong className="text-[#141312]">{reading?.completed_books_count || reading?.previous_reads?.length || 6}</strong> books
+                    </span>
+                    <span className="px-2.5 py-1 rounded-xl bg-[#FBF9F5] border border-[#E5DFD5] font-mono text-[10.5px] text-[#5C574F]">
+                      ⚡ Max Day: <strong className="text-[#141312]">{reading?.max_pages_single_day || 0}</strong> pgs
+                    </span>
                   </div>
                 </div>
 
               </div>
 
-              {/* Progress Bar */}
+              {/* Live Reading Progress Bar */}
               <div className="pt-4 border-t border-[#E5DFD5] flex flex-col gap-2">
                 <div className="flex items-center justify-between font-mono text-[11px] text-[#8C857B]">
-                  <span>Progress: {scrapbookContent.readingBook.progress}</span>
-                  <span className="font-semibold text-[#141312]">{scrapbookContent.readingBook.status}</span>
+                  <span>
+                    Progress: Page {currentBook?.current_page || 0} of {currentBook?.total_pages || 0} ({currentBook?.progress_percent || 0}%)
+                  </span>
+                  <span className="font-semibold text-[#141312]">
+                    {currentBook?.status === 'CURRENT' ? 'Reading Now' : (currentBook?.status || 'In Progress')}
+                  </span>
                 </div>
                 <div className="w-full h-2 bg-[#EFEAE1] rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-[#141312] rounded-full transition-all duration-500"
-                    style={{ width: `${scrapbookContent.readingBook.progressPercent}%` }}
+                    className="h-full bg-[#141312] rounded-full transition-all duration-700 ease-out"
+                    style={{ width: `${Math.min(100, Math.max(0, currentBook?.progress_percent || 0))}%` }}
                   />
                 </div>
               </div>
 
+              {/* Action Button: View Previous Reads & Reading Log */}
+              <div className="pt-2 flex flex-col gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowPreviousReads(v => !v)}
+                  className="w-full flex items-center justify-between px-4 py-2.5 rounded-2xl bg-[#F8F5EE] border border-[#E5DFD5] hover:border-[#141312] text-[#141312] text-[12px] font-mono font-semibold transition-all cursor-pointer group"
+                >
+                  <span className="flex items-center gap-2">
+                    <span>📚</span>
+                    <span>{showPreviousReads ? 'Hide Previous Reads' : 'View Previous Reads & Archive'}</span>
+                  </span>
+                  <span className="text-[#8C857B] group-hover:text-[#141312] transition-colors text-[11px]">
+                    {showPreviousReads ? '▲ Collapse' : '▼ Expand'}
+                  </span>
+                </button>
+
+                {/* Collapsible Previous Reads Panel */}
+                {showPreviousReads && (
+                  <div className="flex flex-col gap-3.5 p-4 sm:p-5 rounded-2xl bg-[#FDFBF7] border border-[#E5DFD5] animate-fadeIn">
+                    <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-[#EFEAE1]">
+                      <span className="font-mono text-[10px] uppercase font-bold text-[#E03E2D] tracking-wider">
+                        READING ARCHIVE &amp; TELEMETRY
+                      </span>
+                      <span className="font-mono text-[10px] text-[#8C857B]">
+                        Tracking since: <strong className="text-[#141312]">{formatDate(reading?.start_date)}</strong>
+                      </span>
+                    </div>
+
+                    {/* Quick Metric Tiles */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
+                      <div className="p-2.5 rounded-xl bg-white border border-[#EFEAE1]">
+                        <span className="block font-mono text-[9px] text-[#8C857B] uppercase">Today's Read</span>
+                        <span className="font-mono text-[13px] font-bold text-[#141312]">{reading?.today_pages_read || 0} pgs</span>
+                      </div>
+                      <div className="p-2.5 rounded-xl bg-white border border-[#EFEAE1]">
+                        <span className="block font-mono text-[9px] text-[#8C857B] uppercase">Daily Goal</span>
+                        <span className="font-mono text-[13px] font-bold text-[#141312]">{reading?.today_page_goal || 15} pgs</span>
+                      </div>
+                      <div className="p-2.5 rounded-xl bg-white border border-[#EFEAE1]">
+                        <span className="block font-mono text-[9px] text-[#8C857B] uppercase">Single Day PR</span>
+                        <span className="font-mono text-[13px] font-bold text-[#141312]">{reading?.max_pages_single_day || 0} pgs</span>
+                      </div>
+                      <div className="p-2.5 rounded-xl bg-white border border-[#EFEAE1]">
+                        <span className="block font-mono text-[9px] text-[#8C857B] uppercase">Total Read</span>
+                        <span className="font-mono text-[13px] font-bold text-[#E03E2D]">{formatNumber(reading?.total_pages_read)} pgs</span>
+                      </div>
+                    </div>
+
+                    {/* Previous Completed Books List */}
+                    <div className="flex flex-col gap-2 mt-1">
+                      <div className="flex items-center justify-between">
+                        <span className="font-mono text-[10.5px] uppercase font-bold text-[#5C574F] tracking-wide">
+                          Completed Books ({reading?.previous_reads?.length || 0})
+                        </span>
+                      </div>
+                      <div className="flex flex-col gap-2 max-h-[260px] overflow-y-auto pr-1">
+                        {(reading?.previous_reads || []).map((book, idx) => (
+                          <div
+                            key={book.id || idx}
+                            className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-xl bg-white border border-[#EFEAE1] hover:border-[#D5CDBD] transition-colors gap-1.5"
+                          >
+                            <div className="flex flex-col">
+                              <span className="font-headline text-[13px] font-bold text-[#141312]">
+                                {book.title}
+                              </span>
+                              <span className="font-headline text-[11.5px] text-[#5C574F]">
+                                by {book.author} · <span className="font-mono text-[10px] text-[#8C857B]">{book.topic || 'Engineering & Craft'}</span>
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2 self-start sm:self-auto shrink-0 font-mono text-[10.5px] text-[#8C857B]">
+                              <span>{book.pages} pgs</span>
+                              {book.finished_date && (
+                                <span className="px-2 py-0.5 rounded-md bg-[#F8F5EE] border border-[#E5DFD5] text-[#5C574F]">
+                                  {formatDate(book.finished_date)}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
             </div>
 
-            {/* Physical Training Card */}
-            <div className="lg:col-span-6 xl:col-span-5 bg-white rounded-[32px] border border-[#E5DFD5] p-7 sm:p-9 shadow-2xs flex flex-col justify-between gap-6">
+            {/* ── CARD 2: LIVE PHYSICAL DISCIPLINE & WORKOUT STATUS ── */}
+            <div className="lg:col-span-6 xl:col-span-5 bg-white rounded-[32px] border border-[#E5DFD5] p-7 sm:p-9 shadow-2xs flex flex-col justify-between gap-6 group hover:border-[#D5CDBD] transition-all">
               
               <div className="flex flex-col gap-4">
                 <div className="flex items-center justify-between pb-3 border-b border-[#E5DFD5]">
@@ -696,42 +861,188 @@ export default function PersonalSection() {
                       PHYSICAL DISCIPLINE
                     </span>
                     <h4 className="font-notch text-[20px] sm:text-[22px] font-bold text-[#141312] mt-0.5">
-                      {scrapbookContent.fitnessFragment.title}
+                      Training &amp; Calisthenics
                     </h4>
                   </div>
-                  <span className="font-mono text-[10px] text-[#8C857B]">
-                    Active Habits
+                  
+                  {/* Grounded Category Tag & Tracking Start */}
+                  <div className="flex flex-col items-end">
+                    <span className="px-2.5 py-0.5 rounded-full font-mono text-[10px] font-bold bg-[#F8F5EE] border border-[#E5DFD5] text-[#141312] uppercase tracking-wider">
+                      Calisthenics &amp; Core
+                    </span>
+                    <span className="font-mono text-[9px] text-[#8C857B] mt-0.5">
+                      Since {formatDate(workout?.start_date)}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Workout Streak banner */}
+                <div className="flex items-center justify-between p-3 rounded-2xl bg-[#F8F5EE] border border-[#E5DFD5]">
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-lg">🔥</span>
+                    <div className="flex flex-col">
+                      <span className="font-headline text-[13px] font-bold text-[#141312]">
+                        {workout?.streak || 0}-Day Workout Streak
+                      </span>
+                      <span className="font-mono text-[9.5px] text-[#8C857B]">
+                        Best streak: {workout?.longest_streak || workout?.streak || 0} consecutive days
+                      </span>
+                    </div>
+                  </div>
+                  <span className="font-mono text-[10.5px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                    Active
                   </span>
                 </div>
 
-                <p className="font-headline text-[13px] text-[#5C574F]">
-                  {scrapbookContent.fitnessFragment.subtitle}
-                </p>
-
                 {/* Training Metric Items */}
                 <div className="flex flex-col gap-4 pt-1">
-                  {scrapbookContent.fitnessFragment.items.map((fit) => (
-                    <div key={fit.name} className="flex flex-col gap-1.5">
-                      <div className="flex items-center justify-between font-headline text-[13px] font-semibold text-[#141312]">
-                        <span>{fit.name}</span>
-                        <span className="font-mono text-[13px] font-bold text-[#E03E2D]">
-                          {fit.value} <span className="text-[11px] font-normal text-[#8C857B]">{fit.unit}</span>
-                        </span>
-                      </div>
-                      <div className="w-full h-1.5 bg-[#EFEAE1] rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-[#141312] rounded-full"
-                          style={{ width: `${fit.barPercent}%` }}
-                        />
-                      </div>
-                      <span className="font-mono text-[10px] text-[#8C857B]">{fit.note}</span>
+                  {/* Pushups Metric */}
+                  <div className="flex flex-col gap-1.5">
+                    <div className="flex items-center justify-between font-headline text-[13px] font-semibold text-[#141312]">
+                      <span className="flex items-center gap-1.5">
+                        <span>Pushup Volume</span>
+                        <span className="font-mono text-[10px] font-normal text-[#8C857B]">(Total reps)</span>
+                      </span>
+                      <span className="font-mono text-[13px] font-bold text-[#E03E2D]">
+                        {formatNumber(workout?.total_pushups)}{' '}
+                        <span className="text-[11px] font-normal text-[#8C857B]">reps</span>
+                      </span>
                     </div>
-                  ))}
+                    <div className="w-full h-1.5 bg-[#EFEAE1] rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-[#141312] rounded-full transition-all duration-700"
+                        style={{
+                          width: `${Math.min(100, Math.round(((workout?.today_pushups || 0) / (workout?.dynamic_pushup_goal || 35)) * 100))}%`,
+                        }}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between font-mono text-[10px] text-[#8C857B]">
+                      <span>Today: {workout?.today_pushups || 0} / {workout?.dynamic_pushup_goal || 35} goal</span>
+                      <span>Max Set PR: {workout?.max_pushups_pr || 0} reps</span>
+                    </div>
+                  </div>
+
+                  {/* Core Plank PR Metric */}
+                  <div className="flex flex-col gap-1.5">
+                    <div className="flex items-center justify-between font-headline text-[13px] font-semibold text-[#141312]">
+                      <span className="flex items-center gap-1.5">
+                        <span>Core Plank PR</span>
+                        <span className="font-mono text-[10px] font-normal text-[#8C857B]">(All-Time High)</span>
+                      </span>
+                      <span className="font-mono text-[13px] font-bold text-[#E03E2D]">
+                        {formatSeconds(workout?.longest_plank_pr_seconds)}{' '}
+                        <span className="text-[11px] font-normal text-[#8C857B]">PR</span>
+                      </span>
+                    </div>
+                    <div className="w-full h-1.5 bg-[#EFEAE1] rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-[#141312] rounded-full transition-all duration-700"
+                        style={{
+                          width: `${Math.min(100, Math.round(((workout?.today_plank_seconds || 0) / (workout?.dynamic_plank_goal || 60)) * 100))}%`,
+                        }}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between font-mono text-[10px] text-[#8C857B]">
+                      <span>Today: {formatSeconds(workout?.today_plank_seconds)} / {formatSeconds(workout?.dynamic_plank_goal)} goal</span>
+                      <span>Total Time: {formatSeconds(workout?.total_plank_seconds)}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <div className="p-3.5 rounded-2xl bg-[#F8F5EE] border border-[#E5DFD5] font-editorial italic text-[12.5px] text-[#5C574F]">
-                "{scrapbookContent.fitnessFragment.reflection}"
+              {/* Action Button: Show More Details */}
+              <div className="pt-2 flex flex-col gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowWorkoutDetails(v => !v)}
+                  className="w-full flex items-center justify-between px-4 py-2.5 rounded-2xl bg-[#F8F5EE] border border-[#E5DFD5] hover:border-[#141312] text-[#141312] text-[12px] font-mono font-semibold transition-all cursor-pointer group"
+                >
+                  <span className="flex items-center gap-2">
+                    <span>📊</span>
+                    <span>{showWorkoutDetails ? 'Hide Detailed Stats' : 'View Detailed Workout Stats & Log'}</span>
+                  </span>
+                  <span className="text-[#8C857B] group-hover:text-[#141312] transition-colors text-[11px]">
+                    {showWorkoutDetails ? '▲ Collapse' : '▼ Expand'}
+                  </span>
+                </button>
+
+                {/* Collapsible Detailed Stats Panel */}
+                {showWorkoutDetails && (
+                  <div className="flex flex-col gap-3.5 p-4 sm:p-5 rounded-2xl bg-[#FDFBF7] border border-[#E5DFD5] animate-fadeIn">
+                    <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-[#EFEAE1]">
+                      <span className="font-mono text-[10px] uppercase font-bold text-[#E03E2D] tracking-wider">
+                        ALL-TIME TRAINING TELEMETRY
+                      </span>
+                      <span className="font-mono text-[10px] text-[#8C857B]">
+                        Tracking since: <strong className="text-[#141312]">{formatDate(workout?.start_date)}</strong>
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                      {/* Total Pushups Till Date */}
+                      <div className="p-3 rounded-xl bg-white border border-[#EFEAE1] flex flex-col gap-1">
+                        <span className="font-mono text-[9.5px] uppercase text-[#8C857B] font-semibold">
+                          Total Pushups Till Date
+                        </span>
+                        <div className="flex items-baseline gap-1.5">
+                          <span className="font-mono text-[18px] font-bold text-[#141312]">
+                            {formatNumber(workout?.total_pushups)}
+                          </span>
+                          <span className="font-mono text-[11px] text-[#8C857B]">reps</span>
+                        </div>
+                        <span className="font-mono text-[9.5px] text-[#5C574F]">
+                          Max single set: <strong>{workout?.max_pushups_pr || 0} reps</strong>
+                        </span>
+                      </div>
+
+                      {/* Total Planks Till Date */}
+                      <div className="p-3 rounded-xl bg-white border border-[#EFEAE1] flex flex-col gap-1">
+                        <span className="font-mono text-[9.5px] uppercase text-[#8C857B] font-semibold">
+                          Total Plank Hold Till Date
+                        </span>
+                        <div className="flex items-baseline gap-1.5">
+                          <span className="font-mono text-[18px] font-bold text-[#141312]">
+                            {formatSeconds(workout?.total_plank_seconds)}
+                          </span>
+                        </div>
+                        <span className="font-mono text-[9.5px] text-[#5C574F]">
+                          Longest hold PR: <strong>{formatSeconds(workout?.longest_plank_pr_seconds)}</strong>
+                        </span>
+                      </div>
+
+                      {/* Today's Workout Stats */}
+                      <div className="sm:col-span-2 p-3.5 rounded-xl bg-white border border-[#EFEAE1] flex flex-col gap-2">
+                        <div className="flex items-center justify-between font-mono text-[10px]">
+                          <span className="font-bold text-[#141312] uppercase tracking-wide">Today's Workout Stats</span>
+                          <span className={`px-2 py-0.5 rounded-md font-semibold text-[9.5px] ${
+                            (Number(workout?.today_pushups || 0) >= Number(workout?.dynamic_pushup_goal || 30))
+                              ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                              : 'bg-amber-50 text-amber-800 border border-amber-200'
+                          }`}>
+                            {(Number(workout?.today_pushups || 0) >= Number(workout?.dynamic_pushup_goal || 30)) ? 'Target Met' : 'In Progress'}
+                          </span>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-2 text-center pt-1 font-mono text-[11px]">
+                          <div className="p-2 rounded-lg bg-[#F8F5EE]">
+                            <span className="block text-[9px] text-[#8C857B] uppercase">Today's Pushups</span>
+                            <span className="text-[13px] font-bold text-[#141312]">
+                              {workout?.today_pushups || 0}
+                              <span className="text-[10px] font-normal text-[#8C857B]"> / {workout?.dynamic_pushup_goal || 35}</span>
+                            </span>
+                          </div>
+                          <div className="p-2 rounded-lg bg-[#F8F5EE]">
+                            <span className="block text-[9px] text-[#8C857B] uppercase">Today's Plank</span>
+                            <span className="text-[13px] font-bold text-[#141312]">
+                              {formatSeconds(workout?.today_plank_seconds)}
+                              <span className="text-[10px] font-normal text-[#8C857B]"> / {formatSeconds(workout?.dynamic_plank_goal || 60)}</span>
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
             </div>
