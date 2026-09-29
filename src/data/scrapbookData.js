@@ -37,8 +37,8 @@ export const scrapbookContent = {
     author: 'Phil Knight',
     subtitle: 'A raw, candid memoir from the creator of Nike on obsession, relentless persistence, and building against all odds.',
     tagline: 'Currently Reading',
-    progress: 'Page 257 of 386',
-    progressPercent: 66,
+    progress: 'Page 277 of 386',
+    progressPercent: 72,
     status: 'In Progress',
   },
 

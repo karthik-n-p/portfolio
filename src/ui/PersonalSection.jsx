@@ -682,7 +682,7 @@ export default function PersonalSection() {
                   {/* Bookmark ribbon */}
                   <div className="absolute -bottom-5 right-5 w-3 h-8 bg-[#FFD700] shadow-md z-20" style={{ clipPath: 'polygon(0 0, 100% 0, 100% 80%, 50% 100%, 0 80%)' }} />
                   
-                  {currentBook?.cover_url && !bookCoverError ? (
+                  {currentBook?.cover_url && !bookCoverError && !currentBook.cover_url.includes('google.com/search') ? (
                     <img
                       src={currentBook.cover_url}
                       alt={currentBook.title || 'Book cover'}
@@ -868,7 +868,7 @@ export default function PersonalSection() {
                   {/* Grounded Category Tag & Tracking Start */}
                   <div className="flex flex-col items-end">
                     <span className="px-2.5 py-0.5 rounded-full font-mono text-[10px] font-bold bg-[#F8F5EE] border border-[#E5DFD5] text-[#141312] uppercase tracking-wider">
-                      Calisthenics &amp; Core
+                      {workout?.rpg_level ? `Lv. ${workout.rpg_level} · ${workout.rpg_title || 'Calisthenics'}` : 'Calisthenics & Core'}
                     </span>
                     <span className="font-mono text-[9px] text-[#8C857B] mt-0.5">
                       Since {formatDate(workout?.start_date)}
@@ -912,12 +912,12 @@ export default function PersonalSection() {
                       <div
                         className="h-full bg-[#141312] rounded-full transition-all duration-700"
                         style={{
-                          width: `${Math.min(100, Math.round(((workout?.today_pushups || 0) / (workout?.dynamic_pushup_goal || 35)) * 100))}%`,
+                          width: `${Math.min(100, Math.round(((workout?.today_pushups || 0) / (workout?.dynamic_pushup_goal || 40)) * 100))}%`,
                         }}
                       />
                     </div>
                     <div className="flex items-center justify-between font-mono text-[10px] text-[#8C857B]">
-                      <span>Today: {workout?.today_pushups || 0} / {workout?.dynamic_pushup_goal || 35} goal</span>
+                      <span>Today: {workout?.today_pushups || 0} / {workout?.dynamic_pushup_goal || 40} goal</span>
                       <span>Max Set PR: {workout?.max_pushups_pr || 0} reps</span>
                     </div>
                   </div>
@@ -938,12 +938,12 @@ export default function PersonalSection() {
                       <div
                         className="h-full bg-[#141312] rounded-full transition-all duration-700"
                         style={{
-                          width: `${Math.min(100, Math.round(((workout?.today_plank_seconds || 0) / (workout?.dynamic_plank_goal || 60)) * 100))}%`,
+                          width: `${Math.min(100, Math.round(((workout?.today_plank_seconds || 0) / (workout?.dynamic_plank_goal || 180)) * 100))}%`,
                         }}
                       />
                     </div>
                     <div className="flex items-center justify-between font-mono text-[10px] text-[#8C857B]">
-                      <span>Today: {formatSeconds(workout?.today_plank_seconds)} / {formatSeconds(workout?.dynamic_plank_goal)} goal</span>
+                      <span>Today: {formatSeconds(workout?.today_plank_seconds)} / {formatSeconds(workout?.dynamic_plank_goal || 180)} goal</span>
                       <span>Total Time: {formatSeconds(workout?.total_plank_seconds)}</span>
                     </div>
                   </div>
@@ -1015,11 +1015,11 @@ export default function PersonalSection() {
                         <div className="flex items-center justify-between font-mono text-[10px]">
                           <span className="font-bold text-[#141312] uppercase tracking-wide">Today's Workout Stats</span>
                           <span className={`px-2 py-0.5 rounded-md font-semibold text-[9.5px] ${
-                            (Number(workout?.today_pushups || 0) >= Number(workout?.dynamic_pushup_goal || 30))
+                            (Number(workout?.today_pushups || 0) >= Number(workout?.dynamic_pushup_goal || 40))
                               ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
                               : 'bg-amber-50 text-amber-800 border border-amber-200'
                           }`}>
-                            {(Number(workout?.today_pushups || 0) >= Number(workout?.dynamic_pushup_goal || 30)) ? 'Target Met' : 'In Progress'}
+                            {(Number(workout?.today_pushups || 0) >= Number(workout?.dynamic_pushup_goal || 40)) ? 'Target Met' : 'In Progress'}
                           </span>
                         </div>
 
@@ -1028,14 +1028,14 @@ export default function PersonalSection() {
                             <span className="block text-[9px] text-[#8C857B] uppercase">Today's Pushups</span>
                             <span className="text-[13px] font-bold text-[#141312]">
                               {workout?.today_pushups || 0}
-                              <span className="text-[10px] font-normal text-[#8C857B]"> / {workout?.dynamic_pushup_goal || 35}</span>
+                              <span className="text-[10px] font-normal text-[#8C857B]"> / {workout?.dynamic_pushup_goal || 40}</span>
                             </span>
                           </div>
                           <div className="p-2 rounded-lg bg-[#F8F5EE]">
                             <span className="block text-[9px] text-[#8C857B] uppercase">Today's Plank</span>
                             <span className="text-[13px] font-bold text-[#141312]">
                               {formatSeconds(workout?.today_plank_seconds)}
-                              <span className="text-[10px] font-normal text-[#8C857B]"> / {formatSeconds(workout?.dynamic_plank_goal || 60)}</span>
+                              <span className="text-[10px] font-normal text-[#8C857B]"> / {formatSeconds(workout?.dynamic_plank_goal || 180)}</span>
                             </span>
                           </div>
                         </div>

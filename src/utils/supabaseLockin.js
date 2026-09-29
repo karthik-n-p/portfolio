@@ -3,9 +3,9 @@
  * Supabase client and data fetcher for live reading and workout telemetry.
  */
 
-const FALLBACK_SUPABASE_URL = 'https://eqazptablbpdvhxnlykx.supabase.co'
+const FALLBACK_SUPABASE_URL = 'https://mntwuxdmgqwrztfucyuz.supabase.co'
 const FALLBACK_SUPABASE_ANON_KEY =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVxYXpwdGFibGJwZHZoeG5seWt4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxNzEzOTksImV4cCI6MjA4OTc0NzM5OX0.DudPfiLQCqxqVD9quavBuzoA484SirWnSmXjlxC4dAI'
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1udHd1eGRtZ3F3cnp0ZnVjeXV6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA1ODU5OTMsImV4cCI6MjEwNjE2MTk5M30.nCMh1laLyVTSKBJplxvmoqTAHyjTNoWFF4nw23jLFRw'
 
 export const SUPABASE_URL =
   (typeof import.meta !== 'undefined' && import.meta.env?.VITE_SUPABASE_URL) ||
@@ -24,14 +24,14 @@ export const SUPABASE_ANON_KEY =
  */
 export const DEFAULT_LOCKIN_DATA = {
   id: 'latest',
-  updated_at: new Date().toISOString(),
+  updated_at: '2026-09-29T12:50:00.000Z',
   reading: {
     start_date: '2026-01-01',
     streak: 5,
     longest_streak: 14,
-    today_pages_read: 25,
+    today_pages_read: 20,
     today_page_goal: 20,
-    total_pages_read: 1420,
+    total_pages_read: 1845,
     max_pages_single_day: 85,
     completed_books_count: 6,
     current_book: {
@@ -39,10 +39,10 @@ export const DEFAULT_LOCKIN_DATA = {
       title: 'Shoe Dog',
       author: 'Phil Knight',
       total_pages: 386,
-      current_page: 257,
-      progress_fraction: 0.6658,
-      progress_percent: 66,
-      cover_url: null,
+      current_page: 277,
+      progress_fraction: 0.7176,
+      progress_percent: 72,
+      cover_url: 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1457284880i/27220736.jpg',
       status: 'CURRENT',
       tagline: 'Currently Reading',
     },
@@ -99,16 +99,18 @@ export const DEFAULT_LOCKIN_DATA = {
   },
   workout: {
     start_date: '2026-01-01',
-    streak: 12,
-    longest_streak: 25,
-    today_pushups: 50,
-    today_plank_seconds: 90,
-    dynamic_pushup_goal: 35,
-    dynamic_plank_goal: 60,
-    total_pushups: 1850,
-    total_plank_seconds: 4200,
-    longest_plank_pr_seconds: 155,
-    max_pushups_pr: 65,
+    streak: 22,
+    longest_streak: 22,
+    today_pushups: 81,
+    today_plank_seconds: 143,
+    dynamic_pushup_goal: 40,
+    dynamic_plank_goal: 180,
+    total_pushups: 752,
+    total_plank_seconds: 4085,
+    longest_plank_pr_seconds: 422,
+    max_pushups_pr: 40,
+    rpg_level: 15,
+    rpg_title: 'Discipline Seeker',
   },
 }
 
@@ -185,6 +187,43 @@ function mergeWithDefaults(incoming) {
   const incReading = incoming.reading || {}
   const incWorkout = incoming.workout || {}
 
+  const previousReads =
+    (Array.isArray(incReading.previous_reads) && incReading.previous_reads.length > 0)
+      ? incReading.previous_reads
+      : (Array.isArray(incReading.previous_books) && incReading.previous_books.length > 0)
+      ? incReading.previous_books
+      : DEFAULT_LOCKIN_DATA.reading.previous_reads
+
+  const prevPagesSum = previousReads.reduce((sum, b) => sum + (Number(b.pages) || 0), 0)
+  const incBook = incReading.current_book || {}
+  const currentPage = Number(incBook.current_page) || DEFAULT_LOCKIN_DATA.reading.current_book.current_page
+  const totalPages = Number(incBook.total_pages) || DEFAULT_LOCKIN_DATA.reading.current_book.total_pages
+  const progressPercent = totalPages > 0 ? Math.min(100, Math.round((currentPage / totalPages) * 100)) : (incBook.progress_percent || 72)
+  const progressFraction = totalPages > 0 ? +(currentPage / totalPages).toFixed(4) : (incBook.progress_fraction || 0.7176)
+
+  // Ensure total_pages_read is at least prevPagesSum + currentPage if database has an outdated or daily-only value
+  const totalPagesFromPayload = Number(incReading.total_pages_read) || 0
+  const computedTotalPages = prevPagesSum + currentPage
+  const totalPagesRead = totalPagesFromPayload >= computedTotalPages ? totalPagesFromPayload : computedTotalPages
+
+  // Ensure completed_books_count is not 0 when books exist
+  const completedBooksCount = (typeof incReading.completed_books_count === 'number' && incReading.completed_books_count > 0)
+    ? incReading.completed_books_count
+    : previousReads.length
+
+  // Filter out invalid/search cover URLs
+  let coverUrl = incBook.cover_url
+  if (!coverUrl || typeof coverUrl !== 'string' || coverUrl.includes('google.com/search') || !coverUrl.startsWith('http')) {
+    coverUrl = DEFAULT_LOCKIN_DATA.reading.current_book.cover_url
+  }
+
+  // Ensure dynamic_plank_goal is not accidentally set to the all-time PR (422s)
+  let dynamicPlankGoal = Number(incWorkout.dynamic_plank_goal) || DEFAULT_LOCKIN_DATA.workout.dynamic_plank_goal
+  const longestPlankPr = Number(incWorkout.longest_plank_pr_seconds) || DEFAULT_LOCKIN_DATA.workout.longest_plank_pr_seconds
+  if (dynamicPlankGoal === longestPlankPr && dynamicPlankGoal > 240) {
+    dynamicPlankGoal = DEFAULT_LOCKIN_DATA.workout.dynamic_plank_goal
+  }
+
   return {
     id: incoming.id || DEFAULT_LOCKIN_DATA.id,
     updated_at: incoming.updated_at || DEFAULT_LOCKIN_DATA.updated_at,
@@ -192,21 +231,25 @@ function mergeWithDefaults(incoming) {
       ...DEFAULT_LOCKIN_DATA.reading,
       ...incReading,
       start_date: incReading.start_date || DEFAULT_LOCKIN_DATA.reading.start_date,
+      total_pages_read: totalPagesRead,
+      completed_books_count: completedBooksCount,
       current_book: {
         ...DEFAULT_LOCKIN_DATA.reading.current_book,
-        ...(incReading.current_book || {}),
+        ...incBook,
+        current_page: currentPage,
+        total_pages: totalPages,
+        progress_percent: progressPercent,
+        progress_fraction: progressFraction,
+        cover_url: coverUrl,
       },
-      previous_reads:
-        (Array.isArray(incReading.previous_reads) && incReading.previous_reads.length > 0)
-          ? incReading.previous_reads
-          : (Array.isArray(incReading.previous_books) && incReading.previous_books.length > 0)
-          ? incReading.previous_books
-          : DEFAULT_LOCKIN_DATA.reading.previous_reads,
+      previous_reads: previousReads,
     },
     workout: {
       ...DEFAULT_LOCKIN_DATA.workout,
       ...incWorkout,
       start_date: incWorkout.start_date || DEFAULT_LOCKIN_DATA.workout.start_date,
+      dynamic_plank_goal: dynamicPlankGoal,
+      longest_plank_pr_seconds: longestPlankPr,
     },
   }
 }
@@ -215,7 +258,7 @@ function mergeWithDefaults(incoming) {
  * Fetch portfolio_lockin data from Supabase.
  * Endpoint: ${SUPABASE_URL}/rest/v1/portfolio_lockin?id=eq.latest&select=*
  */
-export async function fetchPortfolioLockin(timeoutMs = 4500) {
+export async function fetchPortfolioLockin(timeoutMs = 8000) {
   const cleanBaseUrl = (SUPABASE_URL || '')
     .replace(/\/+$/, '')
     .replace(/\/rest\/v1\/?$/, '')
@@ -227,10 +270,13 @@ export async function fetchPortfolioLockin(timeoutMs = 4500) {
   try {
     const response = await fetch(url, {
       method: 'GET',
+      cache: 'no-store',
       headers: {
         apikey: SUPABASE_ANON_KEY,
         Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
         Accept: 'application/json',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        Pragma: 'no-cache',
       },
       signal: controller.signal,
     })
